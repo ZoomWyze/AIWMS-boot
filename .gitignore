@@ -1,0 +1,32 @@
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+*.iml
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.log
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+.idea
+/target
+Set-Location "D:\Secret\工作\实习\jshERP-master\jshERP-master\AIWMS-boot"
+
+git status
+git add .
+git commit -m "prepare project for github"
+git branch -M main
+git remote add origin https://github.com/<你的用户名>/<你的仓库名>.git
+git push -u origin main.proxyai/
+logs.home_IS_UNDEFINED/
+src/main/resources/application-local.properties
+src/test/resources/application-local.properties
+
+**/*.iml
+

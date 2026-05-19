@@ -1,4 +1,4 @@
-# jshERP-boot (Student Edition Refactor)
+# AIWMS-boot (Student Edition Refactor)
 
 This repository keeps the original ERP business flow while improving readability, maintainability, and deployment safety for graduation-project usage.
 
@@ -21,7 +21,7 @@ This repository keeps the original ERP business flow while improving readability
 
 ### 2) Import database
 
-Use `docs/jsh_erp.sql` to initialize schema/data.
+Use `docs/aiwms_erp.sql` to initialize schema/data.
 
 ### 3) Configure environment variables (recommended)
 
@@ -40,7 +40,7 @@ If unset, defaults in `src/main/resources/application.properties` are used.
 
 ```bash
 mvn clean package -DskipTests
-java -jar target/jshERP.jar
+java -jar target/AIWMS.jar
 ```
 
 ## Documentation
