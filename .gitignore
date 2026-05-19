@@ -16,14 +16,7 @@ hs_err_pid*
 
 .idea
 /target
-Set-Location "D:\Secret\工作\实习\jshERP-master\jshERP-master\AIWMS-boot"
-
-git status
-git add .
-git commit -m "prepare project for github"
-git branch -M main
-git remote add origin https://github.com/<你的用户名>/<你的仓库名>.git
-git push -u origin main.proxyai/
+.proxyai/
 logs.home_IS_UNDEFINED/
 src/main/resources/application-local.properties
 src/test/resources/application-local.properties
