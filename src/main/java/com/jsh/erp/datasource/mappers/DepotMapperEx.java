@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * DepotMapper 扩展 Mapper 接口
+ * 定义 DepotMapper 自定义的复杂 SQL 查询方法（非 Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.Depot;
 import com.jsh.erp.datasource.entities.DepotEx;
 import com.jsh.erp.datasource.entities.DepotExample;

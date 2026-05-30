@@ -1,5 +1,18 @@
 package com.jsh.erp.base;
 
+/**
+ * Controller 基类
+ *
+ * 为所有 Controller 提供通用的分页和请求处理方法：
+ *   1. startPage()       — 设置分页参数（从请求参数中读取页码和每页条数）
+ *   2. startOrderBy()    — 设置排序参数
+ *   3. clearPage()       — 清理分页的 ThreadLocal 变量
+ *   4. getRequest()      — 获取当前 HttpServletRequest
+ *   5. getResponse()     — 获取当前 HttpServletResponse
+ *   6. toAjax()          — 将操作结果转换为 AjaxResult 响应
+ *
+ * @author ji-sheng-hua
+ */
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;

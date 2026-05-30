@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 商品扩展信息 Service
+ * 提供商品扩展属性的业务逻辑：查询/保存多单位和价格信息
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -95,17 +102,16 @@ public class MaterialExtendService {
                         updatedJson.add(tempJson);
                     }
                 }
-                //针对多属性商品要考虑到有条码被删的情况，需要和原来的条码明细进行对比
-                if(StringUtil.isNotEmpty(obj.getString("manySku"))) {
-                    //1.先查询原来的条码列表
+                //閽堝澶氬睘鎬у晢鍝佽鑰冭檻鍒版湁鏉＄爜琚垹鐨勬儏鍐碉紝闇€瑕佸拰鍘熸潵鐨勬潯鐮佹槑缁嗚繘琛屽姣?                if(StringUtil.isNotEmpty(obj.getString("manySku"))) {
+                    //1.鍏堟煡璇㈠師鏉ョ殑鏉＄爜鍒楄〃
                     List<MaterialExtendVo4List> meList = materialExtendMapperEx.getDetailList(materialId);
-                    //2.构造新的条码列表map
+                    //2.鏋勯€犳柊鐨勬潯鐮佸垪琛╩ap
                     Map<String, String> barCodeMap = new HashMap<>();
                     for (int i = 0; i < meArr.size(); i++) {
                         JSONObject tempJson = meArr.getJSONObject(i);
                         barCodeMap.put(tempJson.getString("barCode"),tempJson.getString("barCode"));
                     }
-                    //3.如果老的条码在新的里面不存在，则丢入删除队列
+                    //3.濡傛灉鑰佺殑鏉＄爜鍦ㄦ柊鐨勯噷闈笉瀛樺湪锛屽垯涓㈠叆鍒犻櫎闃熷垪
                     for(MaterialExtendVo4List me: meList) {
                         if(barCodeMap.get(me.getBarCode()) == null) {
                             deletedJson.add(me.getId());
@@ -194,13 +200,11 @@ public class MaterialExtendService {
                     materialExtend.setLowDecimal(tempUpdatedJson.getBigDecimal("lowDecimal"));
                 }
                 this.updateMaterialExtend(materialExtend);
-                //如果金额为空，此处单独置空
-                materialExtendMapperEx.specialUpdatePrice(materialExtend);
+                //濡傛灉閲戦涓虹┖锛屾澶勫崟鐙疆绌?                materialExtendMapperEx.specialUpdatePrice(materialExtend);
             }
         }
-        //处理条码的排序，基本单位排第一个
-        if (null != sortJson && sortJson.size()>0) {
-            //此处为更新的逻辑
+        //澶勭悊鏉＄爜鐨勬帓搴忥紝鍩烘湰鍗曚綅鎺掔涓€涓?        if (null != sortJson && sortJson.size()>0) {
+            //姝ゅ涓烘洿鏂扮殑閫昏緫
             for (int i = 0; i < sortJson.size(); i++) {
                 JSONObject tempSortJson = JSONObject.parseObject(sortJson.getString(i));
                 MaterialExtend materialExtend = new MaterialExtend();
@@ -213,7 +217,7 @@ public class MaterialExtendService {
                 this.updateMaterialExtend(materialExtend);
             }
         } else {
-            //新增的时候将第一条记录设置为默认基本单位
+            //鏂板鐨勬椂鍊欏皢绗竴鏉¤褰曡缃负榛樿鍩烘湰鍗曚綅
             MaterialExtendExample example = new MaterialExtendExample();
             example.createCriteria().andMaterialIdEqualTo(materialId).andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
             List<MaterialExtend> meList = materialExtendMapper.selectByExample(example);
@@ -222,10 +226,9 @@ public class MaterialExtendService {
                     MaterialExtend materialExtend = new MaterialExtend();
                     materialExtend.setId(meList.get(i).getId());
                     if(i==0) {
-                        materialExtend.setDefaultFlag("1"); //默认
+                        materialExtend.setDefaultFlag("1"); //榛樿
                     } else {
-                        materialExtend.setDefaultFlag("0"); //非默认
-                    }
+                        materialExtend.setDefaultFlag("0"); //闈為粯璁?                    }
                     this.updateMaterialExtend(materialExtend);
                 }
             }
@@ -337,8 +340,7 @@ public class MaterialExtendService {
     public List<MaterialExtend> getMaterialExtendByTenantAndTime(Long tenantId, Long lastTime, Long syncNum)throws Exception {
         List<MaterialExtend> list=new ArrayList<MaterialExtend>();
         try{
-            //先获取最大的时间戳，再查两个时间戳之间的数据，这样同步能够防止丢失数据（应为时间戳有重复）
-            Long maxTime = materialExtendMapperEx.getMaxTimeByTenantAndTime(tenantId, lastTime, syncNum);
+            //鍏堣幏鍙栨渶澶х殑鏃堕棿鎴筹紝鍐嶆煡涓や釜鏃堕棿鎴充箣闂寸殑鏁版嵁锛岃繖鏍峰悓姝ヨ兘澶熼槻姝涪澶辨暟鎹紙搴斾负鏃堕棿鎴虫湁閲嶅锛?            Long maxTime = materialExtendMapperEx.getMaxTimeByTenantAndTime(tenantId, lastTime, syncNum);
             if(tenantId!=null && lastTime!=null && maxTime!=null) {
                 MaterialExtendExample example = new MaterialExtendExample();
                 example.createCriteria().andTenantIdEqualTo(tenantId)
@@ -399,7 +401,7 @@ public class MaterialExtendService {
     }
 
     /**
-     * 商品的副条码和数据库里面的商品条码存在重复（除自身商品之外）
+     * 鍟嗗搧鐨勫壇鏉＄爜鍜屾暟鎹簱閲岄潰鐨勫晢鍝佹潯鐮佸瓨鍦ㄩ噸澶嶏紙闄よ嚜韬晢鍝佷箣澶栵級
      * @param manyBarCode
      * @param barCode
      * @return

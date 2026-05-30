@@ -1,5 +1,12 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * 计算机信息工具类
+ * 获取服务器的硬件信息（IP 地址、MAC 地址等），用于系统注册和授权
+ *
+ * @author jishenghua
+ */
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,13 +18,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /*
- * <取网卡物理地址--
- * 1.在Windows,Linux系统下均可用；
- * 2.通过ipconifg,ifconfig获得计算机信息；
- * 3.再用模式匹配方式查找MAC地址，与操作系统的语言无关>
+ * <鍙栫綉鍗＄墿鐞嗗湴鍧€--
+ * 1.鍦╓indows,Linux绯荤粺涓嬪潎鍙敤锛?
+ * 2.閫氳繃ipconifg,ifconfig鑾峰緱璁＄畻鏈轰俊鎭紱
+ * 3.鍐嶇敤妯″紡鍖归厤鏂瑰紡鏌ユ壘MAC鍦板潃锛屼笌鎿嶄綔绯荤粺鐨勮瑷€鏃犲叧>
  *
- * //* Description: <取计算机名--从环境变量中取>
- * abstract 限制继承/创建实例
+ * //* Description: <鍙栬绠楁満鍚?-浠庣幆澧冨彉閲忎腑鍙?
+ * abstract 闄愬埗缁ф壙/鍒涘缓瀹炰緥
  */
 public abstract class ComputerInfo {
     private static String macAddressStr = null;
@@ -29,7 +36,7 @@ public abstract class ComputerInfo {
             Pattern.CASE_INSENSITIVE);
 
     /**
-     * 获取多个网卡地址
+     * 鑾峰彇澶氫釜缃戝崱鍦板潃
      *
      * @return
      * @throws IOException
@@ -46,7 +53,7 @@ public abstract class ComputerInfo {
         } else {
             throw new IOException("Unknow operating system:" + os);
         }
-        // 执行命令
+        // 鎵ц鍛戒护
         final Process process = Runtime.getRuntime().exec(command);
 
         BufferedReader bufReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -55,7 +62,7 @@ public abstract class ComputerInfo {
             if (matcher.matches()) {
                 macAddressList.add(matcher.group(1));
                 // macAddressList.add(matcher.group(1).replaceAll("[-:]",
-                // ""));//去掉MAC中的“-”
+                // ""));//鍘绘帀MAC涓殑鈥?鈥?
             }
         }
 
@@ -65,13 +72,13 @@ public abstract class ComputerInfo {
     }
 
     /**
-     * 获取一个网卡地址（多个网卡时从中获取一个）
+     * 鑾峰彇涓€涓綉鍗″湴鍧€锛堝涓綉鍗℃椂浠庝腑鑾峰彇涓€涓級
      *
      * @return
      */
     public static String getMacAddress() {
         if (macAddressStr == null || macAddressStr.equals("")) {
-            StringBuffer sb = new StringBuffer(); // 存放多个网卡地址用，目前只取一个非0000000000E0隧道的值
+            StringBuffer sb = new StringBuffer(); // 瀛樻斁澶氫釜缃戝崱鍦板潃鐢紝鐩墠鍙彇涓€涓潪0000000000E0闅ч亾鐨勫€?
             try {
                 List<String> macList = getMacAddressList();
                 for (Iterator<String> iter = macList.iterator(); iter.hasNext();) {
@@ -92,7 +99,7 @@ public abstract class ComputerInfo {
     }
 
     /**
-     * 获取电脑名
+     * 鑾峰彇鐢佃剳鍚?
      *
      * @return
      */
@@ -104,7 +111,7 @@ public abstract class ComputerInfo {
     }
 
     /**
-     * 获取客户端IP地址
+     * 鑾峰彇瀹㈡埛绔疘P鍦板潃
      *
      * @return
      */
@@ -113,7 +120,7 @@ public abstract class ComputerInfo {
     }
 
     /**
-     * 获取客户端IP地址
+     * 鑾峰彇瀹㈡埛绔疘P鍦板潃
      *
      * @return
      */
@@ -122,7 +129,7 @@ public abstract class ComputerInfo {
     }
 
     /**
-     * 限制创建实例
+     * 闄愬埗鍒涘缓瀹炰緥
      */
     private ComputerInfo() {
 

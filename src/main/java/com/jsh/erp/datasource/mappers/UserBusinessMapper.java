@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * UserBusiness MyBatis Mapper 接口
+ * 提供 UserBusiness 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.UserBusiness;
 import com.jsh.erp.datasource.entities.UserBusinessExample;
 import java.util.List;

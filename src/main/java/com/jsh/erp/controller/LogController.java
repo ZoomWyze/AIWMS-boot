@@ -1,5 +1,12 @@
-package com.jsh.erp.controller;
+﻿package com.jsh.erp.controller;
 
+
+/**
+ * 操作日志 Controller
+ * 提供操作日志的查询和删除接口
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
@@ -29,7 +36,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/log")
-@Api(tags = {"日志管理"})
+@Api(tags = {"鏃ュ織绠＄悊"})
 public class LogController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(LogController.class);
 
@@ -38,7 +45,7 @@ public class LogController extends BaseController {
 
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Log log = logService.getLog(id);
@@ -52,7 +59,7 @@ public class LogController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String operation = StringUtil.getInfo(search, "operation");
@@ -68,7 +75,7 @@ public class LogController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @ApiOperation(value = "鏂板")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<String, Object>();
         int insert = logService.insertLog(obj, request);
@@ -76,7 +83,7 @@ public class LogController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @ApiOperation(value = "淇敼")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = logService.updateLog(obj, request);
@@ -84,7 +91,7 @@ public class LogController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @ApiOperation(value = "鍒犻櫎")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = logService.deleteLog(id, request);
@@ -92,7 +99,7 @@ public class LogController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @ApiOperation(value = "鎵归噺鍒犻櫎")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = logService.batchDeleteLog(ids, request);

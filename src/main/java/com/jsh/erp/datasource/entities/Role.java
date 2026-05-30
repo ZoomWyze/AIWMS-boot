@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.entities;
+﻿package com.jsh.erp.datasource.entities;
 
+
+/**
+ * Role 实体类
+ * 对应数据库 jsh_role 表
+ *
+ * @author jishenghua
+ */
 public class Role {
     private Long id;
 

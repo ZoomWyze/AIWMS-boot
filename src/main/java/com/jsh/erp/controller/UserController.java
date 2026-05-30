@@ -1,5 +1,12 @@
-package com.jsh.erp.controller;
+﻿package com.jsh.erp.controller;
 
+
+/**
+ * 用户管理 Controller
+ * 提供用户的 CRUD 接口，包括：登录/登出/查询用户列表/获取用户按钮权限
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,11 +40,11 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnJson;
 import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
 
 /**
- * @author ji_sheng_hua 管伊佳erp
+ * @author ji_sheng_hua 绠′紛浣砮rp
  */
 @RestController
 @RequestMapping(value = "/user")
-@Api(tags = {"用户管理"})
+@Api(tags = {"鐢ㄦ埛绠＄悊"})
 public class UserController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -65,11 +72,11 @@ public class UserController extends BaseController {
     @Resource
     private FeatureSwitchService featureSwitchService;
 
-    private static String SUCCESS = "操作成功";
-    private static String ERROR = "操作失败";
+    private static String SUCCESS = "鎿嶄綔鎴愬姛";
+    private static String ERROR = "鎿嶄綔澶辫触";
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         User user = userService.getUser(id);
@@ -83,7 +90,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String userName = StringUtil.getInfo(search, "userName");
@@ -93,7 +100,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @ApiOperation(value = "鏂板")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = userService.insertUser(obj, request);
@@ -101,7 +108,7 @@ public class UserController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @ApiOperation(value = "淇敼")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = userService.updateUser(obj, request);
@@ -109,7 +116,7 @@ public class UserController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @ApiOperation(value = "鍒犻櫎")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = userService.deleteUser(id, request);
@@ -117,7 +124,7 @@ public class UserController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @ApiOperation(value = "鎵归噺鍒犻櫎")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = userService.batchDeleteUser(ids, request);
@@ -125,13 +132,12 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 批量设置状态-启用或者禁用
-     * @param jsonObject
+     * 鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?     * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态")
+    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?)
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Byte status = jsonObject.getByte("status");
@@ -146,7 +152,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -160,7 +166,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/login")
-    @ApiOperation(value = "登录")
+    @ApiOperation(value = "鐧诲綍")
     public BaseResponseInfo login(@RequestBody UserEx userParam, HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -173,13 +179,13 @@ public class UserController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "用户登录失败";
+            res.data = "鐢ㄦ埛鐧诲綍澶辫触";
         }
         return res;
     }
 
     @GetMapping(value = "/getUserBtnByCurrentUser")
-    @ApiOperation(value = "获取当前用户的按钮权限")
+    @ApiOperation(value = "鑾峰彇褰撳墠鐢ㄦ埛鐨勬寜閽潈闄?)
     public BaseResponseInfo getUserBtnByCurrentUser(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -190,13 +196,13 @@ public class UserController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取按钮权限失败";
+            res.data = "鑾峰彇鎸夐挳鏉冮檺澶辫触";
         }
         return res;
     }
 
     @PostMapping(value = "/weixinLogin")
-    @ApiOperation(value = "微信登录")
+    @ApiOperation(value = "寰俊鐧诲綍")
     public BaseResponseInfo weixinLogin(@RequestBody JSONObject jsonObject,
                                   HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -205,9 +211,9 @@ public class UserController extends BaseController {
             User user = userService.getUserByWeixinCode(weixinCode);
             if(user == null) {
                 res.code = 501;
-                res.data = "微信未绑定";
+                res.data = "寰俊鏈粦瀹?;
             } else {
-                logger.info("微信登录:" + user.getLoginName());
+                logger.info("寰俊鐧诲綍:" + user.getLoginName());
                 Map<String, Object> data = userService.login(user.getLoginName().trim(), user.getPassword().trim(), request);
                 res.code = 200;
                 res.data = data;
@@ -215,13 +221,13 @@ public class UserController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "用户登录失败";
+            res.data = "鐢ㄦ埛鐧诲綍澶辫触";
         }
         return res;
     }
 
     @PostMapping(value = "/weixinBind")
-    @ApiOperation(value = "绑定微信")
+    @ApiOperation(value = "缁戝畾寰俊")
     public String weixinBind(@RequestBody JSONObject jsonObject,
                              HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -237,7 +243,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/getUserSession")
-    @ApiOperation(value = "获取用户信息")
+    @ApiOperation(value = "鑾峰彇鐢ㄦ埛淇℃伅")
     public BaseResponseInfo getSessionUser(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -251,30 +257,30 @@ public class UserController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取session失败";
+            res.data = "鑾峰彇session澶辫触";
         }
         return res;
     }
 
     @GetMapping(value = "/logout")
-    @ApiOperation(value = "退出")
+    @ApiOperation(value = "閫€鍑?)
     public BaseResponseInfo logout(HttpServletRequest request, HttpServletResponse response)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
             redisService.deleteObjectBySession(request,"userId");
             redisService.deleteObjectBySession(request,"clientIp");
             res.code = 200;
-            res.data = "退出成功";
+            res.data = "閫€鍑烘垚鍔?;
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 200;
-            res.data = "退出成功";
+            res.data = "閫€鍑烘垚鍔?;
         }
         return res;
     }
 
     @PostMapping(value = "/resetPwd")
-    @ApiOperation(value = "重置密码")
+    @ApiOperation(value = "閲嶇疆瀵嗙爜")
     public String resetPwd(@RequestBody JSONObject jsonObject,
                                      HttpServletRequest request) throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -290,7 +296,7 @@ public class UserController extends BaseController {
     }
 
     @PutMapping(value = "/updatePwd")
-    @ApiOperation(value = "更新密码")
+    @ApiOperation(value = "鏇存柊瀵嗙爜")
     public String updatePwd(@RequestBody JSONObject jsonObject, HttpServletRequest request)throws Exception {
         Integer flag = 0;
         Map<String, Object> objectMap = new HashMap<String, Object>();
@@ -300,14 +306,14 @@ public class UserController extends BaseController {
             String oldpwd = jsonObject.getString("oldpassword");
             String password = jsonObject.getString("password");
             User user = userService.getUser(userId);
-            //必须和原始密码一致才可以更新密码
+            //蹇呴』鍜屽師濮嬪瘑鐮佷竴鑷存墠鍙互鏇存柊瀵嗙爜
             if (oldpwd.equalsIgnoreCase(user.getPassword())) {
                 user.setPassword(password);
-                flag = userService.updateUserByObj(user, request); //1-成功
-                info = "修改成功";
+                flag = userService.updateUserByObj(user, request); //1-鎴愬姛
+                info = "淇敼鎴愬姛";
             } else {
-                flag = 2; //原始密码输入错误
-                info = "原始密码输入错误";
+                flag = 2; //鍘熷瀵嗙爜杈撳叆閿欒
+                info = "鍘熷瀵嗙爜杈撳叆閿欒";
             }
             objectMap.put("status", flag);
             if(flag > 0) {
@@ -316,7 +322,7 @@ public class UserController extends BaseController {
                 return returnJson(objectMap, ERROR, ErpInfo.ERROR.code);
             }
         } catch (Exception e) {
-            logger.error(">>>>>>>>>>>>>修改用户ID为 ： " + jsonObject.getLong("userId") + "密码信息失败", e);
+            logger.error(">>>>>>>>>>>>>淇敼鐢ㄦ埛ID涓?锛?" + jsonObject.getLong("userId") + "瀵嗙爜淇℃伅澶辫触", e);
             flag = 3;
             objectMap.put("status", flag);
             return returnJson(objectMap, ERROR, ErpInfo.ERROR.code);
@@ -324,13 +330,13 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 用户列表，用于用户下拉框
+     * 鐢ㄦ埛鍒楄〃锛岀敤浜庣敤鎴蜂笅鎷夋
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/getUserList")
-    @ApiOperation(value = "用户列表")
+    @ApiOperation(value = "鐢ㄦ埛鍒楄〃")
     public JSONArray getUserList(HttpServletRequest request)throws Exception {
         JSONArray dataArray = new JSONArray();
         try {
@@ -352,13 +358,13 @@ public class UserController extends BaseController {
     /**
      * create by: cjl
      * description:
-     *  新增用户及机构和用户关系
+     *  鏂板鐢ㄦ埛鍙婃満鏋勫拰鐢ㄦ埛鍏崇郴
      * create time: 2019/3/8 16:06
      * @Param: beanJson
      * @return java.lang.Object
      */
     @PostMapping("/addUser")
-    @ApiOperation(value = "新增用户")
+    @ApiOperation(value = "鏂板鐢ㄦ埛")
     @ResponseBody
     public Object addUser(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
@@ -380,13 +386,13 @@ public class UserController extends BaseController {
     /**
      * create by: cjl
      * description:
-     *  修改用户及机构和用户关系
+     *  淇敼鐢ㄦ埛鍙婃満鏋勫拰鐢ㄦ埛鍏崇郴
      * create time: 2019/3/8 16:06
      * @Param: beanJson
      * @return java.lang.Object
      */
     @PutMapping("/updateUser")
-    @ApiOperation(value = "修改用户")
+    @ApiOperation(value = "淇敼鐢ㄦ埛")
     @ResponseBody
     public Object updateUser(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
@@ -396,36 +402,35 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 注册用户
+     * 娉ㄥ唽鐢ㄦ埛
      * @param ue
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/registerUser")
-    @ApiOperation(value = "注册用户")
+    @ApiOperation(value = "娉ㄥ唽鐢ㄦ埛")
     public Object registerUser(@RequestBody UserEx ue,
                                HttpServletRequest request)throws Exception{
         if (featureSwitchService.isGraduationMode()) {
             JSONObject result = new JSONObject();
             result.put(ExceptionConstants.GLOBAL_RETURNS_CODE, 403);
-            result.put(ExceptionConstants.GLOBAL_RETURNS_MESSAGE, "毕设模式下已关闭租户试用入口");
+            result.put(ExceptionConstants.GLOBAL_RETURNS_MESSAGE, "姣曡妯″紡涓嬪凡鍏抽棴绉熸埛璇曠敤鍏ュ彛");
             return result;
         }
         JSONObject result = ExceptionConstants.standardSuccess();
         ue.setUsername(ue.getLoginName());
         userService.validateCaptcha(ue.getCode(), ue.getUuid());
-        userService.checkLoginName(ue); //检查登录名
+        userService.checkLoginName(ue); //妫€鏌ョ櫥褰曞悕
         userService.registerUser(ue,manageRoleId,request);
         return result;
     }
 
     /**
-     * 获取机构用户树
-     * @return
+     * 鑾峰彇鏈烘瀯鐢ㄦ埛鏍?     * @return
      * @throws Exception
      */
     @RequestMapping("/getOrganizationUserTree")
-    @ApiOperation(value = "获取机构用户树")
+    @ApiOperation(value = "鑾峰彇鏈烘瀯鐢ㄦ埛鏍?)
     public JSONArray getOrganizationUserTree()throws Exception{
         JSONArray arr=new JSONArray();
         List<TreeNodeEx> organizationUserTree= userService.getOrganizationUserTree();
@@ -440,7 +445,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping(value = "/getCurrentPriceLimit")
-    @ApiOperation(value = "查询当前用户的价格屏蔽")
+    @ApiOperation(value = "鏌ヨ褰撳墠鐢ㄦ埛鐨勪环鏍煎睆钄?)
     public BaseResponseInfo getCurrentPriceLimit(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -452,31 +457,30 @@ public class UserController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取session失败";
+            res.data = "鑾峰彇session澶辫触";
         }
         return res;
     }
 
     /**
-     * 获取当前用户的角色类型
-     * @param request
+     * 鑾峰彇褰撳墠鐢ㄦ埛鐨勮鑹茬被鍨?     * @param request
      * @return
      */
     @GetMapping("/getRoleTypeByCurrentUser")
-    @ApiOperation(value = "获取当前用户的角色类型")
+    @ApiOperation(value = "鑾峰彇褰撳墠鐢ㄦ埛鐨勮鑹茬被鍨?)
     public BaseResponseInfo getRoleTypeByCurrentUser(HttpServletRequest request) {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
             Map<String, Object> data = new HashMap<String, Object>();
             Long userId = userService.getUserId(request);
-            String roleType = userService.getRoleTypeByUserId(userId).getType(); //角色类型
+            String roleType = userService.getRoleTypeByUserId(userId).getType(); //瑙掕壊绫诲瀷
             data.put("roleType", roleType);
             res.code = 200;
             res.data = data;
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取失败";
+            res.data = "鑾峰彇澶辫触";
         }
         return res;
     }
@@ -484,30 +488,29 @@ public class UserController extends BaseController {
 
 
     /**
-     * 获取对应的用户显示
-     * @param type
+     * 鑾峰彇瀵瑰簲鐨勭敤鎴锋樉绀?     * @param type
      * @param oneValue
      * @param request
      * @return
      */
     @GetMapping(value = "/getUserWithChecked")
-    @ApiOperation(value = "获取对应的用户显示")
+    @ApiOperation(value = "鑾峰彇瀵瑰簲鐨勭敤鎴锋樉绀?)
     public JSONArray getUserWithChecked(@RequestParam("UBType") String type, @RequestParam("UBValue") String oneValue,
                                   HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
         try {
-            //获取权限信息
+            //鑾峰彇鏉冮檺淇℃伅
             List<Long> keyIdList = userBusinessService.getUBKeyIdByTypeAndOneValue(type, oneValue);
             Map<Long, Long> keyIdMap = keyIdList.stream().collect(Collectors.toMap(Function.identity(),Function.identity()));
             List<User> dataList = userService.getUser(request);
-            //开始拼接json数据
+            //寮€濮嬫嫾鎺son鏁版嵁
             JSONObject outer = new JSONObject();
             outer.put("id", 0);
             outer.put("key", 0);
             outer.put("value", 0);
-            outer.put("title", "用户列表");
-            outer.put("attributes", "用户列表");
-            //存放数据json数组
+            outer.put("title", "鐢ㄦ埛鍒楄〃");
+            outer.put("attributes", "鐢ㄦ埛鍒楄〃");
+            //瀛樻斁鏁版嵁json鏁扮粍
             JSONArray dataArray = new JSONArray();
             if (null != dataList) {
                 for (User user : dataList) {
@@ -532,12 +535,11 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 获取随机校验码
-     * @param response
+     * 鑾峰彇闅忔満鏍￠獙鐮?     * @param response
      * @return
      */
     @GetMapping(value = "/randomImage")
-    @ApiOperation(value = "获取随机校验码")
+    @ApiOperation(value = "鑾峰彇闅忔満鏍￠獙鐮?)
     public BaseResponseInfo randomImage(HttpServletResponse response){
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -554,34 +556,33 @@ public class UserController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取失败";
+            res.data = "鑾峰彇澶辫触";
         }
         return res;
     }
 
 
     /**
-     * 获取当前用户的用户数量和租户信息
+     * 鑾峰彇褰撳墠鐢ㄦ埛鐨勭敤鎴锋暟閲忓拰绉熸埛淇℃伅
      * @param request
      * @return
      */
     @GetMapping(value = "/infoWithTenant")
-    @ApiOperation(value = "获取当前用户的用户数量和租户信息")
+    @ApiOperation(value = "鑾峰彇褰撳墠鐢ㄦ埛鐨勭敤鎴锋暟閲忓拰绉熸埛淇℃伅")
     public BaseResponseInfo infoWithTenant(HttpServletRequest request){
         BaseResponseInfo res = new BaseResponseInfo();
         try {
             Map<String, Object> data = new HashMap<>();
             Long userId = Long.parseLong(redisService.getObjectFromSessionByKey(request,"userId").toString());
             User user = userService.getUser(userId);
-            //获取当前用户数
-            int userCurrentNum = userService.getUser(request).size();
+            //鑾峰彇褰撳墠鐢ㄦ埛鏁?            int userCurrentNum = userService.getUser(request).size();
             Tenant tenant = tenantService.getTenantByTenantId(user.getTenantId());
             if(tenant.getExpireTime()!=null && tenant.getExpireTime().getTime()<System.currentTimeMillis()){
-                //租户已经过期，移除token
+                //绉熸埛宸茬粡杩囨湡锛岀Щ闄oken
                 redisService.deleteObjectBySession(request,"userId");
                 redisService.deleteObjectBySession(request,"clientIp");
             }
-            data.put("type", tenant.getType()); //租户类型，0免费租户，1付费租户
+            data.put("type", tenant.getType()); //绉熸埛绫诲瀷锛?鍏嶈垂绉熸埛锛?浠樿垂绉熸埛
             data.put("expireTime", Tools.parseDateToStr(tenant.getExpireTime()));
             data.put("userCurrentNum", userCurrentNum);
             data.put("userNumLimit", tenant.getUserNumLimit());
@@ -591,7 +592,7 @@ public class UserController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取失败";
+            res.data = "鑾峰彇澶辫触";
         }
         return res;
     }

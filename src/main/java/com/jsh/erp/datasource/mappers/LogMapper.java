@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * Log MyBatis Mapper 接口
+ * 提供 Log 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.Log;
 import com.jsh.erp.datasource.entities.LogExample;
 import java.util.List;

@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 功能菜单 Service
+ * 提供系统功能/菜单的业务逻辑：新增/编辑/删除/查询/权限树构建
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONArray;
 import com.jsh.erp.constants.BusinessConstants;
@@ -98,9 +105,9 @@ public class FunctionService {
         try{
             if (PermissionUtil.isDefaultManager(userService.getCurrentUser())) {
                 functions.setState(false);
-                functions.setType("电脑版");
+                functions.setType("鐢佃剳鐗?);
                 result = functionsMapper.insertSelective(functions);
-                logService.insertLog("功能",
+                logService.insertLog("鍔熻兘",
                         new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(functions.getName()).toString(), request);
             }
         }catch(Exception e){
@@ -116,7 +123,7 @@ public class FunctionService {
         try{
             if (PermissionUtil.isDefaultManager(userService.getCurrentUser())) {
                 result = functionsMapper.updateByPrimaryKeySelective(functions);
-                logService.insertLog("功能",
+                logService.insertLog("鍔熻兘",
                         new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(functions.getName()).toString(), request);
             }
         }catch(Exception e){
@@ -149,7 +156,7 @@ public class FunctionService {
         try{
             if (PermissionUtil.isDefaultManager(userService.getCurrentUser())) {
                 result = functionMapperEx.batchDeleteFunctionByIds(new Date(), userInfo == null ? null : userInfo.getId(), idArray);
-                logService.insertLog("功能", sb.toString(),
+                logService.insertLog("鍔熻兘", sb.toString(),
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             }
         }catch(Exception e){
@@ -236,7 +243,7 @@ public class FunctionService {
     }
 
     /**
-     * 获取当前用户所属的租户所拥有的功能id列表
+     * 鑾峰彇褰撳墠鐢ㄦ埛鎵€灞炵殑绉熸埛鎵€鎷ユ湁鐨勫姛鑳絠d鍒楄〃
      * @return
      */
     public List<Long> getCurrentTenantFunIdList() throws Exception {
@@ -244,7 +251,7 @@ public class FunctionService {
         Long roleId = 0L;
         String fc = "";
         User userInfo = userService.getCurrentUser();
-        //获取当前用户所有的角色id
+        //鑾峰彇褰撳墠鐢ㄦ埛鎵€鏈夌殑瑙掕壊id
         List<UserBusiness> roleList = userBusinessService.getBasicData(userInfo.getTenantId().toString(), "UserRole");
         if(roleList!=null && roleList.size()>0){
             String value = roleList.get(0).getValue();
@@ -253,7 +260,7 @@ public class FunctionService {
                 roleId = Long.parseLong(roleIdStr);
             }
         }
-        //当前用户所拥有的功能列表，格式如：[1][2][5]
+        //褰撳墠鐢ㄦ埛鎵€鎷ユ湁鐨勫姛鑳藉垪琛紝鏍煎紡濡傦細[1][2][5]
         List<UserBusiness> funList = userBusinessService.getBasicData(roleId.toString(), "RoleFunctions");
         if(funList!=null && funList.size()>0){
             fc = funList.get(0).getValue();
@@ -267,7 +274,7 @@ public class FunctionService {
     }
 
     /**
-     * 获取当前用户所属的租户所拥有的功能id的map
+     * 鑾峰彇褰撳墠鐢ㄦ埛鎵€灞炵殑绉熸埛鎵€鎷ユ湁鐨勫姛鑳絠d鐨刴ap
      * @return
      */
     public Map<Long, Long> getCurrentTenantFunIdMap() throws Exception {
@@ -284,7 +291,7 @@ public class FunctionService {
     }
 
     /**
-     * 获取当前用户所拥有的功能id列表
+     * 鑾峰彇褰撳墠鐢ㄦ埛鎵€鎷ユ湁鐨勫姛鑳絠d鍒楄〃
      * @return
      */
     public List<Long> getCurrentUserFunIdList() throws Exception {
@@ -292,7 +299,7 @@ public class FunctionService {
         Long roleId = 0L;
         String fc = "";
         User userInfo = userService.getCurrentUser();
-        //获取当前用户所有的角色id
+        //鑾峰彇褰撳墠鐢ㄦ埛鎵€鏈夌殑瑙掕壊id
         List<UserBusiness> roleList = userBusinessService.getBasicData(userInfo.getId().toString(), "UserRole");
         if(roleList!=null && roleList.size()>0){
             String value = roleList.get(0).getValue();
@@ -301,7 +308,7 @@ public class FunctionService {
                 roleId = Long.parseLong(roleIdStr);
             }
         }
-        //当前用户所拥有的功能列表，格式如：[1][2][5]
+        //褰撳墠鐢ㄦ埛鎵€鎷ユ湁鐨勫姛鑳藉垪琛紝鏍煎紡濡傦細[1][2][5]
         List<UserBusiness> funList = userBusinessService.getBasicData(roleId.toString(), "RoleFunctions");
         if(funList!=null && funList.size()>0){
             fc = funList.get(0).getValue();
@@ -315,7 +322,7 @@ public class FunctionService {
     }
 
     /**
-     * 获取当前用户所拥有的功能id的map
+     * 鑾峰彇褰撳墠鐢ㄦ埛鎵€鎷ユ湁鐨勫姛鑳絠d鐨刴ap
      * @return
      */
     public Map<Long, Long> getCurrentUserFunIdMap() throws Exception {

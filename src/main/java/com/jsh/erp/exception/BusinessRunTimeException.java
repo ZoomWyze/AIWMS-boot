@@ -1,5 +1,14 @@
 package com.jsh.erp.exception;
 
+/**
+ * 业务运行时异常
+ *
+ * 当业务逻辑执行过程中出现不可恢复的错误时抛出此异常，
+ * 继承自 RuntimeException（非受检异常），无需在方法签名中声明。
+ * 由 GlobalExceptionHandler 统一捕获并返回错误响应。
+ *
+ * @author jishenghua
+ */
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

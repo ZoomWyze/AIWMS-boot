@@ -1,5 +1,12 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * Servlet 工具类
+ * 提供 HttpServletRequest/Response 的工具方法（获取请求对象、Session、参数等）
+ *
+ * @author jishenghua
+ */
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -10,19 +17,18 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * 客户端工具类
+ * 瀹㈡埛绔伐鍏风被
  * 
  * @author ji-sheng-hua
  */
 public class ServletUtils
 {
     /**
-     * 定义移动端请求的所有可能类型
-     */
+     * 瀹氫箟绉诲姩绔姹傜殑鎵€鏈夊彲鑳界被鍨?     */
     private final static String[] agent = { "Android", "iPhone", "iPod", "iPad", "Windows Phone", "MQQBrowser" };
 
     /**
-     * 获取String参数
+     * 鑾峰彇String鍙傛暟
      */
     public static String getParameter(String name)
     {
@@ -30,7 +36,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取String参数
+     * 鑾峰彇String鍙傛暟
      */
     public static String getParameter(String name, String defaultValue)
     {
@@ -38,7 +44,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取Integer参数
+     * 鑾峰彇Integer鍙傛暟
      */
     public static Integer getParameterToInt(String name)
     {
@@ -46,7 +52,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取Integer参数
+     * 鑾峰彇Integer鍙傛暟
      */
     public static Integer getParameterToInt(String name, Integer defaultValue)
     {
@@ -54,7 +60,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取Boolean参数
+     * 鑾峰彇Boolean鍙傛暟
      */
     public static Boolean getParameterToBool(String name)
     {
@@ -62,7 +68,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取Boolean参数
+     * 鑾峰彇Boolean鍙傛暟
      */
     public static Boolean getParameterToBool(String name, Boolean defaultValue)
     {
@@ -70,7 +76,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取request
+     * 鑾峰彇request
      */
     public static HttpServletRequest getRequest()
     {
@@ -78,7 +84,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取response
+     * 鑾峰彇response
      */
     public static HttpServletResponse getResponse()
     {
@@ -86,7 +92,7 @@ public class ServletUtils
     }
 
     /**
-     * 获取session
+     * 鑾峰彇session
      */
     public static HttpSession getSession()
     {
@@ -100,11 +106,10 @@ public class ServletUtils
     }
 
     /**
-     * 将字符串渲染到客户端
+     * 灏嗗瓧绗︿覆娓叉煋鍒板鎴风
      * 
-     * @param response 渲染对象
-     * @param string 待渲染的字符串
-     * @return null
+     * @param response 娓叉煋瀵硅薄
+     * @param string 寰呮覆鏌撶殑瀛楃涓?     * @return null
      */
     public static String renderString(HttpServletResponse response, String string)
     {

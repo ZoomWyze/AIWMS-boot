@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * MaterialExtendMapper 扩展 Mapper 接口
+ * 定义 MaterialExtendMapper 自定义的复杂 SQL 查询方法（非 Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.MaterialExtend;
 import com.jsh.erp.datasource.vo.MaterialExtendVo4List;
 import org.apache.ibatis.annotations.Param;

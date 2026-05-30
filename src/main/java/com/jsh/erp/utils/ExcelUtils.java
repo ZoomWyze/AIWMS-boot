@@ -1,5 +1,12 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * Excel 工具类
+ * 提供 Excel 文件的导入导出功能，封装 POI 操作
+ *
+ * @author jishenghua
+ */
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -23,7 +30,7 @@ public class ExcelUtils {
 	public static InputStream getPathByFileName(String template, String tmpFileName) {
 		File tmpFile = new File(template, tmpFileName);
 		InputStream path = null;
-		//判断文件或文件夹是否存在
+		//鍒ゆ柇鏂囦欢鎴栨枃浠跺す鏄惁瀛樺湪
 		if (tmpFile.exists()) {
 			try {
 				path = new FileInputStream(tmpFile);
@@ -35,7 +42,7 @@ public class ExcelUtils {
 	}
 
 	/**
-	 * 导出excel，带多sheet
+	 * 瀵煎嚭excel锛屽甫澶歴heet
 	 *
 	 * @param wtwb
 	 * @param tip
@@ -51,7 +58,7 @@ public class ExcelUtils {
 		WritableSheet sheet = wtwb.createSheet(title, index);
 		sheet.getSettings().setDefaultColumnWidth(12);
 
-		// 标题的格式-红色
+		// 鏍囬鐨勬牸寮?绾㈣壊
 		WritableFont redWF = new WritableFont(WritableFont.ARIAL, 12,
 				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE,
 				Colour.RED);
@@ -59,7 +66,7 @@ public class ExcelUtils {
 		redWFFC.setVerticalAlignment(VerticalAlignment.CENTRE);
 		redWFFC.setBorder(Border.ALL, BorderLineStyle.THIN);
 
-		// 标题的格式-黑色
+		// 鏍囬鐨勬牸寮?榛戣壊
 		WritableFont blackWF = new WritableFont(WritableFont.ARIAL, 12,
 				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE,
 				Colour.BLACK);
@@ -67,22 +74,19 @@ public class ExcelUtils {
 		blackWFFC.setVerticalAlignment(VerticalAlignment.CENTRE);
 		blackWFFC.setBorder(Border.ALL, BorderLineStyle.THIN);
 
-		// 设置字体以及单元格格式
-		WritableFont wfont = new WritableFont(WritableFont.createFont("楷书"), 12);
+		// 璁剧疆瀛椾綋浠ュ強鍗曞厓鏍兼牸寮?		WritableFont wfont = new WritableFont(WritableFont.createFont("妤蜂功"), 12);
 		WritableCellFormat format = new WritableCellFormat(wfont);
 		format.setAlignment(Alignment.LEFT);
 		format.setVerticalAlignment(VerticalAlignment.TOP);
 		format.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN);
 
-		// 第一行写入提示
-		if(com.jsh.erp.utils.StringUtil.isNotEmpty(tip) && tip.contains("*")) {
+		// 绗竴琛屽啓鍏ユ彁绀?		if(com.jsh.erp.utils.StringUtil.isNotEmpty(tip) && tip.contains("*")) {
 			sheet.addCell(new Label(0, 0, tip, redWFFC));
 		} else {
 			sheet.addCell(new Label(0, 0, tip, blackWFFC));
 		}
 
-		// 第二行写入标题
-		for (int i = 0; i < names.length; i++) {
+		// 绗簩琛屽啓鍏ユ爣棰?		for (int i = 0; i < names.length; i++) {
 			if(StringUtil.isNotEmpty(names[i]) && names[i].contains("*")) {
 				sheet.addCell(new Label(i, 1, names[i], redWFFC));
 			} else {
@@ -90,8 +94,7 @@ public class ExcelUtils {
 			}
 		}
 
-		// 其余行依次写入数据
-		int rowNum = 2;
+		// 鍏朵綑琛屼緷娆″啓鍏ユ暟鎹?		int rowNum = 2;
 		for (int j = 0; j < objects.size(); j++) {
 			String[] obj = objects.get(j);
 			for (int h = 0; h < obj.length; h++) {
@@ -102,7 +105,7 @@ public class ExcelUtils {
 	}
 
 	/**
-	 * 导出excel，带单个sheet
+	 * 瀵煎嚭excel锛屽甫鍗曚釜sheet
 	 *
 	 * @param fileName
 	 * @param names
@@ -119,36 +122,33 @@ public class ExcelUtils {
 		WritableSheet sheet = wtwb.createSheet(title, 0);
 		sheet.getSettings().setDefaultColumnWidth(12);
 
-		// 标题的格式-红色
+		// 鏍囬鐨勬牸寮?绾㈣壊
 		WritableFont redWF = new WritableFont(WritableFont.ARIAL, 12,
 				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE, Colour.RED);
 		WritableCellFormat redWFFC = new WritableCellFormat(redWF);
 		redWFFC.setVerticalAlignment(VerticalAlignment.CENTRE);
 		redWFFC.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN);
 
-		// 标题的格式-黑色
+		// 鏍囬鐨勬牸寮?榛戣壊
 		WritableFont blackWF = new WritableFont(WritableFont.ARIAL, 12,
 				WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE, Colour.BLACK);
 		WritableCellFormat blackWFFC = new WritableCellFormat(blackWF);
 		blackWFFC.setVerticalAlignment(VerticalAlignment.CENTRE);
 		blackWFFC.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN);
 
-		// 设置字体以及单元格格式
-		WritableFont wfont = new WritableFont(WritableFont.createFont("楷书"), 12);
+		// 璁剧疆瀛椾綋浠ュ強鍗曞厓鏍兼牸寮?		WritableFont wfont = new WritableFont(WritableFont.createFont("妤蜂功"), 12);
 		WritableCellFormat format = new WritableCellFormat(wfont);
 		format.setAlignment(Alignment.LEFT);
 		format.setVerticalAlignment(VerticalAlignment.TOP);
 		format.setBorder(jxl.format.Border.ALL,jxl.format.BorderLineStyle.THIN);
 
-		// 第一行写入提示
-		if(StringUtil.isNotEmpty(tip) && tip.contains("*")) {
+		// 绗竴琛屽啓鍏ユ彁绀?		if(StringUtil.isNotEmpty(tip) && tip.contains("*")) {
 			sheet.addCell(new Label(0, 0, tip, redWFFC));
 		} else {
 			sheet.addCell(new Label(0, 0, tip, blackWFFC));
 		}
 
-		// 第二行写入标题
-		for (int i = 0; i < names.length; i++) {
+		// 绗簩琛屽啓鍏ユ爣棰?		for (int i = 0; i < names.length; i++) {
 			if(StringUtil.isNotEmpty(names[i]) && names[i].contains("*")) {
 				sheet.addCell(new Label(i, 1, names[i], redWFFC));
 			} else {
@@ -156,8 +156,7 @@ public class ExcelUtils {
 			}
 		}
 
-		// 其余行依次写入数据
-		int rowNum = 2;
+		// 鍏朵綑琛屼緷娆″啓鍏ユ暟鎹?		int rowNum = 2;
 		for (int j = 0; j < objects.size(); j++) {
 			Object[] obj = objects.get(j);
 			for (int h = 0; h < obj.length; h++) {
@@ -190,37 +189,33 @@ public class ExcelUtils {
 			Cell cell = src.getCell(colNum, rowNum);
 			if(cell.getType() == CellType.NUMBER) {
 				NumberCell numCell = (NumberCell)cell;
-				double value = numCell.getValue(); // 获取完整精度的数值
-				DecimalFormat df = new DecimalFormat("#.######"); // 设置足够多的小数位
-				return df.format(value);
+				double value = numCell.getValue(); // 鑾峰彇瀹屾暣绮惧害鐨勬暟鍊?				DecimalFormat df = new DecimalFormat("#.######"); // 璁剧疆瓒冲澶氱殑灏忔暟浣?				return df.format(value);
 			} else {
-				return cell.getContents().trim(); // 获取原始字符串内容
-			}
+				return cell.getContents().trim(); // 鑾峰彇鍘熷瀛楃涓插唴瀹?			}
 		} else {
 			return null;
 		}
 	}
 
 	/**
-	 * 获取真实的行数，剔除掉空白行
+	 * 鑾峰彇鐪熷疄鐨勮鏁帮紝鍓旈櫎鎺夌┖鐧借
 	 * @param src
 	 * @return
 	 */
 	public static int getRightRows(Sheet src) {
-		int rsRows = src.getRows(); //行数
-		int rsCols = src.getColumns(); //列数
+		int rsRows = src.getRows(); //琛屾暟
+		int rsCols = src.getColumns(); //鍒楁暟
 		int nullCellNum;
 		int rightRows = rsRows;
-		for (int i = 1; i < rsRows; i++) { //统计行中为空的单元格数
-			nullCellNum = 0;
+		for (int i = 1; i < rsRows; i++) { //缁熻琛屼腑涓虹┖鐨勫崟鍏冩牸鏁?			nullCellNum = 0;
 			for (int j = 0; j < rsCols; j++) {
 				String val = src.getCell(j, i).getContents().trim();
 				if (StringUtils.isEmpty(val)) {
 					nullCellNum++;
 				}
 			}
-			if (nullCellNum >= rsCols) { //如果nullCellNum大于或等于总的列数
-				rightRows--; //行数减一
+			if (nullCellNum >= rsCols) { //濡傛灉nullCellNum澶т簬鎴栫瓑浜庢€荤殑鍒楁暟
+				rightRows--; //琛屾暟鍑忎竴
 			}
 		}
 		return rightRows;

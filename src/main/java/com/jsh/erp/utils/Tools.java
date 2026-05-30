@@ -1,5 +1,12 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * 通用工具类
+ * 提供各种杂项工具方法（日期格式化、数字计算、ID 生成等）
+ *
+ * @author jishenghua
+ */
 import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -17,48 +24,42 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * 工具类
- *
+ * 宸ュ叿绫? *
  * @author jishenghua  qq:7-5-2-7-1-8-9-2-0
  */
 public class Tools {
     /**
-     * 获得32位唯一序列号
-     *
-     * @return 32为ID字符串
-     */
+     * 鑾峰緱32浣嶅敮涓€搴忓垪鍙?     *
+     * @return 32涓篒D瀛楃涓?     */
     public static String getUUID_32() {
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
     /**
-     * 获得当天时间，格式为yyyy-MM-dd
+     * 鑾峰緱褰撳ぉ鏃堕棿锛屾牸寮忎负yyyy-MM-dd
      *
-     * @return 格式化后的日期格式
-     */
+     * @return 鏍煎紡鍖栧悗鐨勬棩鏈熸牸寮?     */
     public static String getNow() {
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
     }
 
     /**
-     * 获取昨天的日期字符串
+     * 鑾峰彇鏄ㄥぉ鐨勬棩鏈熷瓧绗︿覆
      * @return
      */
     public static String getYesterday(){
-        Date date=new Date();//取时间
-        Calendar calendar = Calendar.getInstance();
+        Date date=new Date();//鍙栨椂闂?        Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        //把日期往后增加一天.整数往后推,负数往前移动(1:表示明天、-1：表示昨天，0：表示今天)
+        //鎶婃棩鏈熷線鍚庡鍔犱竴澶?鏁存暟寰€鍚庢帹,璐熸暟寰€鍓嶇Щ鍔?1:琛ㄧず鏄庡ぉ銆?1锛氳〃绀烘槰澶╋紝0锛氳〃绀轰粖澶?
         calendar.add(Calendar.DATE,-1);
-        //这个时间就是日期往前推一天的结果
+        //杩欎釜鏃堕棿灏辨槸鏃ユ湡寰€鍓嶆帹涓€澶╃殑缁撴灉
         date=calendar.getTime();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         return formatter.format(date);
     }
 
     /**
-     * 获取当年的第一天
-     * @return
+     * 鑾峰彇褰撳勾鐨勭涓€澶?     * @return
      */
     public static String getYearBegin(){
         String yearStr = new SimpleDateFormat("yyyy").format(new Date());
@@ -66,8 +67,7 @@ public class Tools {
     }
 
     /**
-     * 获取当年的最后一天
-     * @return
+     * 鑾峰彇褰撳勾鐨勬渶鍚庝竴澶?     * @return
      */
     public static String getYearEnd(){
         String yearStr = new SimpleDateFormat("yyyy").format(new Date());
@@ -75,7 +75,7 @@ public class Tools {
     }
 
     /**
-     * 获取当前月 yyyy-MM
+     * 鑾峰彇褰撳墠鏈?yyyy-MM
      *
      * @return
      */
@@ -84,10 +84,9 @@ public class Tools {
     }
 
     /**
-     * 获得指定时间，格式为yyyy-MM-dd HH:mm:ss或yyyy-MM-dd
+     * 鑾峰緱鎸囧畾鏃堕棿锛屾牸寮忎负yyyy-MM-dd HH:mm:ss鎴杫yyy-MM-dd
      *
-     * @return 格式化后的日期格式
-     */
+     * @return 鏍煎紡鍖栧悗鐨勬棩鏈熸牸寮?     */
     public static String dateToStr(Date date, String format) {
         if(date!=null) {
             return new SimpleDateFormat(format).format(date);
@@ -97,17 +96,16 @@ public class Tools {
     }
 
     /**
-     * 将日期的字符串格式转为时间格式
-     * @param dateString
+     * 灏嗘棩鏈熺殑瀛楃涓叉牸寮忚浆涓烘椂闂存牸寮?     * @param dateString
      * @return
      * @throws ParseException
      */
     public static Date strToDate(String dateString) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 日期格式
-        return formatter.parse(dateString); // 字符串转换为Date
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 鏃ユ湡鏍煎紡
+        return formatter.parse(dateString); // 瀛楃涓茶浆鎹负Date
     }
     /**
-     * 获取指定日期格式 yyyy-MM-dd
+     * 鑾峰彇鎸囧畾鏃ユ湡鏍煎紡 yyyy-MM-dd
      *
      * @return
      */
@@ -120,28 +118,25 @@ public class Tools {
     }
 
     /**
-     * 获得当天时间，格式为yyyyMMddHHmmss
+     * 鑾峰緱褰撳ぉ鏃堕棿锛屾牸寮忎负yyyyMMddHHmmss
      *
-     * @return 格式化后的日期格式
-     */
+     * @return 鏍煎紡鍖栧悗鐨勬棩鏈熸牸寮?     */
     public static String getNow2(Date date) {
         return new SimpleDateFormat("yyyyMMddHHmmss").format(date);
     }
 
     /**
-     * 获得当天时间，格式为yyyy-MM-dd HH:mm:ss
+     * 鑾峰緱褰撳ぉ鏃堕棿锛屾牸寮忎负yyyy-MM-dd HH:mm:ss
      *
-     * @return 格式化后的日期格式
-     */
+     * @return 鏍煎紡鍖栧悗鐨勬棩鏈熸牸寮?     */
     public static String getNow3() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
     /**
-     * 获得指定时间，格式为yyyy-MM-dd HH:mm:ss
+     * 鑾峰緱鎸囧畾鏃堕棿锛屾牸寮忎负yyyy-MM-dd HH:mm:ss
      *
-     * @return 格式化后的日期格式
-     */
+     * @return 鏍煎紡鍖栧悗鐨勬棩鏈熸牸寮?     */
     public static String getCenternTime(Date date) {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
     }
@@ -155,18 +150,16 @@ public class Tools {
     }
 
     /**
-     * 获得指定时间，格式为mm:ss
+     * 鑾峰緱鎸囧畾鏃堕棿锛屾牸寮忎负mm:ss
      *
-     * @return 格式化后的日期格式
-     */
+     * @return 鏍煎紡鍖栧悗鐨勬棩鏈熸牸寮?     */
     public static String getTimeInfo(Date date) {
         return new SimpleDateFormat("mm:ss").format(date);
     }
 
     /**
-     * 获取当前日期是星期几
-     * return 星期几
-     */
+     * 鑾峰彇褰撳墠鏃ユ湡鏄槦鏈熷嚑
+     * return 鏄熸湡鍑?     */
     public static String getWeekDay() {
         Calendar c = Calendar.getInstance(Locale.CHINA);
         c.setTime(new Date());
@@ -174,25 +167,25 @@ public class Tools {
         String weekDay = "";
         switch (day) {
             case 1:
-                weekDay = "星期日";
+                weekDay = "鏄熸湡鏃?;
                 break;
             case 2:
-                weekDay = "星期一";
+                weekDay = "鏄熸湡涓€";
                 break;
             case 3:
-                weekDay = "星期二";
+                weekDay = "鏄熸湡浜?;
                 break;
             case 4:
-                weekDay = "星期三";
+                weekDay = "鏄熸湡涓?;
                 break;
             case 5:
-                weekDay = "星期四";
+                weekDay = "鏄熸湡鍥?;
                 break;
             case 6:
-                weekDay = "星期五";
+                weekDay = "鏄熸湡浜?;
                 break;
             case 7:
-                weekDay = "星期六";
+                weekDay = "鏄熸湡鍏?;
                 break;
             default:
                 break;
@@ -201,23 +194,21 @@ public class Tools {
     }
 
     /**
-     * 判断字符串是否全部为数字
+     * 鍒ゆ柇瀛楃涓叉槸鍚﹀叏閮ㄤ负鏁板瓧
      *
      * @param checkStr
-     * @return boolean值
-     */
+     * @return boolean鍊?     */
     public static boolean checkStrIsNum(String checkStr) {
         if (checkStr == null || checkStr.length() == 0)
             return false;
         return Pattern.compile("^[0-9]*.{1}[0-9]*$").matcher(checkStr).matches();
-//		 return Pattern.compile("：^[0-9]+(.[0-9])*$").matcher(checkStr).matches();
+//		 return Pattern.compile("锛歗[0-9]+(.[0-9])*$").matcher(checkStr).matches();
     }
 
     /**
-     * 获得前一天的时间
+     * 鑾峰緱鍓嶄竴澶╃殑鏃堕棿
      *
-     * @return 前一天日期
-     */
+     * @return 鍓嶄竴澶╂棩鏈?     */
     public static String getPreviousDate() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
@@ -225,8 +216,8 @@ public class Tools {
     }
 
     /**
-     * 获取当前月份的前6个月(含当前月)
-     * @param size  月数
+     * 鑾峰彇褰撳墠鏈堜唤鐨勫墠6涓湀(鍚綋鍓嶆湀)
+     * @param size  鏈堟暟
      * @return
      */
     public static List<String> getLastMonths(int size) {
@@ -245,12 +236,10 @@ public class Tools {
     }
 
     /**
-     * 截取字符串长度
-     *
+     * 鎴彇瀛楃涓查暱搴?     *
      * @param beforeStr
      * @param cutLeng
-     * @return 截取后的字符串
-     */
+     * @return 鎴彇鍚庣殑瀛楃涓?     */
     public static String subStr(String beforeStr, int cutLeng) {
         if (beforeStr.length() > cutLeng)
             return beforeStr.substring(0, cutLeng) + "...";
@@ -258,27 +247,25 @@ public class Tools {
     }
 
     /**
-     * 生成随机字符串，字母和数字混合
-     *
-     * @return 组合后的字符串 ^[0-9a-zA-Z]
+     * 鐢熸垚闅忔満瀛楃涓诧紝瀛楁瘝鍜屾暟瀛楁贩鍚?     *
+     * @return 缁勫悎鍚庣殑瀛楃涓?^[0-9a-zA-Z]
      */
     public static String getRandomChar() {
-        //生成一个0、1、2的随机数字
-        int rand = (int) Math.round(Math.random() * 1);
+        //鐢熸垚涓€涓?銆?銆?鐨勯殢鏈烘暟瀛?        int rand = (int) Math.round(Math.random() * 1);
         long itmp = 0;
         char ctmp = '\u0000';
         switch (rand) {
-            //生成大写字母 + 1000以内数字
+            //鐢熸垚澶у啓瀛楁瘝 + 1000浠ュ唴鏁板瓧
             case 1:
                 itmp = Math.round(Math.random() * 25 + 65);
                 ctmp = (char) itmp;
                 return String.valueOf(ctmp) + (int) Math.random() * 1000;
-            //生成小写字母
+            //鐢熸垚灏忓啓瀛楁瘝
             case 2:
                 itmp = Math.round(Math.random() * 25 + 97);
                 ctmp = (char) itmp;
                 return String.valueOf(ctmp) + (int) Math.random() * 1000;
-            //生成数字
+            //鐢熸垚鏁板瓧
             default:
                 itmp = Math.round(Math.random() * 1000);
                 return itmp + "";
@@ -286,32 +273,29 @@ public class Tools {
     }
 
     /**
-     * 判断首字母以数字开头,字符串包括数字、字母%以及空格
+     * 鍒ゆ柇棣栧瓧姣嶄互鏁板瓧寮€澶?瀛楃涓插寘鎷暟瀛椼€佸瓧姣?浠ュ強绌烘牸
      *
-     * @param str 检查字符串
-     * @return 是否以数字开头
-     */
+     * @param str 妫€鏌ュ瓧绗︿覆
+     * @return 鏄惁浠ユ暟瀛楀紑澶?     */
     public static boolean CheckIsStartWithNum(String str) {
         return Pattern.compile("^[0-9][a-zA-Z0-9%,\\s]*$").matcher(str).matches();
     }
 
     /**
-     * 判断首字母以","开头,字符串包括数字、字母%以及空格
+     * 鍒ゆ柇棣栧瓧姣嶄互","寮€澶?瀛楃涓插寘鎷暟瀛椼€佸瓧姣?浠ュ強绌烘牸
      *
-     * @param str 检查字符串
-     * @return 是否以数字开头
-     */
+     * @param str 妫€鏌ュ瓧绗︿覆
+     * @return 鏄惁浠ユ暟瀛楀紑澶?     */
     public static boolean CheckIsStartWithSpec(String str) {
         return Pattern.compile("^[,][a-zA-Z0-9%,\\s]*$").matcher(str).matches();
     }
 
     /**
-     * 字符转码
+     * 瀛楃杞爜
      *
      * @param aValue
      * @return
-     * @see 转码后的字符串
-     */
+     * @see 杞爜鍚庣殑瀛楃涓?     */
     public static String encodeValue(String aValue) {
         if (aValue.trim().length() == 0) {
             return "";
@@ -326,12 +310,11 @@ public class Tools {
     }
 
     /**
-     * 字符转码
+     * 瀛楃杞爜
      *
      * @param aValue
      * @return
-     * @see 转码后的字符串
-     */
+     * @see 杞爜鍚庣殑瀛楃涓?     */
     public static String decodeValue(String aValue) {
         if (aValue.trim().length() == 0) {
             return "";
@@ -346,18 +329,17 @@ public class Tools {
     }
 
     /**
-     * 去除str中的'
+     * 鍘婚櫎str涓殑'
      *
      * @param str
-     * @return 除去'后的字符串
-     * @see [类、类#方法、类#成员]
+     * @return 闄ゅ幓'鍚庣殑瀛楃涓?     * @see [绫汇€佺被#鏂规硶銆佺被#鎴愬憳]
      */
     public static String afterDealStr(String str) {
         return str.replace("'", "");
     }
 
     /**
-     * 从Request对象中获得客户端IP，处理了HTTP代理服务器和Nginx的反向代理截取了ip
+     * 浠嶳equest瀵硅薄涓幏寰楀鎴风IP锛屽鐞嗕簡HTTP浠ｇ悊鏈嶅姟鍣ㄥ拰Nginx鐨勫弽鍚戜唬鐞嗘埅鍙栦簡ip
      *
      * @param request
      * @return ip
@@ -387,13 +369,10 @@ public class Tools {
         return ip;
     }
     /**
-     * 获取访问者IP
+     * 鑾峰彇璁块棶鑰匢P
      *
-     * 在一般情况下使用Request.getRemoteAddr()即可，但是经过nginx等反向代理软件后，这个方法会失效。
-     *
-     * 本方法先从Header中获取X-Real-IP，如果不存在再从X-Forwarded-For获得第一个IP(用,分割)，
-     * 如果还不存在则调用Request .getRemoteAddr()。
-     *
+     * 鍦ㄤ竴鑸儏鍐典笅浣跨敤Request.getRemoteAddr()鍗冲彲锛屼絾鏄粡杩噉ginx绛夊弽鍚戜唬鐞嗚蒋浠跺悗锛岃繖涓柟娉曚細澶辨晥銆?     *
+     * 鏈柟娉曞厛浠嶩eader涓幏鍙朮-Real-IP锛屽鏋滀笉瀛樺湪鍐嶄粠X-Forwarded-For鑾峰緱绗竴涓狪P(鐢?鍒嗗壊)锛?     * 濡傛灉杩樹笉瀛樺湪鍒欒皟鐢≧equest .getRemoteAddr()銆?     *
      * @param request
      * @return
      */
@@ -404,8 +383,7 @@ public class Tools {
         }
         ip = request.getHeader("X-Forwarded-For");
         if (!StringUtils.isEmpty(ip) && !"unknown".equalsIgnoreCase(ip)) {
-            // 多次反向代理后会有多个IP值，第一个为真实IP。
-            int index = ip.indexOf(',');
+            // 澶氭鍙嶅悜浠ｇ悊鍚庝細鏈夊涓狪P鍊硷紝绗竴涓负鐪熷疄IP銆?            int index = ip.indexOf(',');
             if (index != -1) {
                 return ip.substring(0, index);
             } else {
@@ -417,11 +395,9 @@ public class Tools {
     }
 
     /**
-     * 转化前台批量传入的ID值
-     *
+     * 杞寲鍓嶅彴鎵归噺浼犲叆鐨処D鍊?     *
      * @param data
-     * @return 转化后的ID值数组
-     */
+     * @return 杞寲鍚庣殑ID鍊兼暟缁?     */
     public static int[] changeDataForm(String data) {
         String[] dataStr = data.split(",");
         int[] dataInt = new int[dataStr.length];
@@ -431,10 +407,9 @@ public class Tools {
     }
 
     /**
-     * 写理财日志内容转化特殊字符
-     *
-     * @param str 需要转化的字符
-     * @return 转化后的字符
+     * 鍐欑悊璐㈡棩蹇楀唴瀹硅浆鍖栫壒娈婂瓧绗?     *
+     * @param str 闇€瑕佽浆鍖栫殑瀛楃
+     * @return 杞寲鍚庣殑瀛楃
      */
     public static String htmlspecialchars(String str) {
         str = str.replaceAll("&", "&amp;");
@@ -445,21 +420,18 @@ public class Tools {
     }
 
     /**
-     * 根据消费日期获取消费月
-     *
-     * @param consumeDate 消费日期
-     * @return 返回消费月信息
-     */
+     * 鏍规嵁娑堣垂鏃ユ湡鑾峰彇娑堣垂鏈?     *
+     * @param consumeDate 娑堣垂鏃ユ湡
+     * @return 杩斿洖娑堣垂鏈堜俊鎭?     */
     public static String getConsumeMonth(String consumeDate) {
         return consumeDate.substring(0, 7);
     }
 
     /**
-     * 获取当前日期的前XX个月
+     * 鑾峰彇褰撳墠鏃ユ湡鐨勫墠XX涓湀
      *
      * @param beforeMonth
-     * @return 前XX个月字符串
-     */
+     * @return 鍓峏X涓湀瀛楃涓?     */
     public static String getBeforeMonth(int beforeMonth) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.MONTH, -beforeMonth);
@@ -467,8 +439,7 @@ public class Tools {
     }
 
     /**
-     * 根据月份获取当月第一天
-     * @param monthTime
+     * 鏍规嵁鏈堜唤鑾峰彇褰撴湀绗竴澶?     * @param monthTime
      * @return
      * @throws ParseException
      */
@@ -477,8 +448,7 @@ public class Tools {
     }
 
     /**
-     * 根据月份获取当月最后一天
-     * @param monthTime
+     * 鏍规嵁鏈堜唤鑾峰彇褰撴湀鏈€鍚庝竴澶?     * @param monthTime
      * @return
      * @throws ParseException
      */
@@ -492,7 +462,7 @@ public class Tools {
     }
 
     /**
-     * 获取email用户姓名
+     * 鑾峰彇email鐢ㄦ埛濮撳悕
      *
      * @param emailAddress
      */
@@ -501,11 +471,9 @@ public class Tools {
     }
 
     /**
-     * 判断userTel是否合法，userTel只能是数字
-     *
+     * 鍒ゆ柇userTel鏄惁鍚堟硶锛寀serTel鍙兘鏄暟瀛?     *
      * @param userTel
-     * @return true 合法 false不合法
-     */
+     * @return true 鍚堟硶 false涓嶅悎娉?     */
     public static boolean isTelNumber(String userTel) {
         String reg_phone = "^(\\(\\d{3,4}\\)|\\d{3,4}-)?\\d{7,8}$";
         String reg_tel = "^(1[0-9][0-9]|1[0-9][0|3|6|8|9])\\d{8}$";
@@ -515,7 +483,7 @@ public class Tools {
     }
 
     /**
-     * 模糊判断电话号码是否合法，只能是数字
+     * 妯＄硦鍒ゆ柇鐢佃瘽鍙风爜鏄惁鍚堟硶锛屽彧鑳芥槸鏁板瓧
      *
      * @param userTel
      * @return
@@ -525,16 +493,15 @@ public class Tools {
     }
 
     /**
-     * 获取当前时间的字符串类型
+     * 鑾峰彇褰撳墠鏃堕棿鐨勫瓧绗︿覆绫诲瀷
      *
-     * @return 处理后的字符串类型
-     */
+     * @return 澶勭悊鍚庣殑瀛楃涓茬被鍨?     */
     public static String getNowTime() {
         return new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
     }
 
     /**
-     * 判断字符串中是否含有中文
+     * 鍒ゆ柇瀛楃涓蹭腑鏄惁鍚湁涓枃
      *
      * @param str
      * @return
@@ -545,17 +512,17 @@ public class Tools {
     }
 
     /**
-     * 过滤html文件中的文本
+     * 杩囨护html鏂囦欢涓殑鏂囨湰
      *
      * @param content
-     * @return过滤后的文本
+     * @return杩囨护鍚庣殑鏂囨湰
      */
     public static String filterText(String content) {
         return content.replace("/<(?:.|\\s)*?>/g", "");
     }
 
     /**
-     * 去掉字符串中所有符号，不论是全角，还是半角的，或是货币符号或者空格等
+     * 鍘绘帀瀛楃涓蹭腑鎵€鏈夌鍙凤紝涓嶈鏄叏瑙掞紝杩樻槸鍗婅鐨勶紝鎴栨槸璐у竵绗﹀彿鎴栬€呯┖鏍肩瓑
      *
      * @param s
      * @return
@@ -573,22 +540,21 @@ public class Tools {
     }
 
     /**
-     * 获取一个字符串的MD5
+     * 鑾峰彇涓€涓瓧绗︿覆鐨凪D5
      *
      * @param msg
-     * @return 加密后的MD5字符串
-     * @throws NoSuchAlgorithmException
+     * @return 鍔犲瘑鍚庣殑MD5瀛楃涓?     * @throws NoSuchAlgorithmException
      */
     public static String md5Encryp(String msg) throws NoSuchAlgorithmException {
-        // 生成一个MD5加密计算摘要
+        // 鐢熸垚涓€涓狹D5鍔犲瘑璁＄畻鎽樿
         MessageDigest md = MessageDigest.getInstance("MD5");
-        // 计算md5函数
+        // 璁＄畻md5鍑芥暟
         md.update(msg.getBytes());
         return new BigInteger(1, md.digest()).toString(16);
     }
 
     /**
-     * 判断是否插件URL 
+     * 鍒ゆ柇鏄惁鎻掍欢URL 
      *
      * @return
      */
@@ -600,11 +566,9 @@ public class Tools {
     }
 
     /**
-     * 处理字符串null值
-     *
-     * @param beforeStr 处理前字符串
-     * @return 处理后的字符串
-     */
+     * 澶勭悊瀛楃涓瞡ull鍊?     *
+     * @param beforeStr 澶勭悊鍓嶅瓧绗︿覆
+     * @return 澶勭悊鍚庣殑瀛楃涓?     */
     public static String dealNullStr(String beforeStr) {
         if (null == beforeStr || beforeStr.length() == 0)
             return "";
@@ -612,7 +576,7 @@ public class Tools {
     }
 
     /**
-     * 根据token截取租户id
+     * 鏍规嵁token鎴彇绉熸埛id
      * @param token
      * @return
      */
@@ -628,7 +592,7 @@ public class Tools {
     }
 
     /**
-     * 使用参数Format将字符串转为Date
+     * 浣跨敤鍙傛暟Format灏嗗瓧绗︿覆杞负Date
      *
      * @param strDate
      * @param pattern
@@ -643,15 +607,12 @@ public class Tools {
 
     public static Date addDays(Date date, int num) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date); //需要将date数据转移到Calender对象中操作
-        calendar.add(calendar.DATE, num);//把日期往后增加n天.正数往后推,负数往前移动
-        date=calendar.getTime();   //这个时间就是日期往后推一天的结果
+        calendar.setTime(date); //闇€瑕佸皢date鏁版嵁杞Щ鍒癈alender瀵硅薄涓搷浣?        calendar.add(calendar.DATE, num);//鎶婃棩鏈熷線鍚庡鍔爊澶?姝ｆ暟寰€鍚庢帹,璐熸暟寰€鍓嶇Щ鍔?        date=calendar.getTime();   //杩欎釜鏃堕棿灏辨槸鏃ユ湡寰€鍚庢帹涓€澶╃殑缁撴灉
         return date;
     }
 
     /**
-     * 生成随机数字和字母组合
-     * @param length
+     * 鐢熸垚闅忔満鏁板瓧鍜屽瓧姣嶇粍鍚?     * @param length
      * @return
      */
     public static String getCharAndNum(int length) {

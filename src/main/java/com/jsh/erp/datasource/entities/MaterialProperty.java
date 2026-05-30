@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.entities;
+﻿package com.jsh.erp.datasource.entities;
 
+
+/**
+ * MaterialProperty 实体类
+ * 对应数据库 jsh_materialproperty 表
+ *
+ * @author jishenghua
+ */
 public class MaterialProperty {
     private Long id;
 

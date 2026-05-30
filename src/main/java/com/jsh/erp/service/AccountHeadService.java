@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 账户主表（收支单据） Service
+ * 提供收支单据的业务逻辑：新增/编辑/删除/查询/审核/反审核
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
@@ -131,14 +138,13 @@ public class AccountHeadService {
     }
 
     /**
-     * 根据角色类型获取操作员数组
-     * @return
+     * 鏍规嵁瑙掕壊绫诲瀷鑾峰彇鎿嶄綔鍛樻暟缁?     * @return
      * @throws Exception
      */
     public String[] getCreatorArray() throws Exception {
         String creator = "";
         User user = userService.getCurrentUser();
-        String roleType = userService.getRoleTypeByUserId(user.getId()).getType(); //角色类型
+        String roleType = userService.getRoleTypeByUserId(user.getId()).getType(); //瑙掕壊绫诲瀷
         if(BusinessConstants.ROLE_TYPE_PRIVATE.equals(roleType)) {
             creator = user.getId().toString();
         } else if(BusinessConstants.ROLE_TYPE_THIS_ORG.equals(roleType)) {
@@ -159,7 +165,7 @@ public class AccountHeadService {
             User userInfo=userService.getCurrentUser();
             accountHead.setCreator(userInfo==null?null:userInfo.getId());
             result = accountHeadMapper.insertSelective(accountHead);
-            logService.insertLog("财务单据",
+            logService.insertLog("璐㈠姟鍗曟嵁",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(accountHead.getBillNo()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -173,7 +179,7 @@ public class AccountHeadService {
         int result=0;
         try{
             result = accountHeadMapper.updateByPrimaryKeySelective(accountHead);
-            logService.insertLog("财务单据",
+            logService.insertLog("璐㈠姟鍗曟嵁",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(accountHead.getBillNo()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -204,33 +210,32 @@ public class AccountHeadService {
                         String.format(ExceptionConstants.ACCOUNT_HEAD_UN_AUDIT_DELETE_FAILED_MSG));
             }
         }
-        //删除主表
+        //鍒犻櫎涓昏〃
         accountItemMapperEx.batchDeleteAccountItemByHeadIds(new Date(),userInfo==null?null:userInfo.getId(),idArray);
-        //删除子表
+        //鍒犻櫎瀛愯〃
         accountHeadMapperEx.batchDeleteAccountHeadByIds(new Date(),userInfo==null?null:userInfo.getId(),idArray);
-        //路径列表
+        //璺緞鍒楄〃
         List<String> pathList = new ArrayList<>();
         for(AccountHead accountHead: list){
             sb.append("[").append(accountHead.getBillNo()).append("]");
             if(StringUtil.isNotEmpty(accountHead.getFileName())) {
                 pathList.add(accountHead.getFileName());
             }
-            if("收预付款".equals(accountHead.getType())){
+            if("鏀堕浠樻".equals(accountHead.getType())){
                 if (accountHead.getOrganId() != null) {
-                    //更新会员预付款
-                    supplierService.updateAdvanceIn(accountHead.getOrganId());
+                    //鏇存柊浼氬憳棰勪粯娆?                    supplierService.updateAdvanceIn(accountHead.getOrganId());
                 }
             }
         }
-        //逻辑删除文件
+        //閫昏緫鍒犻櫎鏂囦欢
         systemConfigService.deleteFileByPathList(pathList);
-        logService.insertLog("财务单据", sb.toString(),
+        logService.insertLog("璐㈠姟鍗曟嵁", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         return 1;
     }
 
     /**
-     * 校验单据编号是否存在
+     * 鏍￠獙鍗曟嵁缂栧彿鏄惁瀛樺湪
      * @param id
      * @param billNo
      * @return
@@ -257,8 +262,7 @@ public class AccountHeadService {
         for(Long id: ids) {
             AccountHead accountHead = getAccountHead(id);
             if("0".equals(status)){
-                //进行反审核操作
-                if("1".equals(accountHead.getStatus())) {
+                //杩涜鍙嶅鏍告搷浣?                if("1".equals(accountHead.getStatus())) {
                     ahIds.add(id);
                     noList.add(accountHead.getBillNo());
                 } else {
@@ -266,7 +270,7 @@ public class AccountHeadService {
                             String.format(ExceptionConstants.ACCOUNT_HEAD_AUDIT_TO_UN_AUDIT_FAILED_MSG));
                 }
             } else if("1".equals(status)){
-                //进行审核操作
+                //杩涜瀹℃牳鎿嶄綔
                 if("0".equals(accountHead.getStatus())) {
                     ahIds.add(id);
                     noList.add(accountHead.getBillNo());
@@ -282,10 +286,10 @@ public class AccountHeadService {
             AccountHeadExample example = new AccountHeadExample();
             example.createCriteria().andIdIn(ahIds);
             result = accountHeadMapper.updateByExampleSelective(accountHead, example);
-            //记录日志
+            //璁板綍鏃ュ織
             if(!noList.isEmpty() && ("0".equals(status) || "1".equals(status))) {
-                String statusStr = status.equals("1")?"[审核]":"[反审核]";
-                logService.insertLog("财务单据",
+                String statusStr = status.equals("1")?"[瀹℃牳]":"[鍙嶅鏍竇";
+                logService.insertLog("璐㈠姟鍗曟嵁",
                         new StringBuffer(statusStr).append(String.join(", ", noList)).toString(),
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             }
@@ -298,13 +302,12 @@ public class AccountHeadService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void addAccountHeadAndDetail(String beanJson, String rows, HttpServletRequest request) throws Exception {
         AccountHead accountHead = JSONObject.parseObject(beanJson, AccountHead.class);
-        //校验单号是否重复
+        //鏍￠獙鍗曞彿鏄惁閲嶅
         if(checkIsBillNoExist(0L, accountHead.getBillNo())>0) {
             throw new BusinessRunTimeException(ExceptionConstants.ACCOUNT_HEAD_BILL_NO_EXIST_CODE,
                     String.format(ExceptionConstants.ACCOUNT_HEAD_BILL_NO_EXIST_MSG));
         }
-        //校验付款账户和明细中的账户重复（转账单据）
-        if(BusinessConstants.TYPE_GIRO.equals(accountHead.getType())) {
+        //鏍￠獙浠樻璐︽埛鍜屾槑缁嗕腑鐨勮处鎴烽噸澶嶏紙杞处鍗曟嵁锛?        if(BusinessConstants.TYPE_GIRO.equals(accountHead.getType())) {
             JSONArray rowArr = JSONArray.parseArray(rows);
             if (null != rowArr && rowArr.size()>0) {
                 for (int i = 0; i < rowArr.size(); i++) {
@@ -326,50 +329,48 @@ public class AccountHeadService {
             accountHead.setStatus(BusinessConstants.BILLS_STATUS_UN_AUDIT);
         }
         accountHeadMapper.insertSelective(accountHead);
-        //根据单据编号查询单据id
+        //鏍规嵁鍗曟嵁缂栧彿鏌ヨ鍗曟嵁id
         AccountHeadExample dhExample = new AccountHeadExample();
         dhExample.createCriteria().andBillNoEqualTo(accountHead.getBillNo()).andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         List<AccountHead> list = accountHeadMapper.selectByExample(dhExample);
         if(list!=null) {
             Long headId = list.get(0).getId();
             String type = list.get(0).getType();
-            /**处理单据子表信息*/
+            /**澶勭悊鍗曟嵁瀛愯〃淇℃伅*/
             accountItemService.saveDetials(rows, headId, type, request);
         }
-        if("收预付款".equals(accountHead.getType())){
-            //更新会员预付款
-            supplierService.updateAdvanceIn(accountHead.getOrganId());
+        if("鏀堕浠樻".equals(accountHead.getType())){
+            //鏇存柊浼氬憳棰勪粯娆?            supplierService.updateAdvanceIn(accountHead.getOrganId());
         }
-        String statusStr = accountHead.getStatus().equals("1")?"[审核]":"";
-        logService.insertLog("财务单据",
+        String statusStr = accountHead.getStatus().equals("1")?"[瀹℃牳]":"";
+        logService.insertLog("璐㈠姟鍗曟嵁",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(accountHead.getBillNo()).append(statusStr).toString(), request);
     }
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void updateAccountHeadAndDetail(String beanJson, String rows, HttpServletRequest request) throws Exception {
         AccountHead accountHead = JSONObject.parseObject(beanJson, AccountHead.class);
-        //校验单号是否重复
+        //鏍￠獙鍗曞彿鏄惁閲嶅
         if(checkIsBillNoExist(accountHead.getId(), accountHead.getBillNo())>0) {
             throw new BusinessRunTimeException(ExceptionConstants.ACCOUNT_HEAD_BILL_NO_EXIST_CODE,
                     String.format(ExceptionConstants.ACCOUNT_HEAD_BILL_NO_EXIST_MSG));
         }
         accountHeadMapper.updateByPrimaryKeySelective(accountHead);
-        //根据单据编号查询单据id
+        //鏍规嵁鍗曟嵁缂栧彿鏌ヨ鍗曟嵁id
         AccountHeadExample dhExample = new AccountHeadExample();
         dhExample.createCriteria().andBillNoEqualTo(accountHead.getBillNo()).andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         List<AccountHead> list = accountHeadMapper.selectByExample(dhExample);
         if(list!=null) {
             Long headId = list.get(0).getId();
             String type = list.get(0).getType();
-            /**处理单据子表信息*/
+            /**澶勭悊鍗曟嵁瀛愯〃淇℃伅*/
             accountItemService.saveDetials(rows, headId, type, request);
         }
-        if("收预付款".equals(accountHead.getType())){
-            //更新会员预付款
-            supplierService.updateAdvanceIn(accountHead.getOrganId());
+        if("鏀堕浠樻".equals(accountHead.getType())){
+            //鏇存柊浼氬憳棰勪粯娆?            supplierService.updateAdvanceIn(accountHead.getOrganId());
         }
-        String statusStr = accountHead.getStatus().equals("1")?"[审核]":"";
-        logService.insertLog("财务单据",
+        String statusStr = accountHead.getStatus().equals("1")?"[瀹℃牳]":"";
+        logService.insertLog("璐㈠姟鍗曟嵁",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(accountHead.getBillNo()).append(statusStr).toString(), request);
     }
 

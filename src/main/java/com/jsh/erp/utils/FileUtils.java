@@ -1,21 +1,25 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * 文件工具类
+ * 提供文件操作的工具方法（文件名处理、路径拼接、文件大小格式化等）
+ *
+ * @author jishenghua
+ */
 import java.io.*;
 import java.util.*;
 
 /**
  *
- * 文件处理工具类
- *
+ * 鏂囦欢澶勭悊宸ュ叿绫? *
  */
 public class FileUtils {
 
 	/**
-	 * 功　能: 创建文件夹
-	 *
+	 * 鍔熴€€鑳? 鍒涘缓鏂囦欢澶?	 *
 	 * @param path
-	 *            参　数:要创建的文件夹名称
-	 * @return 返回值: 如果成功true;否则false 如：FileUtils.mkdir("/usr/apps/upload/");
+	 *            鍙傘€€鏁?瑕佸垱寤虹殑鏂囦欢澶瑰悕绉?	 * @return 杩斿洖鍊? 濡傛灉鎴愬姛true;鍚﹀垯false 濡傦細FileUtils.mkdir("/usr/apps/upload/");
 	 */
 	public static boolean makedir(String path) {
 		File file = new File(path);
@@ -26,14 +30,13 @@ public class FileUtils {
 	}
 
 	/**
-	 * 保存文件
+	 * 淇濆瓨鏂囦欢
 	 *
 	 * @param stream
 	 * @param path
-	 *            存放路径
+	 *            瀛樻斁璺緞
 	 * @param filename
-	 *            文件名
-	 * @throws IOException
+	 *            鏂囦欢鍚?	 * @throws IOException
 	 */
 	public static void SaveFileFromInputStream(InputStream stream, String path, String filename)
 			throws IOException {
@@ -57,9 +60,8 @@ public class FileUtils {
 
 
 	/**
-	 * 列出某个目录下的所有文件,子目录不列出
-	 * @param folderPath:文件夹路径
-	 * @return
+	 * 鍒楀嚭鏌愪釜鐩綍涓嬬殑鎵€鏈夋枃浠?瀛愮洰褰曚笉鍒楀嚭
+	 * @param folderPath:鏂囦欢澶硅矾寰?	 * @return
 	 */
 	public static List<String> listFile(String folderPath){
 		List<String> fileList = new ArrayList<String>(); //FileViewer.getListFiles(destPath, null, false);
@@ -73,7 +75,7 @@ public class FileUtils {
 
 
 	/**
-	 * 判断文件是否存在
+	 * 鍒ゆ柇鏂囦欢鏄惁瀛樺湪
 	 *
 	 * @param fileName
 	 * @return
@@ -88,8 +90,7 @@ public class FileUtils {
 	}
 
 	/**
-	 * 获取文件扩展名
-	 *
+	 * 鑾峰彇鏂囦欢鎵╁睍鍚?	 *
 	 * @param fileName
 	 * @return
 	 * */
@@ -103,7 +104,7 @@ public class FileUtils {
 	}
 
 	/**
-	 * 创建一个新文件，如果存在则报错
+	 * 鍒涘缓涓€涓柊鏂囦欢锛屽鏋滃瓨鍦ㄥ垯鎶ラ敊
 	 *
 	 * @param filePath
 	 * @param fileName
@@ -121,10 +122,10 @@ public class FileUtils {
 	}
 
 	/**
-	 * 创建一个新文件(含路径)，如果存在则报错
+	 * 鍒涘缓涓€涓柊鏂囦欢(鍚矾寰?锛屽鏋滃瓨鍦ㄥ垯鎶ラ敊
 	 *
 	 * @param fileName
-	 *            含有路径的文件名
+	 *            鍚湁璺緞鐨勬枃浠跺悕
 	 * @return
 	 */
 	public static void createFile(String fileName) throws RuntimeException {
@@ -138,7 +139,7 @@ public class FileUtils {
 					fileFolder.mkdirs();
 				f.createNewFile();
 			} catch (IOException ie) {
-				System.out.println("文件" + fileName + "创建失败：" + ie.getMessage());
+				System.out.println("鏂囦欢" + fileName + "鍒涘缓澶辫触锛? + ie.getMessage());
 				throw new RuntimeException("FILE_CREATE_ERROR");
 			}
 		}
@@ -146,10 +147,9 @@ public class FileUtils {
 
 
 	/**
-	 * 创建目录，如果存在则不创建
-	 *
+	 * 鍒涘缓鐩綍锛屽鏋滃瓨鍦ㄥ垯涓嶅垱寤?	 *
 	 * @param path
-	 * @return 返回结果null则创建成功，否则返回的是错误信息
+	 * @return 杩斿洖缁撴灉null鍒欏垱寤烘垚鍔燂紝鍚﹀垯杩斿洖鐨勬槸閿欒淇℃伅
 	 * @return
 	 */
 	public static String createDir(String path, boolean isCreateSubPah) {
@@ -157,27 +157,27 @@ public class FileUtils {
 		File dir = new File(path);
 
 		if (dir == null) {
-			msg = "不能创建空目录";
+			msg = "涓嶈兘鍒涘缓绌虹洰褰?;
 			return msg;
 		}
 		if (dir.isFile()) {
-			msg = "已有同名文件存在";
+			msg = "宸叉湁鍚屽悕鏂囦欢瀛樺湪";
 			return msg;
 		}
 		if (!dir.exists()) {
 			if (isCreateSubPah && !dir.mkdirs()) {
-				msg = "目录创建失败，原因不明";
+				msg = "鐩綍鍒涘缓澶辫触锛屽師鍥犱笉鏄?;
 			} else if (!dir.mkdir()) {
-				msg = "目录创建失败，原因不明";
+				msg = "鐩綍鍒涘缓澶辫触锛屽師鍥犱笉鏄?;
 			}
 		}
 		return msg;
 	}
 
 	/**
-	 * 删除指定目录或文件。 如果要删除是目录，同时删除子目录下所有的文件
+	 * 鍒犻櫎鎸囧畾鐩綍鎴栨枃浠躲€?濡傛灉瑕佸垹闄ゆ槸鐩綍锛屽悓鏃跺垹闄ゅ瓙鐩綍涓嬫墍鏈夌殑鏂囦欢
 	 *
-	 * @file:File 目录
+	 * @file:File 鐩綍
 	 * */
 	public static void delFileOrFolder(String fileName) {
 		if (!exists(fileName))
@@ -187,9 +187,9 @@ public class FileUtils {
 	}
 
 	/**
-	 * 删除指定目录或文件。 如果要删除是目录，同时删除子目录下所有的文件
+	 * 鍒犻櫎鎸囧畾鐩綍鎴栨枃浠躲€?濡傛灉瑕佸垹闄ゆ槸鐩綍锛屽悓鏃跺垹闄ゅ瓙鐩綍涓嬫墍鏈夌殑鏂囦欢
 	 *
-	 * @file:File 目录
+	 * @file:File 鐩綍
 	 * */
 	public static void delFileOrFolder(File file) {
 		if (!file.exists())
@@ -210,9 +210,7 @@ public class FileUtils {
 	}
 
 	/**
-	 * 从Properties格式配置文件中获取所有参数并保存到HashMap中。
-	 * 配置中的key值即map表中的key值，如果配置文件保存时用的中文，则返回结果也会转成中文。
-	 *
+	 * 浠嶱roperties鏍煎紡閰嶇疆鏂囦欢涓幏鍙栨墍鏈夊弬鏁板苟淇濆瓨鍒癏ashMap涓€?	 * 閰嶇疆涓殑key鍊煎嵆map琛ㄤ腑鐨刱ey鍊硷紝濡傛灉閰嶇疆鏂囦欢淇濆瓨鏃剁敤鐨勪腑鏂囷紝鍒欒繑鍥炵粨鏋滀篃浼氳浆鎴愪腑鏂囥€?	 *
 	 * @param file
 	 * @return
 	 * @throws IOException
@@ -242,12 +240,10 @@ public class FileUtils {
 	/**
 	 *
 	 * @param path
-	 *            文件路径
+	 *            鏂囦欢璺緞
 	 * @param suffix
-	 *            后缀名
-	 * @param isdepth
-	 *            是否遍历子目录
-	 * @return
+	 *            鍚庣紑鍚?	 * @param isdepth
+	 *            鏄惁閬嶅巻瀛愮洰褰?	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static List getListFiles(String path, String suffix, boolean isdepth) {
@@ -257,13 +253,12 @@ public class FileUtils {
 
 	/**
 	 * @param f
-	 * @param suffix：后缀名
-	 * @param isdepth：是否遍历子目录
+	 * @param suffix锛氬悗缂€鍚?	 * @param isdepth锛氭槸鍚﹂亶鍘嗗瓙鐩綍
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static List listFile(File f, String suffix, boolean isdepth) {
-		// 是目录，同时需要遍历子目录
+		// 鏄洰褰曪紝鍚屾椂闇€瑕侀亶鍘嗗瓙鐩綍
 		List<String> fileList = new ArrayList<String>();
 		if (f.isDirectory() && isdepth == true) {
 			File[] t = f.listFiles();
@@ -274,10 +269,9 @@ public class FileUtils {
 			String filePath = f.getAbsolutePath();
 
 			if (suffix != null) {
-				int begIndex = filePath.lastIndexOf(".");// 最后一个.(即后缀名前面的.)的索引
-				String tempsuffix = "";
+				int begIndex = filePath.lastIndexOf(".");// 鏈€鍚庝竴涓?(鍗冲悗缂€鍚嶅墠闈㈢殑.)鐨勭储寮?				String tempsuffix = "";
 
-				if (begIndex != -1)// 防止是文件但却没有后缀名结束的文件
+				if (begIndex != -1)// 闃叉鏄枃浠朵絾鍗存病鏈夊悗缂€鍚嶇粨鏉熺殑鏂囦欢
 				{
 					tempsuffix = filePath.substring(begIndex + 1, filePath
 							.length());
@@ -287,8 +281,7 @@ public class FileUtils {
 					fileList.add(filePath);
 				}
 			} else {
-				// 后缀名为null则为所有文件
-				fileList.add(filePath);
+				// 鍚庣紑鍚嶄负null鍒欎负鎵€鏈夋枃浠?				fileList.add(filePath);
 			}
 
 		}
@@ -297,12 +290,11 @@ public class FileUtils {
 	}
 
 	/**
-	 * 判断文件名是否带盘符，重新处理
-	 * @param fileName
+	 * 鍒ゆ柇鏂囦欢鍚嶆槸鍚﹀甫鐩樼锛岄噸鏂板鐞?	 * @param fileName
 	 * @return
 	 */
 	public static String getFileName(String fileName){
-		//判断是否带有盘符信息
+		//鍒ゆ柇鏄惁甯︽湁鐩樼淇℃伅
 		// Check for Unix-style path
 		int unixSep = fileName.lastIndexOf('/');
 		// Check for Windows-style path
@@ -313,8 +305,7 @@ public class FileUtils {
 			// Any sort of path separator found...
 			fileName = fileName.substring(pos + 1);
 		}
-		//替换上传文件名字的特殊字符
-		fileName = fileName.replace("=","").replace(",","").replace("&","");
+		//鏇挎崲涓婁紶鏂囦欢鍚嶅瓧鐨勭壒娈婂瓧绗?		fileName = fileName.replace("=","").replace(",","").replace("&","");
 		return fileName;
 	}
 }

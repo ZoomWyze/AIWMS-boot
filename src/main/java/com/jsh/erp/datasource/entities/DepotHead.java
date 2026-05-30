@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.entities;
+﻿package com.jsh.erp.datasource.entities;
 
+
+/**
+ * DepotHead 实体类
+ * 对应数据库 jsh_depothead 表
+ *
+ * @author jishenghua
+ */
 import java.math.BigDecimal;
 import java.util.Date;
 

@@ -1,5 +1,12 @@
-package com.jsh.erp.controller;
+﻿package com.jsh.erp.controller;
 
+
+/**
+ * 经手人管理 Controller
+ * 提供经手人（操作员/业务员）的 CRUD 接口
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -26,11 +33,11 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnJson;
 import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
 
 /**
- * @author ji|sheng|hua 管伊佳erp
+ * @author ji|sheng|hua 绠′紛浣砮rp
  */
 @RestController
 @RequestMapping(value = "/person")
-@Api(tags = {"经手人管理"})
+@Api(tags = {"缁忔墜浜虹鐞?})
 public class PersonController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(PersonController.class);
 
@@ -39,7 +46,7 @@ public class PersonController extends BaseController {
 
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Person person = personService.getPerson(id);
@@ -53,7 +60,7 @@ public class PersonController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -63,7 +70,7 @@ public class PersonController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @ApiOperation(value = "鏂板")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = personService.insertPerson(obj, request);
@@ -71,7 +78,7 @@ public class PersonController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @ApiOperation(value = "淇敼")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = personService.updatePerson(obj, request);
@@ -79,7 +86,7 @@ public class PersonController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @ApiOperation(value = "鍒犻櫎")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = personService.deletePerson(id, request);
@@ -87,7 +94,7 @@ public class PersonController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @ApiOperation(value = "鎵归噺鍒犻櫎")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = personService.batchDeletePerson(ids, request);
@@ -95,7 +102,7 @@ public class PersonController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -109,13 +116,13 @@ public class PersonController extends BaseController {
     }
 
     /**
-     * 全部数据列表
+     * 鍏ㄩ儴鏁版嵁鍒楄〃
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/getAllList")
-    @ApiOperation(value = "全部数据列表")
+    @ApiOperation(value = "鍏ㄩ儴鏁版嵁鍒楄〃")
     public BaseResponseInfo getAllList(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -127,19 +134,19 @@ public class PersonController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 根据Id获取经手人信息
+     * 鏍规嵁Id鑾峰彇缁忔墜浜轰俊鎭?
      * @param personIds
      * @param request
      * @return
      */
     @GetMapping(value = "/getPersonByIds")
-    @ApiOperation(value = "根据Id获取经手人信息")
+    @ApiOperation(value = "鏍规嵁Id鑾峰彇缁忔墜浜轰俊鎭?)
     public BaseResponseInfo getPersonByIds(@RequestParam("personIds") String personIds,
                                            HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -153,19 +160,19 @@ public class PersonController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 根据类型获取经手人信息
+     * 鏍规嵁绫诲瀷鑾峰彇缁忔墜浜轰俊鎭?
      * @param type
      * @param request
      * @return
      */
     @GetMapping(value = "/getPersonByType")
-    @ApiOperation(value = "根据类型获取经手人信息")
+    @ApiOperation(value = "鏍规嵁绫诲瀷鑾峰彇缁忔墜浜轰俊鎭?)
     public BaseResponseInfo getPersonByType(@RequestParam("type") String type,
                                             HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -178,30 +185,30 @@ public class PersonController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 根据类型获取经手人信息 1-销售员，2-仓管员，3-财务员
+     * 鏍规嵁绫诲瀷鑾峰彇缁忔墜浜轰俊鎭?1-閿€鍞憳锛?-浠撶鍛橈紝3-璐㈠姟鍛?
      * @param typeNum
      * @param request
      * @return
      */
     @GetMapping(value = "/getPersonByNumType")
-    @ApiOperation(value = "根据类型获取经手人信息1-销售员，2-仓管员，3-财务员")
+    @ApiOperation(value = "鏍规嵁绫诲瀷鑾峰彇缁忔墜浜轰俊鎭?-閿€鍞憳锛?-浠撶鍛橈紝3-璐㈠姟鍛?)
     public JSONArray getPersonByNumType(@RequestParam("type") String typeNum,
                                         HttpServletRequest request)throws Exception {
         JSONArray dataArray = new JSONArray();
         try {
             String type = "";
             if (typeNum.equals("1")) {
-                type = "销售员";
+                type = "閿€鍞憳";
             } else if (typeNum.equals("2")) {
-                type = "仓管员";
+                type = "浠撶鍛?;
             } else if (typeNum.equals("3")) {
-                type = "财务员";
+                type = "璐㈠姟鍛?;
             }
             List<Person> personList = personService.getPersonByType(type);
             if (null != personList) {
@@ -219,13 +226,13 @@ public class PersonController extends BaseController {
     }
 
     /**
-     * 批量设置状态-启用或者禁用
+     * 鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?
      * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态")
+    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?)
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");

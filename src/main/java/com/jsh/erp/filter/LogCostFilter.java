@@ -1,5 +1,20 @@
 package com.jsh.erp.filter;
 
+/**
+ * 登录与路径安全过滤器
+ *
+ * 功能：
+ *   1. 对所有请求进行登录状态校验
+ *   2. 静态资源和白名单路径直接放行
+ *   3. 未登录请求返回 loginOut 标识，前端据此跳转登录页
+ *   4. 通过 @WebFilter 注解注册，匹配所有 URL 路径
+ *
+ * 白名单路径通过 initParams 配置，包括：
+ *   - Swagger 文档路径
+ *   - 静态资源路径
+ *   - 微信分享接口
+ *   - 插件相关路径
+ */
 import com.jsh.erp.service.RedisService;
 import org.springframework.util.StringUtils;
 

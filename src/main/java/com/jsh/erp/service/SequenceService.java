@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 序列号生成 Service
+ * 提供单据编号序列的自动生成逻辑，保证编号连续性和唯一性
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.*;
@@ -64,14 +71,14 @@ public class SequenceService {
     }
 
     /**
-     * 创建一个唯一的序列号
+     * 鍒涘缓涓€涓敮涓€鐨勫簭鍒楀彿
      * */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public String buildOnlyNumber()throws Exception{
         Long buildOnlyNumber=null;
         synchronized (this){
             try{
-                sequenceMapperEx.updateBuildOnlyNumber(); //编号+1
+                sequenceMapperEx.updateBuildOnlyNumber(); //缂栧彿+1
                 buildOnlyNumber= sequenceMapperEx.getBuildOnlyNumber(BusinessConstants.DEPOT_NUMBER_SEQ);
             }catch(Exception e){
                 JshException.writeFail(logger, e);

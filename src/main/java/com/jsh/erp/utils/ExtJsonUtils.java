@@ -1,5 +1,12 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * 扩展 JSON 工具类
+ * 提供 JSON 对象的扩展操作方法，支持动态添加/删除 JSON 字段
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.ParserConfig;

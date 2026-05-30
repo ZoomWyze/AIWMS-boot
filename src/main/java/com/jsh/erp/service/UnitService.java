@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 计量单位 Service
+ * 提供商品计量单位的业务逻辑：新增/查询
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -98,7 +105,7 @@ public class UnitService {
             parseNameByUnit(unit);
             unit.setEnabled(true);
             result=unitMapper.insertSelective(unit);
-            logService.insertLog("多单位",
+            logService.insertLog("澶氬崟浣?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(unit.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -119,7 +126,7 @@ public class UnitService {
             if(unit.getRatioThree()==null) {
                 unitMapperEx.updateRatioThreeById(unit.getId());
             }
-            logService.insertLog("多单位",
+            logService.insertLog("澶氬崟浣?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(unit.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -128,8 +135,7 @@ public class UnitService {
     }
 
     /**
-     * 根据单位信息生成名称的格式
-     * @param unit
+     * 鏍规嵁鍗曚綅淇℃伅鐢熸垚鍚嶇О鐨勬牸寮?     * @param unit
      */
     private void parseNameByUnit(Unit unit) {
         String unitName = unit.getBasicUnit() + "/" + "(" +  unit.getOtherUnit() + "=" + unit.getRatio().toString() + unit.getBasicUnit() + ")";
@@ -156,7 +162,7 @@ public class UnitService {
     public int batchDeleteUnitByIds(String ids)throws Exception {
         int result=0;
         String [] idArray=ids.split(",");
-        //校验产品表	jsh_material
+        //鏍￠獙浜у搧琛?jsh_material
         List<Material> materialList=null;
         try{
             materialList=materialMapperEx.getMaterialListByUnitIds(idArray);
@@ -164,22 +170,22 @@ public class UnitService {
             JshException.readFail(logger, e);
         }
         if(materialList!=null&&materialList.size()>0){
-            logger.error("异常码[{}],异常提示[{}],参数,UnitIds[{}]",
+            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,UnitIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //记录日志
+        //璁板綍鏃ュ織
         StringBuffer sb = new StringBuffer();
         sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
         List<Unit> list = getUnitListByIds(ids);
         for(Unit unit: list){
             sb.append("[").append(unit.getName()).append("]");
         }
-        logService.insertLog("多单位", sb.toString(),
+        logService.insertLog("澶氬崟浣?, sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
-        //校验通过执行删除操作
+        //鏍￠獙閫氳繃鎵ц鍒犻櫎鎿嶄綔
         try{
             result=unitMapperEx.batchDeleteUnitByIds(new Date(),userInfo==null?null:userInfo.getId(),idArray);
         }catch(Exception e){
@@ -201,7 +207,7 @@ public class UnitService {
     }
 
     /**
-     * 根据条件查询单位id
+     * 鏍规嵁鏉′欢鏌ヨ鍗曚綅id
      * @param basicUnit
      * @param otherUnit
      * @param ratio
@@ -220,7 +226,7 @@ public class UnitService {
     }
 
     /**
-     * 根据多单位的比例进行库存换算（保留两位小数）
+     * 鏍规嵁澶氬崟浣嶇殑姣斾緥杩涜搴撳瓨鎹㈢畻锛堜繚鐣欎袱浣嶅皬鏁帮級
      * @param stock
      * @param unitInfo
      * @param materialUnit
@@ -242,7 +248,7 @@ public class UnitService {
     }
 
     /**
-     * 根据多单位的比例进行单价换算（保留两位小数）,变大
+     * 鏍规嵁澶氬崟浣嶇殑姣斾緥杩涜鍗曚环鎹㈢畻锛堜繚鐣欎袱浣嶅皬鏁帮級,鍙樺ぇ
      * @param unitPrice
      * @param unitInfo
      * @param materialUnit
@@ -264,7 +270,7 @@ public class UnitService {
     }
 
     /**
-     * 根据多单位的比例进行总金额换算（保留两位小数），变小
+     * 鏍规嵁澶氬崟浣嶇殑姣斾緥杩涜鎬婚噾棰濇崲绠楋紙淇濈暀涓や綅灏忔暟锛夛紝鍙樺皬
      * @param allPrice
      * @param unitInfo
      * @param materialUnit
@@ -287,7 +293,7 @@ public class UnitService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Boolean status, String ids)throws Exception {
-        logService.insertLog("多单位",
+        logService.insertLog("澶氬崟浣?,
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ENABLED).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> unitIds = StringUtil.strToLongList(ids);

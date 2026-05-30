@@ -1,5 +1,12 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * 字符串工具类
+ * 提供字符串的常用操作方法（判空、去空格、格式化等）
+ *
+ * @author jishenghua
+ */
 import org.springframework.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -28,7 +35,7 @@ public class StringUtil {
             "| grant | grant|grant | execute | execute|execute | exec | exec|exec | xp_cmdshell | xp_cmdshell|xp_cmdshell " +
             "| call | call|call | declare | declare|declare | source | source|source | sql | sql|sql ";
 
-    /** 下划线 */
+    /** 涓嬪垝绾?*/
     private static final char SEPARATOR = '_';
 
     public static String filterNull(String str) {
@@ -52,7 +59,7 @@ public class StringUtil {
     }
 
     /**
-     * 驼峰转下划线命名
+     * 椹煎嘲杞笅鍒掔嚎鍛藉悕
      */
     public static String toUnderScoreCase(String str)
     {
@@ -61,11 +68,11 @@ public class StringUtil {
             return null;
         }
         StringBuilder sb = new StringBuilder();
-        // 前置字符是否大写
+        // 鍓嶇疆瀛楃鏄惁澶у啓
         boolean preCharIsUpperCase = true;
-        // 当前字符是否大写
+        // 褰撳墠瀛楃鏄惁澶у啓
         boolean curreCharIsUpperCase = true;
-        // 下一字符是否大写
+        // 涓嬩竴瀛楃鏄惁澶у啓
         boolean nexteCharIsUpperCase = true;
         for (int i = 0; i < str.length(); i++)
         {
@@ -101,21 +108,18 @@ public class StringUtil {
     }
 
     /**
-     * * 判断一个对象是否为空
-     *
+     * * 鍒ゆ柇涓€涓璞℃槸鍚︿负绌?     *
      * @param object Object
-     * @return true：为空 false：非空
-     */
+     * @return true锛氫负绌?false锛氶潪绌?     */
     public static boolean isNull(Object object)
     {
         return object == null;
     }
 
     /**
-     * * 判断一个对象是否非空
-     *
+     * * 鍒ゆ柇涓€涓璞℃槸鍚﹂潪绌?     *
      * @param object Object
-     * @return true：非空 false：空
+     * @return true锛氶潪绌?false锛氱┖
      */
     public static boolean isNotNull(Object object)
     {
@@ -147,7 +151,7 @@ public class StringUtil {
             try {
                 return sdf.parse(date);
             } catch (ParseException e) {
-                throw new RuntimeException("转换为日期类型错误：DATE：" + date + "  FORMAT:" + format);
+                throw new RuntimeException("杞崲涓烘棩鏈熺被鍨嬮敊璇細DATE锛? + date + "  FORMAT:" + format);
             }
         } else {
             return null;
@@ -212,7 +216,7 @@ public class StringUtil {
         }
     }
 
-    //是否是JSON
+    //鏄惁鏄疛SON
     public static boolean containsAny(String str, String... flag) {
         if (str != null) {
             if (flag == null || flag.length == 0) {
@@ -266,7 +270,7 @@ public class StringUtil {
     }
 
     /**
-     * String字符串转成List<Long>数据格式
+     * String瀛楃涓茶浆鎴怢ist<Long>鏁版嵁鏍煎紡
      * String str = "1,2,3,4,5,6" -> List<Long> listLong [1,2,3,4,5,6];
      *
      * @param strArr
@@ -284,7 +288,7 @@ public class StringUtil {
     }
 
     /**
-     * String字符串转成List<BigDecimal>数据格式
+     * String瀛楃涓茶浆鎴怢ist<BigDecimal>鏁版嵁鏍煎紡
      * String str = "1,2,3,4,5,6" -> List<BigDecimal> listBigDecimal [1,2,3,4,5,6];
      *
      * @param strArr
@@ -302,7 +306,7 @@ public class StringUtil {
     }
 
     /**
-     * String字符串转成List<String>数据格式
+     * String瀛楃涓茶浆鎴怢ist<String>鏁版嵁鏍煎紡
      * String str = "1,2,3,4,5,6" -> List<Long> listLong [1,2,3,4,5,6];
      *
      * @param strArr
@@ -374,7 +378,7 @@ public class StringUtil {
     }
 
     /**
-     * 判断对象是否为正整数
+     * 鍒ゆ柇瀵硅薄鏄惁涓烘鏁存暟
      * @param value
      * @return
      */
@@ -396,8 +400,7 @@ public class StringUtil {
     }
 
     /**
-     * 校验条码长度为4到40位
-     * @param value
+     * 鏍￠獙鏉＄爜闀垮害涓?鍒?0浣?     * @param value
      * @return
      */
     public static boolean checkBarCodeLength(Object value) {
@@ -418,14 +421,14 @@ public class StringUtil {
     }
 
     /**
-     * 判断对象是否为数字（含小数）
+     * 鍒ゆ柇瀵硅薄鏄惁涓烘暟瀛楋紙鍚皬鏁帮級
      * @param str
      * @return
      */
     public static boolean isPositiveBigDecimal(String str){
         Pattern pattern = Pattern.compile("[0-9]*");
-        if(str.indexOf(".")>0){//判断是否有小数点
-            if(str.indexOf(".")==str.lastIndexOf(".") && str.split("\\.").length==2){ //判断是否只有一个小数点
+        if(str.indexOf(".")>0){//鍒ゆ柇鏄惁鏈夊皬鏁扮偣
+            if(str.indexOf(".")==str.lastIndexOf(".") && str.split("\\.").length==2){ //鍒ゆ柇鏄惁鍙湁涓€涓皬鏁扮偣
                 return pattern.matcher(str.replace(".","")).matches();
             }else {
                 return false;
@@ -436,8 +439,7 @@ public class StringUtil {
     }
 
     /**
-     * sql注入过滤，保障sql的安全执行
-     * @param originStr
+     * sql娉ㄥ叆杩囨护锛屼繚闅渟ql鐨勫畨鍏ㄦ墽琛?     * @param originStr
      * @return
      */
     public static String safeSqlParse(String originStr){
@@ -445,15 +447,14 @@ public class StringUtil {
     }
 
     /**
-     * 判断字符串是否为纯数字
-     * @param str 输入的字符串
-     * @return 如果字符串为纯数字，返回 true；否则返回 false
+     * 鍒ゆ柇瀛楃涓叉槸鍚︿负绾暟瀛?     * @param str 杈撳叆鐨勫瓧绗︿覆
+     * @return 濡傛灉瀛楃涓蹭负绾暟瀛楋紝杩斿洖 true锛涘惁鍒欒繑鍥?false
      */
     public static boolean isNumeric(String str) {
         if (str == null || str.isEmpty()) {
             return false;
         }
-        // 使用正则表达式判断字符串是否为纯数字
+        // 浣跨敤姝ｅ垯琛ㄨ揪寮忓垽鏂瓧绗︿覆鏄惁涓虹函鏁板瓧
         return str.matches("\\d+");
     }
 

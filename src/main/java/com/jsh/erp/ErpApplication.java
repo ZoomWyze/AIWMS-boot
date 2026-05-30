@@ -1,5 +1,19 @@
 package com.jsh.erp;
 
+/**
+ * AIWMS（智能仓储管理系统）Spring Boot 启动类
+ *
+ * 功能：
+ *   1. @SpringBootApplication  — 标识 Spring Boot 应用入口
+ *   2. @MapperScan             — 扫描 MyBatis Mapper 接口（datasource.mappers 包）
+ *   3. @ServletComponentScan   — 扫描 Servlet/Filter/Listener 注解
+ *   4. @EnableScheduling       — 启用定时任务
+ *   5. @EnableAsync            — 启用异步方法
+ *
+ * 启动后默认监听端口 9999，上下文路径为 /AIWMS-boot
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.utils.ComputerInfo;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;

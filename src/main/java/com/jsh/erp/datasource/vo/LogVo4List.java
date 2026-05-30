@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.vo;
+﻿package com.jsh.erp.datasource.vo;
 
+
+/**
+ * 视图对象 (VO) - LogVo4List
+ * 用于特定业务场景的数据传输，封装查询结果或前端请求参数
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.Log;
 
 public class LogVo4List extends Log {

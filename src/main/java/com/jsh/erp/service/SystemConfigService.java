@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 系统配置 Service
+ * 提供系统级配置参数的业务逻辑：查询/更新/文件大小限制
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.oss.ClientException;
@@ -102,8 +109,8 @@ public class SystemConfigService {
         int result=0;
         try{
             result=systemConfigMapper.insertSelective(systemConfig);
-            String logInfo = StringUtil.isNotEmpty(systemConfig.getCompanyName())?systemConfig.getCompanyName():"配置信息";
-            logService.insertLogWithUserId(userService.getCurrentUser().getId(), userService.getCurrentUser().getTenantId(), "系统配置",
+            String logInfo = StringUtil.isNotEmpty(systemConfig.getCompanyName())?systemConfig.getCompanyName():"閰嶇疆淇℃伅";
+            logService.insertLogWithUserId(userService.getCurrentUser().getId(), userService.getCurrentUser().getTenantId(), "绯荤粺閰嶇疆",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(logInfo).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -117,8 +124,8 @@ public class SystemConfigService {
         int result=0;
         try{
             result = systemConfigMapper.updateByPrimaryKeySelective(systemConfig);
-            String logInfo = StringUtil.isNotEmpty(systemConfig.getCompanyName())?systemConfig.getCompanyName():"配置信息";
-            logService.insertLogWithUserId(userService.getCurrentUser().getId(), userService.getCurrentUser().getTenantId(), "系统配置",
+            String logInfo = StringUtil.isNotEmpty(systemConfig.getCompanyName())?systemConfig.getCompanyName():"閰嶇疆淇℃伅";
+            logService.insertLogWithUserId(userService.getCurrentUser().getId(), userService.getCurrentUser().getTenantId(), "绯荤粺閰嶇疆",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(logInfo).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -138,7 +145,7 @@ public class SystemConfigService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchDeleteSystemConfigByIds(String ids)throws Exception {
-        logService.insertLog("系统配置",
+        logService.insertLog("绯荤粺閰嶇疆",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_DELETE).append(ids).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
@@ -165,10 +172,9 @@ public class SystemConfigService {
     }
 
     /**
-     * 本地文件上传
-     * @param mf 文件
-     * @param bizPath  自定义路径
-     * @return
+     * 鏈湴鏂囦欢涓婁紶
+     * @param mf 鏂囦欢
+     * @param bizPath  鑷畾涔夎矾寰?     * @return
      */
     public String uploadLocal(MultipartFile mf, String bizPath, HttpServletRequest request) throws Exception {
         try {
@@ -186,10 +192,8 @@ public class SystemConfigService {
             String fileName = null;
             File file = new File(ctxPath + File.separator + bizPath + File.separator );
             if (!file.exists()) {
-                file.mkdirs();// 创建文件根目录
-            }
-            String orgName = mf.getOriginalFilename();// 获取文件名
-            orgName = FileUtils.getFileName(orgName);
+                file.mkdirs();// 鍒涘缓鏂囦欢鏍圭洰褰?            }
+            String orgName = mf.getOriginalFilename();// 鑾峰彇鏂囦欢鍚?            orgName = FileUtils.getFileName(orgName);
 
             // Validate file extension to allow only specific types
             String[] allowedExtensions = {".gif", ".jpg", ".jpeg", ".png", ".pdf", ".txt",".doc",".docx",".xls",".xlsx",
@@ -214,7 +218,7 @@ public class SystemConfigService {
             File savefile = new File(savePath);
             FileCopyUtils.copy(mf.getBytes(), savefile);
 
-            // 返回路径
+            // 杩斿洖璺緞
             String dbpath = null;
             if(StringUtil.isNotEmpty(bizPath)){
                 dbpath = bizPath + File.separator + fileName;
@@ -232,10 +236,9 @@ public class SystemConfigService {
     }
 
     /**
-     * 阿里Oss文件上传
-     * @param mf 文件
-     * @param bizPath  自定义路径
-     * @return
+     * 闃块噷Oss鏂囦欢涓婁紶
+     * @param mf 鏂囦欢
+     * @param bizPath  鑷畾涔夎矾寰?     * @return
      */
     public String uploadAliOss(MultipartFile mf, String bizPath, HttpServletRequest request) throws Exception {
         if(StringUtil.isEmpty(bizPath)){
@@ -252,10 +255,8 @@ public class SystemConfigService {
         String accessKeyId = platformConfigService.getPlatformConfigByKey("aliOss_accessKeyId").getPlatformValue();
         String accessKeySecret = platformConfigService.getPlatformConfigByKey("aliOss_accessKeySecret").getPlatformValue();
         String bucketName = platformConfigService.getPlatformConfigByKey("aliOss_bucketName").getPlatformValue();
-        // 填写Object完整路径，完整路径中不能包含Bucket名称，例如exampledir/exampleobject.txt。
-        String fileName = "";
-        String orgName = mf.getOriginalFilename();// 获取文件名
-        orgName = FileUtils.getFileName(orgName);
+        // 濉啓Object瀹屾暣璺緞锛屽畬鏁磋矾寰勪腑涓嶈兘鍖呭惈Bucket鍚嶇О锛屼緥濡俥xampledir/exampleobject.txt銆?        String fileName = "";
+        String orgName = mf.getOriginalFilename();// 鑾峰彇鏂囦欢鍚?        orgName = FileUtils.getFileName(orgName);
 
         // Validate file extension to allow only specific types
         String[] allowedExtensions = {".gif", ".jpg", ".jpeg", ".png", ".pdf", ".txt",".doc",".docx",".xls",".xlsx",
@@ -279,19 +280,15 @@ public class SystemConfigService {
         String filePathStr = StringUtil.isNotEmpty(filePath)? filePath.substring(1):"";
         String objectName = filePathStr + "/" + bizPath + "/" + fileName;
         String smallObjectName = filePathStr + "-small/" + bizPath + "/" + fileName;
-        // 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件流。
-        byte [] byteArr = mf.getBytes();
+        // 濡傛灉鏈寚瀹氭湰鍦拌矾寰勶紝鍒欓粯璁や粠绀轰緥绋嬪簭鎵€灞為」鐩搴旀湰鍦拌矾寰勪腑涓婁紶鏂囦欢娴併€?        byte [] byteArr = mf.getBytes();
 
-        // 创建OSSClient实例。
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        // 鍒涘缓OSSClient瀹炰緥銆?        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
 
         try {
-            // 保存原文件
-            InputStream inputStream = new ByteArrayInputStream(byteArr);
+            // 淇濆瓨鍘熸枃浠?            InputStream inputStream = new ByteArrayInputStream(byteArr);
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, inputStream);
             ossClient.putObject(putObjectRequest);
-            // 如果是图片-保存缩略图
-            int index = fileName.lastIndexOf(".");
+            // 濡傛灉鏄浘鐗?淇濆瓨缂╃暐鍥?            int index = fileName.lastIndexOf(".");
             String ext = fileName.substring(index + 1);
             if(ext.contains("gif") || ext.contains("jpg") || ext.contains("jpeg") || ext.contains("png")
                     || ext.contains("GIF") || ext.contains("JPG") || ext.contains("JPEG") || ext.contains("PNG")) {
@@ -300,8 +297,7 @@ public class SystemConfigService {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(5 * 1000);
-                InputStream imgInputStream = conn.getInputStream();// 通过输入流获取图片数据
-                BufferedImage smallImage = getImageMini(imgInputStream, 80);
+                InputStream imgInputStream = conn.getInputStream();// 閫氳繃杈撳叆娴佽幏鍙栧浘鐗囨暟鎹?                BufferedImage smallImage = getImageMini(imgInputStream, 80);
                 ByteArrayOutputStream bs = new ByteArrayOutputStream();
                 ImageOutputStream imOut = ImageIO.createImageOutputStream(bs);
                 ImageIO.write(smallImage, ext, imOut);
@@ -309,7 +305,7 @@ public class SystemConfigService {
                 PutObjectRequest putSmallObjectRequest = new PutObjectRequest(bucketName, smallObjectName, isImg);
                 ossClient.putObject(putSmallObjectRequest);
             }
-            // 返回路径
+            // 杩斿洖璺緞
             return bizPath + "/" + fileName;
         } catch (OSSException oe) {
             logger.error("Caught an OSSException, which means your request made it to OSS, "
@@ -341,32 +337,27 @@ public class SystemConfigService {
     }
 
     /**
-     * 逻辑删除文件
+     * 閫昏緫鍒犻櫎鏂囦欢
      * @param pathList
      */
     public void deleteFileByPathList(List<String> pathList) throws Exception {
         if(fileUploadType == 1) {
-            //本地
+            //鏈湴
             for(String pathStr: pathList) {
                 if(StringUtil.isNotEmpty(pathStr)) {
                     String[] pathArr = pathStr.split(",");
                     for (String path : pathArr) {
-                        // 提取文件的路径
-                        String pathDir = getDirByPath(path);
+                        // 鎻愬彇鏂囦欢鐨勮矾寰?                        String pathDir = getDirByPath(path);
                         if (StringUtil.isNotEmpty(pathDir)) {
-                            // 源文件路径
-                            Path sourcePath = Paths.get(filePath + File.separator + path);
-                            // 目标文件路径（注意这里是新文件的完整路径，包括文件名）
-                            Path targetPath = Paths.get(filePath + File.separator + DELETED + File.separator + path);
+                            // 婧愭枃浠惰矾寰?                            Path sourcePath = Paths.get(filePath + File.separator + path);
+                            // 鐩爣鏂囦欢璺緞锛堟敞鎰忚繖閲屾槸鏂版枃浠剁殑瀹屾暣璺緞锛屽寘鎷枃浠跺悕锛?                            Path targetPath = Paths.get(filePath + File.separator + DELETED + File.separator + path);
                             try {
                                 File file = new File(filePath + File.separator + DELETED + File.separator + pathDir);
                                 if (!file.exists()) {
-                                    file.mkdirs();// 创建文件根目录
-                                }
-                                // 复制文件，如果目标文件已存在则替换它
+                                    file.mkdirs();// 鍒涘缓鏂囦欢鏍圭洰褰?                                }
+                                // 澶嶅埗鏂囦欢锛屽鏋滅洰鏍囨枃浠跺凡瀛樺湪鍒欐浛鎹㈠畠
                                 Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                                // 删除源文件
-                                Files.delete(sourcePath);
+                                // 鍒犻櫎婧愭枃浠?                                Files.delete(sourcePath);
                                 logger.info("File copied successfully.");
                             } catch (NoSuchFileException e) {
                                 logger.error("Source file not found: " + e.getMessage());
@@ -390,8 +381,7 @@ public class SystemConfigService {
                     String[] pathArr = pathStr.split(",");
                     for (String path : pathArr) {
                         if(StringUtil.isNotEmpty(path)) {
-                            // 创建OSSClient实例。
-                            OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+                            // 鍒涘缓OSSClient瀹炰緥銆?                            OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
                             try {
                                 String filePathStr = StringUtil.isNotEmpty(filePath) ? filePath.substring(1) : "";
                                 String sourceObjectKey = filePathStr + "/" + path;
@@ -403,8 +393,7 @@ public class SystemConfigService {
                             } catch (Exception e) {
                                 logger.error(e.getMessage());
                             } finally {
-                                // 关闭OSSClient。
-                                if (ossClient != null) {
+                                // 鍏抽棴OSSClient銆?                                if (ossClient != null) {
                                     ossClient.shutdown();
                                 }
                             }
@@ -419,20 +408,19 @@ public class SystemConfigService {
      *
      * @param ossClient
      * @param bucketName
-     * @param sourceObjectKey 源文件路径，包括目录和文件名
-     * @param destinationObjectKey 目标文件路径，包括新目录和文件名
+     * @param sourceObjectKey 婧愭枃浠惰矾寰勶紝鍖呮嫭鐩綍鍜屾枃浠跺悕
+     * @param destinationObjectKey 鐩爣鏂囦欢璺緞锛屽寘鎷柊鐩綍鍜屾枃浠跺悕
      */
     public void copySourceToDest(OSS ossClient, String bucketName, String sourceObjectKey, String destinationObjectKey) {
-        // 复制文件
+        // 澶嶅埗鏂囦欢
         CopyObjectResult copyResult = ossClient.copyObject(bucketName, sourceObjectKey, bucketName, destinationObjectKey);
-        // 确认复制成功
+        // 纭澶嶅埗鎴愬姛
         if (copyResult != null && copyResult.getETag() != null) {
-            logger.info("文件复制成功，ETag: " + copyResult.getETag());
-            // 删除源文件
-            ossClient.deleteObject(bucketName, sourceObjectKey);
-            logger.info("源文件已删除：" + sourceObjectKey);
+            logger.info("鏂囦欢澶嶅埗鎴愬姛锛孍Tag: " + copyResult.getETag());
+            // 鍒犻櫎婧愭枃浠?            ossClient.deleteObject(bucketName, sourceObjectKey);
+            logger.info("婧愭枃浠跺凡鍒犻櫎锛? + sourceObjectKey);
         } else {
-            logger.info("文件复制失败");
+            logger.info("鏂囦欢澶嶅埗澶辫触");
         }
     }
 
@@ -446,7 +434,7 @@ public class SystemConfigService {
 
     public BufferedImage getImageMini(InputStream inputStream, int w) throws Exception {
         BufferedImage img = ImageIO.read(inputStream);
-        //获取图片的长和宽
+        //鑾峰彇鍥剧墖鐨勯暱鍜屽
         int width = img.getWidth();
         int height = img.getHeight();
         int tempw = 0;
@@ -467,8 +455,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取仓库开关
-     * @return
+     * 鑾峰彇浠撳簱寮€鍏?     * @return
      * @throws Exception
      */
     public boolean getDepotFlag() throws Exception {
@@ -484,8 +471,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取客户开关
-     * @return
+     * 鑾峰彇瀹㈡埛寮€鍏?     * @return
      * @throws Exception
      */
     public boolean getCustomerFlag() throws Exception {
@@ -501,8 +487,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取负库存开关
-     * @return
+     * 鑾峰彇璐熷簱瀛樺紑鍏?     * @return
      * @throws Exception
      */
     public boolean getMinusStockFlag() throws Exception {
@@ -518,8 +503,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取更新单价开关
-     * @return
+     * 鑾峰彇鏇存柊鍗曚环寮€鍏?     * @return
      * @throws Exception
      */
     public boolean getUpdateUnitPriceFlag() throws Exception {
@@ -535,8 +519,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取超出关联单据开关
-     * @return
+     * 鑾峰彇瓒呭嚭鍏宠仈鍗曟嵁寮€鍏?     * @return
      * @throws Exception
      */
     public boolean getOverLinkBillFlag() throws Exception {
@@ -552,8 +535,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取强审核开关
-     * @return
+     * 鑾峰彇寮哄鏍稿紑鍏?     * @return
      * @throws Exception
      */
     public boolean getForceApprovalFlag() throws Exception {
@@ -569,8 +551,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取多级审核开关
-     * @return
+     * 鑾峰彇澶氱骇瀹℃牳寮€鍏?     * @return
      * @throws Exception
      */
     public boolean getMultiLevelApprovalFlag() throws Exception {
@@ -586,8 +567,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取出入库管理开关
-     * @return
+     * 鑾峰彇鍑哄叆搴撶鐞嗗紑鍏?     * @return
      * @throws Exception
      */
     public boolean getInOutManageFlag() throws Exception {
@@ -603,8 +583,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取移动平均价开关
-     * @return
+     * 鑾峰彇绉诲姩骞冲潎浠峰紑鍏?     * @return
      * @throws Exception
      */
     public boolean getMoveAvgPriceFlag() throws Exception {
@@ -620,8 +599,7 @@ public class SystemConfigService {
     }
 
     /**
-     * 获取客户静态单价开关
-     * @return
+     * 鑾峰彇瀹㈡埛闈欐€佸崟浠峰紑鍏?     * @return
      * @throws Exception
      */
     public boolean getCustomerStaticPriceFlag() throws Exception {
@@ -637,7 +615,7 @@ public class SystemConfigService {
     }
 
     /**
-     * Excel导出统一方法
+     * Excel瀵煎嚭缁熶竴鏂规硶
      * @param title
      * @param head
      * @param tip

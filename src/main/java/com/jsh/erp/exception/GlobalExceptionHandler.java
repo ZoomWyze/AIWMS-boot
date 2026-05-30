@@ -1,5 +1,18 @@
 package com.jsh.erp.exception;
 
+/**
+ * 全局异常处理器
+ *
+ * 使用 @RestControllerAdvice 注解拦截所有 Controller 层抛出的异常，
+ * 统一转换为 JSON 格式的错误响应返回前端。
+ *
+ * 处理的异常类型：
+ *   1. BusinessRunTimeException   — 业务运行时异常
+ *   2. BusinessParamCheckingException — 参数校验异常
+ *   3. Exception                  — 其他未预期异常
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.ExceptionConstants;
 import lombok.extern.slf4j.Slf4j;

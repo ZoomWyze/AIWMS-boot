@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 平台参数配置 Service
+ * 提供平台级配置参数的查询和管理业务逻辑
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.PlatformConfig;
@@ -172,7 +179,7 @@ public class PlatformConfigService {
     }
 
     /**
-     * 根据key查询平台信息-内部专用方法
+     * 鏍规嵁key鏌ヨ骞冲彴淇℃伅-鍐呴儴涓撶敤鏂规硶
      * @param platformKey
      * @return
      * @throws Exception
@@ -193,25 +200,25 @@ public class PlatformConfigService {
     }
 
     /**
-     * 获取微信token信息
+     * 鑾峰彇寰俊token淇℃伅
      * @return
      * @throws Exception
      */
     public String getAccessToken() throws Exception {
         String accessToken = "";
         if(redisService.getCacheObject("weixinToken")==null) {
-            //1-获取token
+            //1-鑾峰彇token
             String weixinToken = getPlatformConfigByKey("weixinUrl").getPlatformValue() + BusinessConstants.WEIXIN_TOKEN;
             String weixinAppid = getPlatformConfigByKey("weixinAppid").getPlatformValue();
             String weixinSecret = getPlatformConfigByKey("weixinSecret").getPlatformValue();
             String url = weixinToken + "?grant_type=client_credential&appid=" + weixinAppid + "&secret=" + weixinSecret;
             JSONObject jsonObject = HttpClient.httpGet(url);
-            logger.info("获取到微信token信息:{}", jsonObject);
+            logger.info("鑾峰彇鍒板井淇oken淇℃伅:{}", jsonObject);
             if (jsonObject != null) {
                 accessToken = jsonObject.getString("access_token");
                 Long expiresIn = jsonObject.getLong("expires_in") - 10;
                 if (StringUtil.isNotEmpty(accessToken)) {
-                    //存redis
+                    //瀛榬edis
                     redisService.storageKeyWithTime("weixinToken", accessToken, expiresIn);
                 }
             }
@@ -222,38 +229,34 @@ public class PlatformConfigService {
     }
 
     /**
-     * 发送邮件(该方法将在一个单独的线程中执行)
+     * 鍙戦€侀偖浠?璇ユ柟娉曞皢鍦ㄤ竴涓崟鐙殑绾跨▼涓墽琛?
      * @return
      * @throws Exception
      */
     @Async
     public void sendEmail(String emailFrom, String emailAuthCode, String emailSmtpHost, String toEmail, String emailSubject, String emailBody) {
-        // 配置邮件服务器属性
-        Properties properties = new Properties();
-        properties.put("mail.smtp.host", emailSmtpHost); // 网易邮箱SMTP服务器
-        properties.put("mail.smtp.port", "465"); // SSL端口
-        properties.put("mail.smtp.auth", "true"); // 需要认证
-        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"); // 使用SSL
-        properties.put("mail.smtp.socketFactory.port", "465"); // SSL端口
+        // 閰嶇疆閭欢鏈嶅姟鍣ㄥ睘鎬?        Properties properties = new Properties();
+        properties.put("mail.smtp.host", emailSmtpHost); // 缃戞槗閭SMTP鏈嶅姟鍣?        properties.put("mail.smtp.port", "465"); // SSL绔彛
+        properties.put("mail.smtp.auth", "true"); // 闇€瑕佽璇?        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"); // 浣跨敤SSL
+        properties.put("mail.smtp.socketFactory.port", "465"); // SSL绔彛
         try {
-            // 创建会话
+            // 鍒涘缓浼氳瘽
             Session session = Session.getInstance(properties, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(emailFrom, emailAuthCode);
                 }
             });
-            // 创建邮件
+            // 鍒涘缓閭欢
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailFrom));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             message.setSubject(emailSubject);
             message.setText(emailBody);
-            // 发送邮件
-            Transport.send(message);
-            logger.info("邮件发送成功！");
+            // 鍙戦€侀偖浠?            Transport.send(message);
+            logger.info("閭欢鍙戦€佹垚鍔燂紒");
         } catch (Exception e) {
-            logger.error("邮件发送失败: " + e.getMessage());
+            logger.error("閭欢鍙戦€佸け璐? " + e.getMessage());
         }
     }
 }

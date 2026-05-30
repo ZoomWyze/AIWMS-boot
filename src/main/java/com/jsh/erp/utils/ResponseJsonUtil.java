@@ -1,5 +1,12 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * 响应 JSON 工具类
+ * 提供接口响应 JSON 的构建工具方法
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
@@ -18,8 +25,7 @@ public class ResponseJsonUtil {
     }
 
     /**
-     * 响应过滤器
-     */
+     * 鍝嶅簲杩囨护鍣?     */
     public static final class ResponseFilter extends ExtJsonUtils.ExtFilter implements ValueFilter {
         @Override
         public Object process(Object object, String name, Object value) {
@@ -34,8 +40,7 @@ public class ResponseJsonUtil {
     }
 
     /**
-     * 成功的json串
-     * @param responseCode
+     * 鎴愬姛鐨刯son涓?     * @param responseCode
      * @return
      */
     public static String backJson(ResponseCode responseCode) {

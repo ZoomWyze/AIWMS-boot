@@ -1,5 +1,12 @@
-package com.jsh.erp.utils;
+﻿package com.jsh.erp.utils;
 
+
+/**
+ * 注解工具类
+ * 提供注解相关的工具方法，用于反射获取注解信息
+ *
+ * @author jishenghua
+ */
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 

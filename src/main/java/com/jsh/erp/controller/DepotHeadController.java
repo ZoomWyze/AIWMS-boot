@@ -1,5 +1,12 @@
-package com.jsh.erp.controller;
+﻿package com.jsh.erp.controller;
 
+
+/**
+ * 单据主表 Controller
+ * 提供单据（采购入库/销售出库/退货/调拨等）的主表操作接口，包括：新增/编辑/删除/审核/反审核/查询/Excel导出
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -41,7 +48,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/depotHead")
-@Api(tags = {"单据管理"})
+@Api(tags = {"鍗曟嵁绠＄悊"})
 public class DepotHeadController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(DepotHeadController.class);
 
@@ -61,7 +68,7 @@ public class DepotHeadController extends BaseController {
     private UserService userService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         DepotHead depotHead = depotHeadService.getDepotHead(id);
@@ -75,7 +82,7 @@ public class DepotHeadController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String type = StringUtil.getInfo(search, "type");
@@ -101,7 +108,7 @@ public class DepotHeadController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @ApiOperation(value = "鍒犻櫎")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = depotHeadService.deleteDepotHead(id, request);
@@ -109,7 +116,7 @@ public class DepotHeadController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @ApiOperation(value = "鎵归噺鍒犻櫎")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = depotHeadService.batchDeleteDepotHead(ids, request);
@@ -117,7 +124,7 @@ public class DepotHeadController extends BaseController {
     }
 
     @PostMapping(value = "/forceCloseBatch")
-    @ApiOperation(value = "强制结单")
+    @ApiOperation(value = "寮哄埗缁撳崟")
     public String forceCloseBatch(@RequestBody JSONObject jsonObject, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         String ids = jsonObject.getString("ids");
@@ -130,7 +137,7 @@ public class DepotHeadController extends BaseController {
     }
 
     @PostMapping(value = "/forceClosePurchaseBatch")
-    @ApiOperation(value = "强制结单-以销定购")
+    @ApiOperation(value = "寮哄埗缁撳崟-浠ラ攢瀹氳喘")
     public String forceClosePurchaseBatch(@RequestBody JSONObject jsonObject, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         String ids = jsonObject.getString("ids");
@@ -143,13 +150,13 @@ public class DepotHeadController extends BaseController {
     }
 
     /**
-     * 批量设置状态-审核或者反审核
+     * 鎵归噺璁剧疆鐘舵€?瀹℃牳鎴栬€呭弽瀹℃牳
      * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态-审核或者反审核")
+    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?瀹℃牳鎴栬€呭弽瀹℃牳")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request) throws Exception{
         Map<String, Object> objectMap = new HashMap<>();
@@ -164,7 +171,7 @@ public class DepotHeadController extends BaseController {
     }
 
     /**
-     * 入库出库明细接口
+     * 鍏ュ簱鍑哄簱鏄庣粏鎺ュ彛
      * @param currentPage
      * @param pageSize
      * @param oId
@@ -178,7 +185,7 @@ public class DepotHeadController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findInOutDetail")
-    @ApiOperation(value = "入库出库明细接口")
+    @ApiOperation(value = "鍏ュ簱鍑哄簱鏄庣粏鎺ュ彛")
     public BaseResponseInfo findInOutDetail(@RequestParam("currentPage") Integer currentPage,
                                             @RequestParam("pageSize") Integer pageSize,
                                             @RequestParam(value = "organId", required = false) Integer oId,
@@ -202,7 +209,7 @@ public class DepotHeadController extends BaseController {
             if(depotId != null) {
                 depotList.add(depotId);
             } else {
-                //未选择仓库时默认为当前用户有权限的仓库
+                //鏈€夋嫨浠撳簱鏃堕粯璁や负褰撳墠鐢ㄦ埛鏈夋潈闄愮殑浠撳簱
                 JSONArray depotArr = depotService.findDepotByCurrentUser();
                 for(Object obj: depotArr) {
                     JSONObject object = JSONObject.parseObject(obj.toString());
@@ -214,7 +221,7 @@ public class DepotHeadController extends BaseController {
             if(creatorArray == null && organizationId != null) {
                 creatorArray = depotHeadService.getCreatorArrayByOrg(organizationId);
             }
-            String subType = "出库".equals(type)? "销售" : "";
+            String subType = "鍑哄簱".equals(type)? "閿€鍞? : "";
             String [] organArray = depotHeadService.getOrganArray(subType, "");
             List<Long> categoryList = new ArrayList<>();
             if(categoryId != null){
@@ -230,7 +237,7 @@ public class DepotHeadController extends BaseController {
             int total = depotHeadService.findInOutDetailCount(beginTime, endTime, type, creatorArray, organArray, categoryList, forceFlag, inOutManageFlag,
                     StringUtil.toNull(materialParam), depotList, oId, StringUtil.toNull(number), creator, remark);
             map.put("total", total);
-            //存放数据json数组
+            //瀛樻斁鏁版嵁json鏁扮粍
             if (null != list) {
                 resList.addAll(list);
             }
@@ -244,14 +251,13 @@ public class DepotHeadController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 入库出库汇总接口
-     * @param currentPage
+     * 鍏ュ簱鍑哄簱姹囨€绘帴鍙?     * @param currentPage
      * @param pageSize
      * @param oId
      * @param materialParam
@@ -263,7 +269,7 @@ public class DepotHeadController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findInOutMaterialCount")
-    @ApiOperation(value = "入库出库汇总接口")
+    @ApiOperation(value = "鍏ュ簱鍑哄簱姹囨€绘帴鍙?)
     public BaseResponseInfo findInOutMaterialCount(@RequestParam("currentPage") Integer currentPage,
                                                    @RequestParam("pageSize") Integer pageSize,
                                                    @RequestParam(value = "organId", required = false) Integer oId,
@@ -284,7 +290,7 @@ public class DepotHeadController extends BaseController {
             if(depotId != null) {
                 depotList.add(depotId);
             } else {
-                //未选择仓库时默认为当前用户有权限的仓库
+                //鏈€夋嫨浠撳簱鏃堕粯璁や负褰撳墠鐢ㄦ埛鏈夋潈闄愮殑浠撳簱
                 JSONArray depotArr = depotService.findDepotByCurrentUser();
                 for(Object obj: depotArr) {
                     JSONObject object = JSONObject.parseObject(obj.toString());
@@ -315,19 +321,19 @@ public class DepotHeadController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 调拨明细统计
+     * 璋冩嫧鏄庣粏缁熻
      * @param currentPage
      * @param pageSize
      * @param number
      * @param materialParam
-     * @param depotIdF  调出仓库
-     * @param depotId  调入仓库
+     * @param depotIdF  璋冨嚭浠撳簱
+     * @param depotId  璋冨叆浠撳簱
      * @param beginTime
      * @param endTime
      * @param subType
@@ -335,7 +341,7 @@ public class DepotHeadController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findAllocationDetail")
-    @ApiOperation(value = "调拨明细统计")
+    @ApiOperation(value = "璋冩嫧鏄庣粏缁熻")
     public BaseResponseInfo findallocationDetail(@RequestParam("currentPage") Integer currentPage,
                                                  @RequestParam("pageSize") Integer pageSize,
                                                  @RequestParam("number") String number,
@@ -359,7 +365,7 @@ public class DepotHeadController extends BaseController {
             if(depotId != null) {
                 depotList.add(depotId);
             } else {
-                //未选择仓库时默认为当前用户有权限的仓库
+                //鏈€夋嫨浠撳簱鏃堕粯璁や负褰撳墠鐢ㄦ埛鏈夋潈闄愮殑浠撳簱
                 JSONArray depotArr = depotService.findDepotByCurrentUser();
                 for(Object obj: depotArr) {
                     JSONObject object = JSONObject.parseObject(obj.toString());
@@ -369,7 +375,7 @@ public class DepotHeadController extends BaseController {
             if(depotIdF != null) {
                 depotFList.add(depotIdF);
             } else {
-                //未选择仓库时默认为当前用户有权限的仓库
+                //鏈€夋嫨浠撳簱鏃堕粯璁や负褰撳墠鐢ㄦ埛鏈夋潈闄愮殑浠撳簱
                 JSONArray depotArr = depotService.findDepotByCurrentUser();
                 for(Object obj: depotArr) {
                     JSONObject object = JSONObject.parseObject(obj.toString());
@@ -403,25 +409,23 @@ public class DepotHeadController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 对账单接口
-     * @param currentPage
+     * 瀵硅处鍗曟帴鍙?     * @param currentPage
      * @param pageSize
      * @param beginTime
      * @param endTime
      * @param organId
-     * @param hasDebt 1-有欠款 0-无欠款
-     * @param supplierType
+     * @param hasDebt 1-鏈夋瑺娆?0-鏃犳瑺娆?     * @param supplierType
      * @param request
      * @return
      */
     @GetMapping(value = "/getStatementAccount")
-    @ApiOperation(value = "对账单接口")
+    @ApiOperation(value = "瀵硅处鍗曟帴鍙?)
     public BaseResponseInfo getStatementAccount(@RequestParam("currentPage") Integer currentPage,
                                                  @RequestParam("pageSize") Integer pageSize,
                                                  @RequestParam("beginTime") String beginTime,
@@ -438,18 +442,18 @@ public class DepotHeadController extends BaseController {
             String typeBack = "";
             String subTypeBack = "";
             String billType = "";
-            if (("供应商").equals(supplierType)) {
-                type = "入库";
-                subType = "采购";
-                typeBack = "出库";
-                subTypeBack = "采购退货";
-                billType = "付款";
-            } else if (("客户").equals(supplierType)) {
-                type = "出库";
-                subType = "销售";
-                typeBack = "入库";
-                subTypeBack = "销售退货";
-                billType = "收款";
+            if (("渚涘簲鍟?).equals(supplierType)) {
+                type = "鍏ュ簱";
+                subType = "閲囪喘";
+                typeBack = "鍑哄簱";
+                subTypeBack = "閲囪喘閫€璐?;
+                billType = "浠樻";
+            } else if (("瀹㈡埛").equals(supplierType)) {
+                type = "鍑哄簱";
+                subType = "閿€鍞?;
+                typeBack = "鍏ュ簱";
+                subTypeBack = "閿€鍞€€璐?;
+                billType = "鏀舵";
             }
             String [] organArray = depotHeadService.getOrganArray(subType, "");
             beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
@@ -459,13 +463,12 @@ public class DepotHeadController extends BaseController {
             int total = depotHeadService.getStatementAccountCount(beginTime, endTime, organId, organArray,
                     hasDebt, supplierType, type, subType,typeBack, subTypeBack, billType);
             for(DepotHeadVo4StatementAccount item: list) {
-                //期初 = 起始期初金额+上期欠款金额-上期退货的欠款金额-上期收付款
-                BigDecimal preNeed = item.getBeginNeed().add(item.getPreDebtMoney()).subtract(item.getPreReturnDebtMoney()).subtract(item.getPreBackMoney());
+                //鏈熷垵 = 璧峰鏈熷垵閲戦+涓婃湡娆犳閲戦-涓婃湡閫€璐х殑娆犳閲戦-涓婃湡鏀朵粯娆?                BigDecimal preNeed = item.getBeginNeed().add(item.getPreDebtMoney()).subtract(item.getPreReturnDebtMoney()).subtract(item.getPreBackMoney());
                 item.setPreNeed(preNeed);
-                //实际欠款 = 本期欠款-本期退货的欠款金额
+                //瀹為檯娆犳 = 鏈湡娆犳-鏈湡閫€璐х殑娆犳閲戦
                 BigDecimal realDebtMoney = item.getDebtMoney().subtract(item.getReturnDebtMoney());
                 item.setDebtMoney(realDebtMoney);
-                //期末 = 期初+实际欠款-本期收款
+                //鏈熸湯 = 鏈熷垵+瀹為檯娆犳-鏈湡鏀舵
                 BigDecimal allNeedGet = preNeed.add(realDebtMoney).subtract(item.getBackMoney());
                 item.setAllNeed(allNeedGet);
             }
@@ -478,40 +481,38 @@ public class DepotHeadController extends BaseController {
                 BigDecimal firstMoney = BigDecimal.ZERO;
                 BigDecimal lastMoney = BigDecimal.ZERO;
                 if(totalPayItem!=null) {
-                    //期初 = 起始期初金额+上期欠款金额-上期退货的欠款金额-上期收付款
-                    firstMoney = totalPayItem.getBeginNeed().add(totalPayItem.getPreDebtMoney()).subtract(totalPayItem.getPreReturnDebtMoney()).subtract(totalPayItem.getPreBackMoney());
-                    //期末 = 期初+本期欠款-本期退货的欠款金额-本期收款
+                    //鏈熷垵 = 璧峰鏈熷垵閲戦+涓婃湡娆犳閲戦-涓婃湡閫€璐х殑娆犳閲戦-涓婃湡鏀朵粯娆?                    firstMoney = totalPayItem.getBeginNeed().add(totalPayItem.getPreDebtMoney()).subtract(totalPayItem.getPreReturnDebtMoney()).subtract(totalPayItem.getPreBackMoney());
+                    //鏈熸湯 = 鏈熷垵+鏈湡娆犳-鏈湡閫€璐х殑娆犳閲戦-鏈湡鏀舵
                     lastMoney = firstMoney.add(totalPayItem.getDebtMoney()).subtract(totalPayItem.getReturnDebtMoney()).subtract(totalPayItem.getBackMoney());
                 }
-                map.put("firstMoney", firstMoney); //期初
-                map.put("lastMoney", lastMoney);  //期末
+                map.put("firstMoney", firstMoney); //鏈熷垵
+                map.put("lastMoney", lastMoney);  //鏈熸湯
             }
             res.code = 200;
             res.data = map;
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 获取待收款或付款的条数
-     * @param request
+     * 鑾峰彇寰呮敹娆炬垨浠樻鐨勬潯鏁?     * @param request
      * @return
      */
     @GetMapping(value = "/getNeedCount")
-    @ApiOperation(value = "获取待收款或付款的条数")
+    @ApiOperation(value = "鑾峰彇寰呮敹娆炬垨浠樻鐨勬潯鏁?)
     public BaseResponseInfo getNeedCount(@RequestParam("type") String type, HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<>();
         try {
             String supplierType = "";
             if (("vendor").equals(type)) {
-                supplierType = "供应商";
+                supplierType = "渚涘簲鍟?;
             } else if (("customer").equals(type)) {
-                supplierType = "客户";
+                supplierType = "瀹㈡埛";
             }
             int needCount = depotHeadService.getNeedCount(supplierType);
             map.put("needCount", needCount);
@@ -520,19 +521,19 @@ public class DepotHeadController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 根据编号查询单据信息
+     * 鏍规嵁缂栧彿鏌ヨ鍗曟嵁淇℃伅
      * @param number
      * @param request
      * @return
      */
     @GetMapping(value = "/getDetailByNumber")
-    @ApiOperation(value = "根据编号查询单据信息")
+    @ApiOperation(value = "鏍规嵁缂栧彿鏌ヨ鍗曟嵁淇℃伅")
     public BaseResponseInfo getDetailByNumber(@RequestParam("number") String number,
                                          HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -547,19 +548,19 @@ public class DepotHeadController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 根据原单号查询关联的单据列表
+     * 鏍规嵁鍘熷崟鍙锋煡璇㈠叧鑱旂殑鍗曟嵁鍒楄〃
      * @param number
      * @param request
      * @return
      */
     @GetMapping(value = "/getBillListByLinkNumber")
-    @ApiOperation(value = "根据原单号查询关联的单据列表")
+    @ApiOperation(value = "鏍规嵁鍘熷崟鍙锋煡璇㈠叧鑱旂殑鍗曟嵁鍒楄〃")
     public BaseResponseInfo getBillListByLinkNumber(@RequestParam("number") String number,
                                               HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -571,20 +572,19 @@ public class DepotHeadController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 新增单据主表及单据子表信息
-     * @param body
+     * 鏂板鍗曟嵁涓昏〃鍙婂崟鎹瓙琛ㄤ俊鎭?     * @param body
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/addDepotHeadAndDetail")
-    @ApiOperation(value = "新增单据主表及单据子表信息")
+    @ApiOperation(value = "鏂板鍗曟嵁涓昏〃鍙婂崟鎹瓙琛ㄤ俊鎭?)
     public Object addDepotHeadAndDetail(@RequestBody DepotHeadVo4Body body, HttpServletRequest request) throws  Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
         String beanJson = body.getInfo();
@@ -594,14 +594,13 @@ public class DepotHeadController extends BaseController {
     }
 
     /**
-     * 更新单据主表及单据子表信息
-     * @param body
+     * 鏇存柊鍗曟嵁涓昏〃鍙婂崟鎹瓙琛ㄤ俊鎭?     * @param body
      * @param request
      * @return
      * @throws Exception
      */
     @PutMapping(value = "/updateDepotHeadAndDetail")
-    @ApiOperation(value = "更新单据主表及单据子表信息")
+    @ApiOperation(value = "鏇存柊鍗曟嵁涓昏〃鍙婂崟鎹瓙琛ㄤ俊鎭?)
     public Object updateDepotHeadAndDetail(@RequestBody DepotHeadVo4Body body, HttpServletRequest request) throws Exception{
         JSONObject result = ExceptionConstants.standardSuccess();
         String beanJson = body.getInfo();
@@ -611,12 +610,11 @@ public class DepotHeadController extends BaseController {
     }
 
     /**
-     * 统计今日采购额、昨日采购额、本月采购额、今年采购额|销售额|零售额
-     * @param request
+     * 缁熻浠婃棩閲囪喘棰濄€佹槰鏃ラ噰璐銆佹湰鏈堥噰璐銆佷粖骞撮噰璐|閿€鍞|闆跺敭棰?     * @param request
      * @return
      */
     @GetMapping(value = "/getBuyAndSaleStatistics")
-    @ApiOperation(value = "统计今日采购额、昨日采购额、本月采购额、今年采购额|销售额|零售额")
+    @ApiOperation(value = "缁熻浠婃棩閲囪喘棰濄€佹槰鏃ラ噰璐銆佹湰鏈堥噰璐銆佷粖骞撮噰璐|閿€鍞|闆跺敭棰?)
     public BaseResponseInfo getBuyAndSaleStatistics(HttpServletRequest request) {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -636,19 +634,18 @@ public class DepotHeadController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 根据当前用户获取操作员数组，用于控制当前用户的数据权限，限制可以看到的单据范围
-     * 注意：该接口提供给部分插件使用，勿删
+     * 鏍规嵁褰撳墠鐢ㄦ埛鑾峰彇鎿嶄綔鍛樻暟缁勶紝鐢ㄤ簬鎺у埗褰撳墠鐢ㄦ埛鐨勬暟鎹潈闄愶紝闄愬埗鍙互鐪嬪埌鐨勫崟鎹寖鍥?     * 娉ㄦ剰锛氳鎺ュ彛鎻愪緵缁欓儴鍒嗘彃浠朵娇鐢紝鍕垮垹
      * @param request
      * @return
      */
     @GetMapping(value = "/getCreatorByCurrentUser")
-    @ApiOperation(value = "根据当前用户获取操作员数组")
+    @ApiOperation(value = "鏍规嵁褰撳墠鐢ㄦ埛鑾峰彇鎿嶄綔鍛樻暟缁?)
     public BaseResponseInfo getCreatorByCurrentUser(HttpServletRequest request) {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -658,20 +655,19 @@ public class DepotHeadController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 查询存在欠款的单据
-     * @param search
+     * 鏌ヨ瀛樺湪娆犳鐨勫崟鎹?     * @param search
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/debtList")
-    @ApiOperation(value = "查询存在欠款的单据")
+    @ApiOperation(value = "鏌ヨ瀛樺湪娆犳鐨勫崟鎹?)
     public String debtList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                            @RequestParam("currentPage") Integer currentPage,
                            @RequestParam("pageSize") Integer pageSize,
@@ -694,13 +690,12 @@ public class DepotHeadController extends BaseController {
         } else {
             objectMap.put("rows", new ArrayList<>());
             objectMap.put("total", 0);
-            return returnJson(objectMap, "查找不到数据", ErpInfo.OK.code);
+            return returnJson(objectMap, "鏌ユ壘涓嶅埌鏁版嵁", ErpInfo.OK.code);
         }
     }
 
     /**
-     * 导出存在欠款的单据
-     * @param organId
+     * 瀵煎嚭瀛樺湪娆犳鐨勫崟鎹?     * @param organId
      * @param materialParam
      * @param number
      * @param type
@@ -714,7 +709,7 @@ public class DepotHeadController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/debtExport")
-    @ApiOperation(value = "导出存在欠款的单据")
+    @ApiOperation(value = "瀵煎嚭瀛樺湪娆犳鐨勫崟鎹?)
     public void debtExport(@RequestParam(value = "organId", required = false) Long organId,
                            @RequestParam(value = "materialParam", required = false) String materialParam,
                            @RequestParam(value = "number", required = false) String number,
@@ -734,14 +729,14 @@ public class DepotHeadController extends BaseController {
     }
 
     /**
-     * 查询等待入库或出库的单据
+     * 鏌ヨ绛夊緟鍏ュ簱鎴栧嚭搴撶殑鍗曟嵁
      * @param search
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/waitBillList")
-    @ApiOperation(value = "查询等待入库或出库的单据")
+    @ApiOperation(value = "鏌ヨ绛夊緟鍏ュ簱鎴栧嚭搴撶殑鍗曟嵁")
     public String waitBillList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                            @RequestParam("currentPage") Integer currentPage,
                            @RequestParam("pageSize") Integer pageSize,
@@ -764,19 +759,19 @@ public class DepotHeadController extends BaseController {
         } else {
             objectMap.put("rows", new ArrayList<>());
             objectMap.put("total", 0);
-            return returnJson(objectMap, "查找不到数据", ErpInfo.OK.code);
+            return returnJson(objectMap, "鏌ユ壘涓嶅埌鏁版嵁", ErpInfo.OK.code);
         }
     }
 
     /**
-     * 查询等待入库或出库的单据数量
+     * 鏌ヨ绛夊緟鍏ュ簱鎴栧嚭搴撶殑鍗曟嵁鏁伴噺
      * @param search
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/waitBillCount")
-    @ApiOperation(value = "查询等待入库或出库的单据数量")
+    @ApiOperation(value = "鏌ヨ绛夊緟鍏ュ簱鎴栧嚭搴撶殑鍗曟嵁鏁伴噺")
     public String waitBillCount(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -793,14 +788,13 @@ public class DepotHeadController extends BaseController {
     }
 
     /**
-     * 批量新增入库或出库单据
-     * @param jsonObject
+     * 鎵归噺鏂板鍏ュ簱鎴栧嚭搴撳崟鎹?     * @param jsonObject
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/batchAddDepotHeadAndDetail")
-    @ApiOperation(value = "批量新增入库或出库单据")
+    @ApiOperation(value = "鎵归噺鏂板鍏ュ簱鎴栧嚭搴撳崟鎹?)
     public Object batchAddDepotHeadAndDetail(@RequestBody JSONObject jsonObject,
                                              HttpServletRequest request) throws  Exception{
         JSONObject result = ExceptionConstants.standardSuccess();

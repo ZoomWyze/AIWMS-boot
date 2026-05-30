@@ -1,5 +1,12 @@
-package com.jsh.erp.controller;
+﻿package com.jsh.erp.controller;
 
+
+/**
+ * 插件管理 Controller
+ * 提供系统插件的管理接口
+ *
+ * @author jishenghua
+ */
 import com.gitee.starblues.integration.application.PluginApplication;
 import com.gitee.starblues.integration.operator.PluginOperator;
 import com.gitee.starblues.integration.operator.module.PluginInfo;
@@ -26,13 +33,12 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * 插件jar 包测试功能
- * @author jishenghua
+ * 鎻掍欢jar 鍖呮祴璇曞姛鑳? * @author jishenghua
  * @version 1.0
  */
 @RestController
 @RequestMapping("/plugin")
-@Api(tags = {"插件管理"})
+@Api(tags = {"鎻掍欢绠＄悊"})
 public class PluginController {
     private Logger logger = LoggerFactory.getLogger(PluginController.class);
 
@@ -49,11 +55,11 @@ public class PluginController {
         this.pluginOperator = pluginApplication.getPluginOperator();
     }
     /**
-     * 获取插件信息
-     * @return 返回插件信息
+     * 鑾峰彇鎻掍欢淇℃伅
+     * @return 杩斿洖鎻掍欢淇℃伅
      */
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取插件信息")
+    @ApiOperation(value = "鑾峰彇鎻掍欢淇℃伅")
     public BaseResponseInfo getPluginInfo(@RequestParam(value = "name",required = false) String name,
                                           @RequestParam("currentPage") Integer currentPage,
                                           @RequestParam("pageSize") Integer pageSize,
@@ -86,17 +92,15 @@ public class PluginController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 获取插件jar文件名
-     * @return 获取插件文件名。只在生产环境显示
-     */
+     * 鑾峰彇鎻掍欢jar鏂囦欢鍚?     * @return 鑾峰彇鎻掍欢鏂囦欢鍚嶃€傚彧鍦ㄧ敓浜х幆澧冩樉绀?     */
     @GetMapping("/files")
-    @ApiOperation(value = "获取插件jar文件名")
+    @ApiOperation(value = "鑾峰彇鎻掍欢jar鏂囦欢鍚?)
     public Set<String> getPluginFilePaths(){
         try {
             if (isCommercialEntryDisabled()) {
@@ -116,12 +120,12 @@ public class PluginController {
 
 
     /**
-     * 根据插件id停止插件
-     * @param id 插件id
-     * @return 返回操作结果
+     * 鏍规嵁鎻掍欢id鍋滄鎻掍欢
+     * @param id 鎻掍欢id
+     * @return 杩斿洖鎿嶄綔缁撴灉
      */
     @PostMapping("/stop/{id}")
-    @ApiOperation(value = "根据插件id停止插件")
+    @ApiOperation(value = "鏍规嵁鎻掍欢id鍋滄鎻掍欢")
     public BaseResponseInfo stop(@PathVariable("id") String id){
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -153,12 +157,12 @@ public class PluginController {
     }
 
     /**
-     * 根据插件id启动插件
-     * @param id 插件id
-     * @return 返回操作结果
+     * 鏍规嵁鎻掍欢id鍚姩鎻掍欢
+     * @param id 鎻掍欢id
+     * @return 杩斿洖鎿嶄綔缁撴灉
      */
     @PostMapping("/start/{id}")
-    @ApiOperation(value = "根据插件id启动插件")
+    @ApiOperation(value = "鏍规嵁鎻掍欢id鍚姩鎻掍欢")
     public BaseResponseInfo start(@PathVariable("id") String id){
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -191,12 +195,12 @@ public class PluginController {
 
 
     /**
-     * 根据插件id卸载插件
-     * @param id 插件id
-     * @return 返回操作结果
+     * 鏍规嵁鎻掍欢id鍗歌浇鎻掍欢
+     * @param id 鎻掍欢id
+     * @return 杩斿洖鎿嶄綔缁撴灉
      */
     @PostMapping("/uninstall/{id}")
-    @ApiOperation(value = "根据插件id卸载插件")
+    @ApiOperation(value = "鏍规嵁鎻掍欢id鍗歌浇鎻掍欢")
     public BaseResponseInfo uninstall(@PathVariable("id") String id){
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -229,16 +233,15 @@ public class PluginController {
 
 
     /**
-     * 根据插件路径安装插件。该插件jar必须在服务器上存在。注意: 该操作只适用于生产环境
-     * @param path 插件路径名称
-     * @return 操作结果
+     * 鏍规嵁鎻掍欢璺緞瀹夎鎻掍欢銆傝鎻掍欢jar蹇呴』鍦ㄦ湇鍔″櫒涓婂瓨鍦ㄣ€傛敞鎰? 璇ユ搷浣滃彧閫傜敤浜庣敓浜х幆澧?     * @param path 鎻掍欢璺緞鍚嶇О
+     * @return 鎿嶄綔缁撴灉
      */
     @PostMapping("/installByPath")
-    @ApiOperation(value = "根据插件路径安装插件")
+    @ApiOperation(value = "鏍规嵁鎻掍欢璺緞瀹夎鎻掍欢")
     public String install(@RequestParam("path") String path){
         try {
             if (isCommercialEntryDisabled()) {
-                return "毕设模式下已关闭插件商业化入口";
+                return "姣曡妯″紡涓嬪凡鍏抽棴鎻掍欢鍟嗕笟鍖栧叆鍙?;
             }
             User userInfo = userService.getCurrentUser();
             if (PermissionUtil.isDefaultManager(userInfo)) {
@@ -258,12 +261,11 @@ public class PluginController {
 
 
     /**
-     * 上传并安装插件。注意: 该操作只适用于生产环境
-     * @param file 上传文件 multipartFile
-     * @return 操作结果
+     * 涓婁紶骞跺畨瑁呮彃浠躲€傛敞鎰? 璇ユ搷浣滃彧閫傜敤浜庣敓浜х幆澧?     * @param file 涓婁紶鏂囦欢 multipartFile
+     * @return 鎿嶄綔缁撴灉
      */
     @PostMapping("/uploadInstallPluginJar")
-    @ApiOperation(value = "上传并安装插件")
+    @ApiOperation(value = "涓婁紶骞跺畨瑁呮彃浠?)
     public BaseResponseInfo install(MultipartFile file, HttpServletRequest request, HttpServletResponse response){
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -274,30 +276,29 @@ public class PluginController {
             if (PermissionUtil.isDefaultManager(userInfo)) {
                 pluginOperator.uploadPluginAndStart(file);
                 res.code = 200;
-                res.data = "导入成功";
+                res.data = "瀵煎叆鎴愬姛";
             } else {
                 res.code = 500;
-                res.data = "抱歉，无操作权限！";
+                res.data = "鎶辨瓑锛屾棤鎿嶄綔鏉冮檺锛?;
             }
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "导入失败";
+            res.data = "瀵煎叆澶辫触";
         }
         return res;
     }
 
     /**
-     * 上传插件的配置文件。注意: 该操作只适用于生产环境
-     * @param multipartFile 上传文件 multipartFile
-     * @return 操作结果
+     * 涓婁紶鎻掍欢鐨勯厤缃枃浠躲€傛敞鎰? 璇ユ搷浣滃彧閫傜敤浜庣敓浜х幆澧?     * @param multipartFile 涓婁紶鏂囦欢 multipartFile
+     * @return 鎿嶄綔缁撴灉
      */
     @PostMapping("/uploadPluginConfigFile")
-    @ApiOperation(value = "上传插件的配置文件")
+    @ApiOperation(value = "涓婁紶鎻掍欢鐨勯厤缃枃浠?)
     public String uploadConfig(@RequestParam("configFile") MultipartFile multipartFile){
         try {
             if (isCommercialEntryDisabled()) {
-                return "毕设模式下已关闭插件商业化入口";
+                return "姣曡妯″紡涓嬪凡鍏抽棴鎻掍欢鍟嗕笟鍖栧叆鍙?;
             }
             User userInfo = userService.getCurrentUser();
             if (PermissionUtil.isDefaultManager(userInfo)) {
@@ -317,16 +318,15 @@ public class PluginController {
 
 
     /**
-     * 备份插件。注意: 该操作只适用于生产环境
-     * @param pluginId 插件id
-     * @return 操作结果
+     * 澶囦唤鎻掍欢銆傛敞鎰? 璇ユ搷浣滃彧閫傜敤浜庣敓浜х幆澧?     * @param pluginId 鎻掍欢id
+     * @return 鎿嶄綔缁撴灉
      */
     @PostMapping("/back/{pluginId}")
-    @ApiOperation(value = "备份插件")
+    @ApiOperation(value = "澶囦唤鎻掍欢")
     public String backupPlugin(@PathVariable("pluginId") String pluginId){
         try {
             if (isCommercialEntryDisabled()) {
-                return "毕设模式下已关闭插件商业化入口";
+                return "姣曡妯″紡涓嬪凡鍏抽棴鎻掍欢鍟嗕笟鍖栧叆鍙?;
             }
             User userInfo = userService.getCurrentUser();
             if (PermissionUtil.isDefaultManager(userInfo)) {
@@ -345,11 +345,11 @@ public class PluginController {
     }
 
     /**
-     * 获取加密后的mac
+     * 鑾峰彇鍔犲瘑鍚庣殑mac
      * @return
      */
     @GetMapping("/getMacWithSecret")
-    @ApiOperation(value = "获取加密后的mac")
+    @ApiOperation(value = "鑾峰彇鍔犲瘑鍚庣殑mac")
     public BaseResponseInfo getMacWithSecret(){
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -362,18 +362,18 @@ public class PluginController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 根据插件标识判断是否存在
-     * @param pluginIds 多个用逗号隔开
+     * 鏍规嵁鎻掍欢鏍囪瘑鍒ゆ柇鏄惁瀛樺湪
+     * @param pluginIds 澶氫釜鐢ㄩ€楀彿闅斿紑
      * @return
      */
     @GetMapping("/checkByPluginId")
-    @ApiOperation(value = "根据插件标识判断是否存在")
+    @ApiOperation(value = "鏍规嵁鎻掍欢鏍囪瘑鍒ゆ柇鏄惁瀛樺湪")
     public BaseResponseInfo checkByTag(@RequestParam("pluginIds") String pluginIds){
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -398,7 +398,7 @@ public class PluginController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
@@ -410,7 +410,7 @@ public class PluginController {
     private BaseResponseInfo buildCommercialDisabledResponse() {
         BaseResponseInfo res = new BaseResponseInfo();
         res.code = 403;
-        res.data = "毕设模式下已关闭插件商业化入口";
+        res.data = "姣曡妯″紡涓嬪凡鍏抽棴鎻掍欢鍟嗕笟鍖栧叆鍙?;
         return res;
     }
 }

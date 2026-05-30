@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * Depot MyBatis Mapper 接口
+ * 提供 Depot 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.Depot;
 import com.jsh.erp.datasource.entities.DepotExample;
 import java.util.List;

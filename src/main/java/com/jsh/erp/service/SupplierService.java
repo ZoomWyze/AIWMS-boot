@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 供应商/客户/会员 Service
+ * 提供供应商、客户、会员的业务逻辑：新增/编辑/删除/查询/按类型分类
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -105,36 +112,35 @@ public class SupplierService {
                 String typeBack = "";
                 String subTypeBack = "";
                 String billType = "";
-                if (("供应商").equals(supplierType)) {
-                    inOutType = "入库";
-                    subType = "采购";
-                    typeBack = "出库";
-                    subTypeBack = "采购退货";
-                    billType = "付款";
-                } else if (("客户").equals(supplierType)) {
-                    inOutType = "出库";
-                    subType = "销售";
-                    typeBack = "入库";
-                    subTypeBack = "销售退货";
-                    billType = "收款";
+                if (("渚涘簲鍟?).equals(supplierType)) {
+                    inOutType = "鍏ュ簱";
+                    subType = "閲囪喘";
+                    typeBack = "鍑哄簱";
+                    subTypeBack = "閲囪喘閫€璐?;
+                    billType = "浠樻";
+                } else if (("瀹㈡埛").equals(supplierType)) {
+                    inOutType = "鍑哄簱";
+                    subType = "閿€鍞?;
+                    typeBack = "鍏ュ簱";
+                    subTypeBack = "閿€鍞€€璐?;
+                    billType = "鏀舵";
                 }
                 List<DepotHeadVo4StatementAccount> saList = depotHeadService.getStatementAccount(beginTime, endTime, supplierId, null,
                         1, supplierType, inOutType, subType, typeBack, subTypeBack, billType, null, null);
                 if(saList.size()>0) {
                     DepotHeadVo4StatementAccount item = saList.get(0);
-                    //期初 = 起始期初金额+上期欠款金额-上期退货的欠款金额-上期收付款
-                    BigDecimal preNeed = item.getBeginNeed().add(item.getPreDebtMoney()).subtract(item.getPreReturnDebtMoney()).subtract(item.getPreBackMoney());
+                    //鏈熷垵 = 璧峰鏈熷垵閲戦+涓婃湡娆犳閲戦-涓婃湡閫€璐х殑娆犳閲戦-涓婃湡鏀朵粯娆?                    BigDecimal preNeed = item.getBeginNeed().add(item.getPreDebtMoney()).subtract(item.getPreReturnDebtMoney()).subtract(item.getPreBackMoney());
                     item.setPreNeed(preNeed);
-                    //实际欠款 = 本期欠款-本期退货的欠款金额
+                    //瀹為檯娆犳 = 鏈湡娆犳-鏈湡閫€璐х殑娆犳閲戦
                     BigDecimal realDebtMoney = item.getDebtMoney().subtract(item.getReturnDebtMoney());
                     item.setDebtMoney(realDebtMoney);
-                    //期末 = 期初+实际欠款-本期收款
+                    //鏈熸湯 = 鏈熷垵+瀹為檯娆犳-鏈湡鏀舵
                     BigDecimal allNeedGet = preNeed.add(realDebtMoney).subtract(item.getBackMoney());
                     sum = sum.add(allNeedGet);
                 }
-                if(("客户").equals(s.getType())) {
+                if(("瀹㈡埛").equals(s.getType())) {
                     s.setAllNeedGet(sum);
-                } else if(("供应商").equals(s.getType())) {
+                } else if(("渚涘簲鍟?).equals(s.getType())) {
                     s.setAllNeedPay(sum);
                 }
             }
@@ -153,9 +159,8 @@ public class SupplierService {
             User userInfo=userService.getCurrentUser();
             supplier.setCreator(userInfo==null?null:userInfo.getId());
             result=supplierMapper.insertSelective(supplier);
-            //新增客户时给当前用户和租户自动授权
-            setUserCustomerPermission(request, supplier);
-            logService.insertLog("商家",
+            //鏂板瀹㈡埛鏃剁粰褰撳墠鐢ㄦ埛鍜岀鎴疯嚜鍔ㄦ巿鏉?            setUserCustomerPermission(request, supplier);
+            logService.insertLog("鍟嗗",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(supplier.getSupplier()).toString(),request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -175,7 +180,7 @@ public class SupplierService {
         int result=0;
         try{
             result=supplierMapper.updateByPrimaryKeySelective(supplier);
-            logService.insertLog("商家",
+            logService.insertLog("鍟嗗",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(supplier.getSupplier()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -197,7 +202,7 @@ public class SupplierService {
     public int batchDeleteSupplierByIds(String ids)throws Exception {
         int result=0;
         String [] idArray=ids.split(",");
-        //校验财务主表	jsh_accounthead
+        //鏍￠獙璐㈠姟涓昏〃	jsh_accounthead
         List<AccountHead> accountHeadList=null;
         try{
             accountHeadList = accountHeadMapperEx.getAccountHeadListByOrganIds(idArray);
@@ -205,12 +210,12 @@ public class SupplierService {
             JshException.readFail(logger, e);
         }
         if(accountHeadList!=null&&accountHeadList.size()>0){
-            logger.error("异常码[{}],异常提示[{}],参数,OrganIds[{}]",
+            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,OrganIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //校验单据主表	jsh_depot_head
+        //鏍￠獙鍗曟嵁涓昏〃	jsh_depot_head
         List<DepotHead> depotHeadList=null;
         try{
             depotHeadList = depotHeadMapperEx.getDepotHeadListByOrganIds(idArray);
@@ -218,22 +223,22 @@ public class SupplierService {
             JshException.readFail(logger, e);
         }
         if(depotHeadList!=null&&depotHeadList.size()>0){
-            logger.error("异常码[{}],异常提示[{}],参数,OrganIds[{}]",
+            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,OrganIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //记录日志
+        //璁板綍鏃ュ織
         StringBuffer sb = new StringBuffer();
         sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
         List<Supplier> list = getSupplierListByIds(ids);
         for(Supplier supplier: list){
             sb.append("[").append(supplier.getSupplier()).append("]");
         }
-        logService.insertLog("商家", sb.toString(),
+        logService.insertLog("鍟嗗", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
-        //校验通过执行删除操作
+        //鏍￠獙閫氳繃鎵ц鍒犻櫎鎿嶄綔
         try{
             result = supplierMapperEx.batchDeleteSupplierByIds(new Date(),userInfo==null?null:userInfo.getId(),idArray);
         }catch(Exception e){
@@ -269,16 +274,14 @@ public class SupplierService {
     }
 
     /**
-     * 更新会员的预付款
+     * 鏇存柊浼氬憳鐨勯浠樻
      * @param supplierId
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void updateAdvanceIn(Long supplierId) {
         try{
-            //查询会员在收预付款单据的总金额
-            BigDecimal financialAllPrice = accountHeadMapperEx.getFinancialAllPriceByOrganId(supplierId);
-            //查询会员在零售出库单据的总金额
-            BigDecimal billAllPrice = depotHeadMapperEx.getBillAllPriceByOrganId(supplierId);
+            //鏌ヨ浼氬憳鍦ㄦ敹棰勪粯娆惧崟鎹殑鎬婚噾棰?            BigDecimal financialAllPrice = accountHeadMapperEx.getFinancialAllPriceByOrganId(supplierId);
+            //鏌ヨ浼氬憳鍦ㄩ浂鍞嚭搴撳崟鎹殑鎬婚噾棰?            BigDecimal billAllPrice = depotHeadMapperEx.getBillAllPriceByOrganId(supplierId);
             Supplier supplier = new Supplier();
             supplier.setId(supplierId);
             supplier.setAdvanceIn(financialAllPrice.subtract(billAllPrice));
@@ -291,7 +294,7 @@ public class SupplierService {
     public List<Supplier> findBySelectCus(String key, Long organId, Integer limit)throws Exception {
         List<Supplier> list=null;
         try{
-            list = supplierMapperEx.findByTypeAndKey("客户", key, limit);
+            list = supplierMapperEx.findByTypeAndKey("瀹㈡埛", key, limit);
             if(organId!=null) {
                 list = addOrganToList(list, organId);
             }
@@ -304,7 +307,7 @@ public class SupplierService {
     public List<Supplier> findBySelectSup(String key, Long organId, Integer limit)throws Exception {
         List<Supplier> list=null;
         try{
-            list = supplierMapperEx.findByTypeAndKey("供应商", key, limit);
+            list = supplierMapperEx.findByTypeAndKey("渚涘簲鍟?, key, limit);
             if(organId!=null) {
                 list = addOrganToList(list, organId);
             }
@@ -317,7 +320,7 @@ public class SupplierService {
     public List<Supplier> findBySelectRetail(String key, Long organId, Integer limit)throws Exception {
         List<Supplier> list=null;
         try{
-            list = supplierMapperEx.findByTypeAndKey("会员", key, limit);
+            list = supplierMapperEx.findByTypeAndKey("浼氬憳", key, limit);
             if(organId!=null) {
                 list = addOrganToList(list, organId);
             }
@@ -328,7 +331,7 @@ public class SupplierService {
     }
 
     /**
-     * 给列表追加供应商信息
+     * 缁欏垪琛ㄨ拷鍔犱緵搴斿晢淇℃伅
      * @param list
      * @param organId
      * @return
@@ -341,7 +344,7 @@ public class SupplierService {
             }
         }
         if(!isExist) {
-            //列表里面不存在则追加
+            //鍒楄〃閲岄潰涓嶅瓨鍦ㄥ垯杩藉姞
             Supplier info = supplierMapperEx.getInfoById(organId);
             if(info!=null) {
                 list.add(info);
@@ -366,7 +369,7 @@ public class SupplierService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Boolean status, String ids)throws Exception {
-        logService.insertLog("商家",
+        logService.insertLog("鍟嗗",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ENABLED).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> supplierIds = StringUtil.strToLongList(ids);
@@ -385,7 +388,7 @@ public class SupplierService {
 
     public List<Supplier> findUserCustomer()throws Exception{
         SupplierExample example = new SupplierExample();
-        example.createCriteria().andTypeEqualTo("客户")
+        example.createCriteria().andTypeEqualTo("瀹㈡埛")
                 .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         example.setOrderByClause("sort asc, id desc");
         List<Supplier> list=null;
@@ -411,9 +414,9 @@ public class SupplierService {
         Supplier supplier = getSupplier(organId);
         Map<String, Object> map = new HashMap<>();
         BigDecimal needDebt = BigDecimal.ZERO;
-        if("供应商".equals(supplier.getType())) {
+        if("渚涘簲鍟?.equals(supplier.getType())) {
             needDebt = supplier.getBeginNeedPay();
-        } else if("客户".equals(supplier.getType())) {
+        } else if("瀹㈡埛".equals(supplier.getType())) {
             needDebt = supplier.getBeginNeedGet();
         }
         BigDecimal finishDebt = accountItemMapperEx.getFinishDebtByOrganId(organId).abs();
@@ -421,21 +424,21 @@ public class SupplierService {
         if(needDebt != null) {
             eachAmount = needDebt.subtract(finishDebt);
         }
-        //应收欠款
+        //搴旀敹娆犳
         map.put("needDebt", needDebt);
-        //已收欠款
+        //宸叉敹娆犳
         map.put("finishDebt", finishDebt);
-        //本次收款
+        //鏈鏀舵
         map.put("eachAmount", eachAmount);
         return map;
     }
 
     /**
-     * 校验文件格式
+     * 鏍￠獙鏂囦欢鏍煎紡
      * @param file
      */
     public void checkFileExt(MultipartFile file) {
-        //文件扩展名只能为xls
+        //鏂囦欢鎵╁睍鍚嶅彧鑳戒负xls
         String fileName = file.getOriginalFilename();
         if(StringUtil.isNotEmpty(fileName)) {
             String fileExt = fileName.substring(fileName.indexOf(".")+1);
@@ -448,11 +451,11 @@ public class SupplierService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void importVendor(MultipartFile file, HttpServletRequest request) throws Exception{
-        String type = "供应商";
+        String type = "渚涘簲鍟?;
         User userInfo = userService.getCurrentUser();
         Workbook workbook = Workbook.getWorkbook(file.getInputStream());
         Sheet src = workbook.getSheet(0);
-        //'名称', '联系人', '手机号码', '联系电话', '电子邮箱', '传真', '期初应付', '纳税人识别号', '税率(%)', '开户行', '账号', '地址', '备注', '排序', '状态'
+        //'鍚嶇О', '鑱旂郴浜?, '鎵嬫満鍙风爜', '鑱旂郴鐢佃瘽', '鐢靛瓙閭', '浼犵湡', '鏈熷垵搴斾粯', '绾崇◣浜鸿瘑鍒彿', '绋庣巼(%)', '寮€鎴疯', '璐﹀彿', '鍦板潃', '澶囨敞', '鎺掑簭', '鐘舵€?
         List<Supplier> sList = new ArrayList<>();
         for (int i = 2; i < src.getRows(); i++) {
             String supplierName = ExcelUtils.getContent(src, i, 0);
@@ -484,11 +487,11 @@ public class SupplierService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void importCustomer(MultipartFile file, HttpServletRequest request) throws Exception{
-        String type = "客户";
+        String type = "瀹㈡埛";
         User userInfo = userService.getCurrentUser();
         Workbook workbook = Workbook.getWorkbook(file.getInputStream());
         Sheet src = workbook.getSheet(0);
-        //'名称', '联系人', '手机号码', '联系电话', '电子邮箱', '传真', '期初应收', '纳税人识别号', '税率(%)', '开户行', '账号', '地址', '备注', '排序', '状态'
+        //'鍚嶇О', '鑱旂郴浜?, '鎵嬫満鍙风爜', '鑱旂郴鐢佃瘽', '鐢靛瓙閭', '浼犵湡', '鏈熷垵搴旀敹', '绾崇◣浜鸿瘑鍒彿', '绋庣巼(%)', '寮€鎴疯', '璐﹀彿', '鍦板潃', '澶囨敞', '鎺掑簭', '鐘舵€?
         List<Supplier> sList = new ArrayList<>();
         for (int i = 2; i < src.getRows(); i++) {
             String supplierName = ExcelUtils.getContent(src, i, 0);
@@ -520,11 +523,11 @@ public class SupplierService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void importMember(MultipartFile file, HttpServletRequest request) throws Exception{
-        String type = "会员";
+        String type = "浼氬憳";
         User userInfo = userService.getCurrentUser();
         Workbook workbook = Workbook.getWorkbook(file.getInputStream());
         Sheet src = workbook.getSheet(0);
-        //'名称', '联系人', '手机号码', '联系电话', '电子邮箱', '备注', '排序', '状态'
+        //'鍚嶇О', '鑱旂郴浜?, '鎵嬫満鍙风爜', '鑱旂郴鐢佃瘽', '鐢靛瓙閭', '澶囨敞', '鎺掑簭', '鐘舵€?
         List<Supplier> sList = new ArrayList<>();
         for (int i = 2; i < src.getRows(); i++) {
             String supplierName = ExcelUtils.getContent(src, i, 0);
@@ -561,8 +564,7 @@ public class SupplierService {
                 List<Supplier> list= supplierMapper.selectByExample(example);
                 if(list.size() <= 0) {
                     supplierMapper.insertSelective(supplier);
-                    //新增客户时给当前用户和租户自动授权
-                    setUserCustomerPermission(request, supplier);
+                    //鏂板瀹㈡埛鏃剁粰褰撳墠鐢ㄦ埛鍜岀鎴疯嚜鍔ㄦ巿鏉?                    setUserCustomerPermission(request, supplier);
                 } else {
                     Long id = list.get(0).getId();
                     supplier.setId(id);
@@ -570,7 +572,7 @@ public class SupplierService {
                 }
             }
             info.code = 200;
-            data.put("message", "成功");
+            data.put("message", "鎴愬姛");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             info.code = 500;
@@ -589,14 +591,14 @@ public class SupplierService {
     }
 
     public File exportExcel(List<Supplier> dataList, String type) throws Exception {
-        if("供应商".equals(type)) {
+        if("渚涘簲鍟?.equals(type)) {
             return exportExcelVendorOrCustomer(dataList, type);
-        } else if("客户".equals(type)) {
+        } else if("瀹㈡埛".equals(type)) {
             return exportExcelVendorOrCustomer(dataList, type);
         } else {
-            //会员
-            String[] names = {"会员卡号*", "联系人", "手机号码", "联系电话", "电子邮箱", "备注", "排序", "状态*"};
-            String title = "信息内容";
+            //浼氬憳
+            String[] names = {"浼氬憳鍗″彿*", "鑱旂郴浜?, "鎵嬫満鍙风爜", "鑱旂郴鐢佃瘽", "鐢靛瓙閭", "澶囨敞", "鎺掑簭", "鐘舵€?"};
+            String title = "淇℃伅鍐呭";
             List<Object[]> objects = new ArrayList<>();
             if (null != dataList) {
                 for (Supplier s : dataList) {
@@ -612,20 +614,20 @@ public class SupplierService {
                     objects.add(objs);
                 }
             }
-            return ExcelUtils.exportObjectsOneSheet(title, "*导入时本行内容请勿删除，切记！", names, title, objects);
+            return ExcelUtils.exportObjectsOneSheet(title, "*瀵煎叆鏃舵湰琛屽唴瀹硅鍕垮垹闄わ紝鍒囪锛?, names, title, objects);
         }
     }
 
     private File exportExcelVendorOrCustomer(List<Supplier> dataList, String type) throws Exception {
         String beginNeedStr = "";
-        if("供应商".equals(type)) {
-            beginNeedStr = "期初应付";
-        } else if("客户".equals(type)) {
-            beginNeedStr = "期初应收";
+        if("渚涘簲鍟?.equals(type)) {
+            beginNeedStr = "鏈熷垵搴斾粯";
+        } else if("瀹㈡埛".equals(type)) {
+            beginNeedStr = "鏈熷垵搴旀敹";
         }
-        String[] names = {"名称*", "联系人", "手机号码", "联系电话", "电子邮箱", "传真", beginNeedStr,
-                "纳税人识别号", "税率(%)", "开户行", "账号", "地址", "备注", "排序", "状态*"};
-        String title = "信息内容";
+        String[] names = {"鍚嶇О*", "鑱旂郴浜?, "鎵嬫満鍙风爜", "鑱旂郴鐢佃瘽", "鐢靛瓙閭", "浼犵湡", beginNeedStr,
+                "绾崇◣浜鸿瘑鍒彿", "绋庣巼(%)", "寮€鎴疯", "璐﹀彿", "鍦板潃", "澶囨敞", "鎺掑簭", "鐘舵€?"};
+        String title = "淇℃伅鍐呭";
         List<Object[]> objects = new ArrayList<>();
         if (null != dataList) {
             for (Supplier s : dataList) {
@@ -636,9 +638,9 @@ public class SupplierService {
                 objs[3] = s.getPhoneNum();
                 objs[4] = s.getEmail();
                 objs[5] = s.getFax();
-                if(("客户").equals(s.getType())) {
+                if(("瀹㈡埛").equals(s.getType())) {
                     objs[6] = s.getBeginNeedGet() == null? "" : s.getBeginNeedGet().setScale(2,BigDecimal.ROUND_HALF_UP);
-                } else if(("供应商").equals(s.getType())) {
+                } else if(("渚涘簲鍟?).equals(s.getType())) {
                     objs[6] = s.getBeginNeedPay() == null? "" : s.getBeginNeedPay().setScale(2,BigDecimal.ROUND_HALF_UP);
                 }
                 objs[7] = s.getTaxNum();
@@ -652,31 +654,30 @@ public class SupplierService {
                 objects.add(objs);
             }
         }
-        return ExcelUtils.exportObjectsOneSheet(title, "*导入时本行内容请勿删除，切记！", names, title, objects);
+        return ExcelUtils.exportObjectsOneSheet(title, "*瀵煎叆鏃舵湰琛屽唴瀹硅鍕垮垹闄わ紝鍒囪锛?, names, title, objects);
     }
 
     /**
-     * 新增客户时给当前用户和租户自动授权
-     * @param request
+     * 鏂板瀹㈡埛鏃剁粰褰撳墠鐢ㄦ埛鍜岀鎴疯嚜鍔ㄦ巿鏉?     * @param request
      * @param supplier
      * @throws Exception
      */
     private void setUserCustomerPermission(HttpServletRequest request, Supplier supplier) throws Exception {
-        if("客户".equals(supplier.getType())) {
+        if("瀹㈡埛".equals(supplier.getType())) {
             User user = userService.getCurrentUser();
             Supplier sInfo = supplierMapperEx.getSupplierByNameAndType(supplier.getSupplier(), supplier.getType());
             String ubKey = "[" + sInfo.getId() + "]";
-            //授权当前用户
+            //鎺堟潈褰撳墠鐢ㄦ埛
             setPermissionByParam(user.getId(), ubKey);
             if(!user.getId().equals(user.getTenantId())) {
-                //授权当前租户
+                //鎺堟潈褰撳墠绉熸埛
                 setPermissionByParam(user.getTenantId(), ubKey);
             }
         }
     }
 
     /**
-     * 权限授权操作
+     * 鏉冮檺鎺堟潈鎿嶄綔
      * @param userId
      * @param ubKey
      * @throws Exception

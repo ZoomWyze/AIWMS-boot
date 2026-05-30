@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.entities;
+﻿package com.jsh.erp.datasource.entities;
 
+
+/**
+ * Tenant 实体类
+ * 对应数据库 jsh_tenant 表
+ *
+ * @author jishenghua
+ */
 import java.util.Date;
 
 public class Tenant {

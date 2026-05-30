@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 用户业务关系 Service
+ * 提供用户与角色/模块关联关系的业务逻辑：新增/编辑/查询/按钮权限更新
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
@@ -68,7 +75,7 @@ public class UserBusinessService {
             newValue = newValue.replaceAll("\\[0\\]","").replaceAll("\\[\\]","");
             userBusiness.setValue(newValue);
             result=userBusinessMapper.insertSelective(userBusiness);
-            logService.insertLog("关联关系", BusinessConstants.LOG_OPERATION_TYPE_ADD, request);
+            logService.insertLog("鍏宠仈鍏崇郴", BusinessConstants.LOG_OPERATION_TYPE_ADD, request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
         }
@@ -85,7 +92,7 @@ public class UserBusinessService {
             newValue = newValue.replaceAll("\\[0\\]","").replaceAll("\\[\\]","");
             userBusiness.setValue(newValue);
             result=userBusinessMapper.updateByPrimaryKeySelective(userBusiness);
-            logService.insertLog("关联关系", BusinessConstants.LOG_OPERATION_TYPE_EDIT, request);
+            logService.insertLog("鍏宠仈鍏崇郴", BusinessConstants.LOG_OPERATION_TYPE_EDIT, request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
         }
@@ -104,7 +111,7 @@ public class UserBusinessService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchDeleteUserBusinessByIds(String ids) throws Exception{
-        logService.insertLog("关联关系",
+        logService.insertLog("鍏宠仈鍏崇郴",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_DELETE).append(ids).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
@@ -160,8 +167,8 @@ public class UserBusinessService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int updateBtnStr(String keyId, String type, String btnStr) throws Exception{
-        logService.insertLog("关联关系",
-                new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append("角色的按钮权限").toString(),
+        logService.insertLog("鍏宠仈鍏崇郴",
+                new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append("瑙掕壊鐨勬寜閽潈闄?).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         UserBusiness userBusiness = new UserBusiness();
         userBusiness.setBtnStr(btnStr);
@@ -193,17 +200,15 @@ public class UserBusinessService {
                     String valueStr = ubList.get(0).getValue();
                     Boolean flag = valueStr.contains("[" + oneValue + "]");
                     if(flag) {
-                        //存在则忽略
-                    } else {
-                        //不存在则追加并更新
-                        valueStr = valueStr + "[" + oneValue + "]";
+                        //瀛樺湪鍒欏拷鐣?                    } else {
+                        //涓嶅瓨鍦ㄥ垯杩藉姞骞舵洿鏂?                        valueStr = valueStr + "[" + oneValue + "]";
                         UserBusiness userBusiness = new UserBusiness();
                         userBusiness.setId(ubList.get(0).getId());
                         userBusiness.setValue(valueStr);
                         userBusinessMapper.updateByPrimaryKeySelective(userBusiness);
                     }
                 } else {
-                    //新增数据
+                    //鏂板鏁版嵁
                     UserBusiness userBusiness = new UserBusiness();
                     userBusiness.setType(type);
                     userBusiness.setKeyId(keyId);
@@ -211,21 +216,21 @@ public class UserBusinessService {
                     userBusinessMapper.insertSelective(userBusiness);
                 }
             }
-            //检查被移除的keyId
+            //妫€鏌ヨ绉婚櫎鐨刱eyId
             for(UserBusiness item: oldUbList) {
                 String oldValue = item.getValue();
                 String oldkeyId = item.getKeyId();
                 if(keyIdMap.get(oldkeyId) == null) {
-                    //处理被删除的keyId
+                    //澶勭悊琚垹闄ょ殑keyId
                     String valueStr = "[" + oneValue + "]";
                     if(oldValue.equals(valueStr)) {
-                        //说明value里面只有一条数据，需要进行逻辑删除
+                        //璇存槑value閲岄潰鍙湁涓€鏉℃暟鎹紝闇€瑕佽繘琛岄€昏緫鍒犻櫎
                         UserBusiness userBusiness = new UserBusiness();
                         userBusiness.setId(item.getId());
                         userBusiness.setDeleteFlag("1");
                         userBusinessMapper.updateByPrimaryKeySelective(userBusiness);
                     } else {
-                        //多条进行替换后再更新
+                        //澶氭潯杩涜鏇挎崲鍚庡啀鏇存柊
                         String newValue = oldValue.replace(valueStr, "");
                         UserBusiness userBusiness = new UserBusiness();
                         userBusiness.setId(item.getId());

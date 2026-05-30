@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 经手人 Service
+ * 提供经手人的业务逻辑：新增/编辑/删除/查询/唯一性校验
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -100,7 +107,7 @@ public class PersonService {
         try{
             person.setEnabled(true);
             result=personMapper.insertSelective(person);
-            logService.insertLog("经手人",
+            logService.insertLog("缁忔墜浜?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(person.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -114,7 +121,7 @@ public class PersonService {
         int result=0;
         try{
             result=personMapper.updateByPrimaryKeySelective(person);
-            logService.insertLog("经手人",
+            logService.insertLog("缁忔墜浜?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(person.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -136,7 +143,7 @@ public class PersonService {
     public int batchDeletePersonByIds(String ids)throws Exception {
         int result =0;
         String [] idArray=ids.split(",");
-        //校验财务主表	jsh_accounthead
+        //鏍￠獙璐㈠姟涓昏〃	jsh_accounthead
         List<AccountHead> accountHeadList =null;
         try{
             accountHeadList=accountHeadMapperEx.getAccountHeadListByHandsPersonIds(idArray);
@@ -144,12 +151,12 @@ public class PersonService {
             JshException.readFail(logger, e);
         }
         if(accountHeadList!=null&&accountHeadList.size()>0){
-            logger.error("异常码[{}],异常提示[{}],参数,HandsPersonIds[{}]",
+            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,HandsPersonIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //校验单据主表	jsh_depot_head
+        //鏍￠獙鍗曟嵁涓昏〃	jsh_depot_head
         List<DepotHead> depotHeadList =null;
         try{
             depotHeadList=depotHeadMapperEx.getDepotHeadListByCreator(idArray);
@@ -157,22 +164,21 @@ public class PersonService {
             JshException.readFail(logger, e);
         }
         if(depotHeadList!=null&&depotHeadList.size()>0){
-            logger.error("异常码[{}],异常提示[{}],参数,HandsPersonIds[{}]",
+            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,HandsPersonIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //记录日志
+        //璁板綍鏃ュ織
         StringBuffer sb = new StringBuffer();
         sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
         List<Person> list = getPersonListByIds(ids);
         for(Person person: list){
             sb.append("[").append(person.getName()).append("]");
         }
-        logService.insertLog("经手人", sb.toString(),
+        logService.insertLog("缁忔墜浜?, sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
-        //删除经手人
-        try{
+        //鍒犻櫎缁忔墜浜?        try{
             result=personMapperEx.batchDeletePersonByIds(idArray);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -226,7 +232,7 @@ public class PersonService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Boolean status, String ids)throws Exception {
-        logService.insertLog("经手人",
+        logService.insertLog("缁忔墜浜?,
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ENABLED).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> personIds = StringUtil.strToLongList(ids);

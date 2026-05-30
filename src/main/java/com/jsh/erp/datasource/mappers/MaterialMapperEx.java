@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * MaterialMapper 扩展 Mapper 接口
+ * 定义 MaterialMapper 自定义的复杂 SQL 查询方法（非 Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.*;
 import com.jsh.erp.datasource.vo.MaterialDepotStock;
 import com.jsh.erp.datasource.vo.MaterialVoSearch;
@@ -89,11 +96,11 @@ public interface MaterialMapperEx {
     List<MaterialExtend> getOtherMaterialList();
 
     /**
-     * 通过商品名称查询商品信息
+     * 閫氳繃鍟嗗搧鍚嶇О鏌ヨ鍟嗗搧淇℃伅
      * */
     List<Material> findByMaterialName(@Param("name") String name);
     /**
-     * 获取开启序列号并且状态正常的商品列表
+     * 鑾峰彇寮€鍚簭鍒楀彿骞朵笖鐘舵€佹甯哥殑鍟嗗搧鍒楄〃
      * */
     List<MaterialVo4Unit> getMaterialEnableSerialNumberList(@Param("q") String q,
                                                      @Param("offset") Integer offset,

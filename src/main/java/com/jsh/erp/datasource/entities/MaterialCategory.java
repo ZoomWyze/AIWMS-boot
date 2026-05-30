@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.entities;
+﻿package com.jsh.erp.datasource.entities;
 
+
+/**
+ * MaterialCategory 实体类
+ * 对应数据库 jsh_materialcategory 表
+ *
+ * @author jishenghua
+ */
 import java.util.Date;
 
 public class MaterialCategory {

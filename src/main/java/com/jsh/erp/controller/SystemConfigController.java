@@ -1,5 +1,12 @@
-package com.jsh.erp.controller;
+﻿package com.jsh.erp.controller;
 
+
+/**
+ * 系统配置 Controller
+ * 提供系统级配置参数的 CRUD 接口，包括文件上传大小限制等
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -40,7 +47,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/systemConfig")
-@Api(tags = {"系统参数"})
+@Api(tags = {"绯荤粺鍙傛暟"})
 public class SystemConfigController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(SystemConfigController.class);
 
@@ -60,7 +67,7 @@ public class SystemConfigController extends BaseController {
     private Long maxRequestSize;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         SystemConfig systemConfig = systemConfigService.getSystemConfig(id);
@@ -74,7 +81,7 @@ public class SystemConfigController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String companyName = StringUtil.getInfo(search, "companyName");
@@ -83,7 +90,7 @@ public class SystemConfigController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @ApiOperation(value = "鏂板")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = systemConfigService.insertSystemConfig(obj, request);
@@ -91,7 +98,7 @@ public class SystemConfigController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @ApiOperation(value = "淇敼")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = systemConfigService.updateSystemConfig(obj, request);
@@ -99,7 +106,7 @@ public class SystemConfigController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @ApiOperation(value = "鍒犻櫎")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = systemConfigService.deleteSystemConfig(id, request);
@@ -107,7 +114,7 @@ public class SystemConfigController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @ApiOperation(value = "鎵归噺鍒犻櫎")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = systemConfigService.batchDeleteSystemConfig(ids, request);
@@ -115,7 +122,7 @@ public class SystemConfigController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
+    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -129,12 +136,11 @@ public class SystemConfigController extends BaseController {
     }
 
     /**
-     * 获取当前租户的配置信息
-     * @param request
+     * 鑾峰彇褰撳墠绉熸埛鐨勯厤缃俊鎭?     * @param request
      * @return
      */
     @GetMapping(value = "/getCurrentInfo")
-    @ApiOperation(value = "获取当前租户的配置信息")
+    @ApiOperation(value = "鑾峰彇褰撳墠绉熸埛鐨勯厤缃俊鎭?)
     public BaseResponseInfo getCurrentInfo(HttpServletRequest request) throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try{
@@ -146,19 +152,19 @@ public class SystemConfigController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 获取文件大小限制
+     * 鑾峰彇鏂囦欢澶у皬闄愬埗
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/fileSizeLimit")
-    @ApiOperation(value = "获取文件大小限制")
+    @ApiOperation(value = "鑾峰彇鏂囦欢澶у皬闄愬埗")
     public BaseResponseInfo fileSizeLimit(HttpServletRequest request) throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try{
@@ -173,19 +179,19 @@ public class SystemConfigController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }
 
     /**
-     * 文件上传统一方法
+     * 鏂囦欢涓婁紶缁熶竴鏂规硶
      * @param request
      * @param response
      * @return
      */
     @PostMapping(value = "/upload")
-    @ApiOperation(value = "文件上传统一方法")
+    @ApiOperation(value = "鏂囦欢涓婁紶缁熶竴鏂规硶")
     public BaseResponseInfo upload(HttpServletRequest request, HttpServletResponse response) {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -193,7 +199,7 @@ public class SystemConfigController extends BaseController {
             String bizPath = request.getParameter("biz");
             if ("bill".equals(bizPath) || "financial".equals(bizPath) || "material".equals(bizPath)) {
                 MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-                MultipartFile file = multipartRequest.getFile("file");// 获取上传文件对象
+                MultipartFile file = multipartRequest.getFile("file");// 鑾峰彇涓婁紶鏂囦欢瀵硅薄
                 if(fileUploadType == 1) {
                     savePath = systemConfigService.uploadLocal(file, bizPath, request);
                 } else if(fileUploadType == 2) {
@@ -204,37 +210,36 @@ public class SystemConfigController extends BaseController {
                     res.data = savePath;
                 }else {
                     res.code = 500;
-                    res.data = "上传失败！";
+                    res.data = "涓婁紶澶辫触锛?;
                 }
             } else {
                 res.code = 505;
-                res.data = "文件分类错误！";
+                res.data = "鏂囦欢鍒嗙被閿欒锛?;
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "上传失败！";
+            res.data = "涓婁紶澶辫触锛?;
         }
         return res;
     }
 
     /**
-     * 预览图片&下载文件
-     * 请求地址：http://localhost:8080/common/static/{financial/afsdfasdfasdf_1547866868179.txt}
+     * 棰勮鍥剧墖&涓嬭浇鏂囦欢
+     * 璇锋眰鍦板潃锛歨ttp://localhost:8080/common/static/{financial/afsdfasdfasdf_1547866868179.txt}
      *
      * @param request
      * @param response
      */
     @GetMapping(value = "/static/**")
-    @ApiOperation(value = "预览图片&下载文件")
+    @ApiOperation(value = "棰勮鍥剧墖&涓嬭浇鏂囦欢")
     public void view(HttpServletRequest request, HttpServletResponse response) {
-        // ISO-8859-1 ==> UTF-8 进行编码转换
+        // ISO-8859-1 ==> UTF-8 杩涜缂栫爜杞崲
         String imgPath = extractPathFromPattern(request);
         if(StringUtil.isEmpty(imgPath) || imgPath=="null"){
             return;
         }
-        // 其余处理略
-        InputStream inputStream = null;
+        // 鍏朵綑澶勭悊鐣?        InputStream inputStream = null;
         OutputStream outputStream = null;
         try {
             imgPath = imgPath.replace("..", "");
@@ -251,8 +256,7 @@ public class SystemConfigController extends BaseController {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(5 * 1000);
-                inputStream = conn.getInputStream();// 通过输入流获取图片数据
-            }
+                inputStream = conn.getInputStream();// 閫氳繃杈撳叆娴佽幏鍙栧浘鐗囨暟鎹?            }
             outputStream = response.getOutputStream();
             byte[] buf = new byte[1024];
             int len;
@@ -261,7 +265,7 @@ public class SystemConfigController extends BaseController {
             }
             response.flushBuffer();
         } catch (IOException e) {
-            logger.error("预览文件失败" + e.getMessage());
+            logger.error("棰勮鏂囦欢澶辫触" + e.getMessage());
             response.setStatus(404);
             logger.error(e.getMessage(), e);
         } catch (Exception e) {
@@ -286,14 +290,14 @@ public class SystemConfigController extends BaseController {
     }
 
     /**
-     * 预览缩略图&下载文件
+     * 棰勮缂╃暐鍥?涓嬭浇鏂囦欢
      * @param request
      * @param response
      */
     @GetMapping(value = "/static/mini/**")
-    @ApiOperation(value = "预览缩略图&下载文件")
+    @ApiOperation(value = "棰勮缂╃暐鍥?涓嬭浇鏂囦欢")
     public void viewMini(HttpServletRequest request, HttpServletResponse response) {
-        // ISO-8859-1 ==> UTF-8 进行编码转换
+        // ISO-8859-1 ==> UTF-8 杩涜缂栫爜杞崲
         String imgPath = extractPathFromPattern(request);
         if(StringUtil.isEmpty(imgPath) || imgPath=="null"){
             return;
@@ -315,8 +319,7 @@ public class SystemConfigController extends BaseController {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(5 * 1000);
-                inputStream = conn.getInputStream();// 通过输入流获取图片数据
-            }
+                inputStream = conn.getInputStream();// 閫氳繃杈撳叆娴佽幏鍙栧浘鐗囨暟鎹?            }
             int index = fileUrl.lastIndexOf(".");
             String ext = fileUrl.substring(index + 1);
             BufferedImage image = systemConfigService.getImageMini(inputStream, 80);
@@ -338,11 +341,11 @@ public class SystemConfigController extends BaseController {
     }
 
     /**
-     * Excel导出统一接口
+     * Excel瀵煎嚭缁熶竴鎺ュ彛
      * @param response
      */
     @PostMapping(value = "/exportExcelByParam")
-    @ApiOperation(value = "生成excel表格")
+    @ApiOperation(value = "鐢熸垚excel琛ㄦ牸")
     public void exportExcelByParam(@RequestBody JSONObject jsonObject,
                                    HttpServletResponse response) {
         try {
@@ -357,9 +360,7 @@ public class SystemConfigController extends BaseController {
     }
 
     /**
-     *  把指定URL后的字符串全部截断当成参数
-     *  这么做是为了防止URL中包含中文或者特殊字符（/等）时，匹配不了的问题
-     * @param request
+     *  鎶婃寚瀹歎RL鍚庣殑瀛楃涓插叏閮ㄦ埅鏂綋鎴愬弬鏁?     *  杩欎箞鍋氭槸涓轰簡闃叉URL涓寘鍚腑鏂囨垨鑰呯壒娈婂瓧绗︼紙/绛夛級鏃讹紝鍖归厤涓嶄簡鐨勯棶棰?     * @param request
      * @return
      */
     private static String extractPathFromPattern(final HttpServletRequest request) {

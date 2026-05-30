@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * InOutItem MyBatis Mapper 接口
+ * 提供 InOutItem 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.InOutItem;
 import com.jsh.erp.datasource.entities.InOutItemExample;
 import java.util.List;

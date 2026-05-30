@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * PlatformConfig MyBatis Mapper 接口
+ * 提供 PlatformConfig 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.PlatformConfig;
 import com.jsh.erp.datasource.entities.PlatformConfigExample;
 import java.util.List;

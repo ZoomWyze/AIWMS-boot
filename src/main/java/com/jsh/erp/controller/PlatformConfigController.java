@@ -1,5 +1,12 @@
-package com.jsh.erp.controller;
+﻿package com.jsh.erp.controller;
 
+
+/**
+ * 平台参数配置 Controller
+ * 提供平台级别配置参数的查询接口
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
@@ -25,11 +32,11 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnJson;
 import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
 
 /**
- * @author ji|sheng|hua 管伊佳erp QQ7827-18920
+ * @author ji|sheng|hua 绠′紛浣砮rp QQ7827-18920
  */
 @RestController
 @RequestMapping(value = "/platformConfig")
-@Api(tags = {"平台参数"})
+@Api(tags = {"骞冲彴鍙傛暟"})
 public class PlatformConfigController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(PlatformConfigController.class);
 
@@ -37,7 +44,7 @@ public class PlatformConfigController extends BaseController {
     private PlatformConfigService platformConfigService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "根据id获取信息")
+    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         PlatformConfig platformConfig = platformConfigService.getPlatformConfig(id);
@@ -51,7 +58,7 @@ public class PlatformConfigController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "获取信息列表")
+    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String platformKey = StringUtil.getInfo(search, "platformKey");
@@ -60,7 +67,7 @@ public class PlatformConfigController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "新增")
+    @ApiOperation(value = "鏂板")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = platformConfigService.insertPlatformConfig(obj, request);
@@ -68,7 +75,7 @@ public class PlatformConfigController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "修改")
+    @ApiOperation(value = "淇敼")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = platformConfigService.updatePlatformConfig(obj, request);
@@ -76,7 +83,7 @@ public class PlatformConfigController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "删除")
+    @ApiOperation(value = "鍒犻櫎")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = platformConfigService.deletePlatformConfig(id, request);
@@ -84,7 +91,7 @@ public class PlatformConfigController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "批量删除")
+    @ApiOperation(value = "鎵归噺鍒犻櫎")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = platformConfigService.batchDeletePlatformConfig(ids, request);
@@ -92,12 +99,12 @@ public class PlatformConfigController extends BaseController {
     }
 
     /**
-     * 获取平台名称
+     * 鑾峰彇骞冲彴鍚嶇О
      * @param request
      * @return
      */
     @GetMapping(value = "/getPlatform/name")
-    @ApiOperation(value = "获取平台名称")
+    @ApiOperation(value = "鑾峰彇骞冲彴鍚嶇О")
     public String getPlatformName(HttpServletRequest request)throws Exception {
         String res;
         try {
@@ -106,18 +113,18 @@ public class PlatformConfigController extends BaseController {
             res = platformConfig.getPlatformValue();
         } catch(Exception e){
             logger.error(e.getMessage(), e);
-            res = "ERP系统";
+            res = "ERP绯荤粺";
         }
         return res;
     }
 
     /**
-     * 获取官方网站地址
+     * 鑾峰彇瀹樻柟缃戠珯鍦板潃
      * @param request
      * @return
      */
     @GetMapping(value = "/getPlatform/url")
-    @ApiOperation(value = "获取官方网站地址")
+    @ApiOperation(value = "鑾峰彇瀹樻柟缃戠珯鍦板潃")
     public String getPlatformUrl(HttpServletRequest request)throws Exception {
         String res;
         try {
@@ -132,12 +139,11 @@ public class PlatformConfigController extends BaseController {
     }
 
     /**
-     * 获取是否开启注册
-     * @param request
+     * 鑾峰彇鏄惁寮€鍚敞鍐?     * @param request
      * @return
      */
     @GetMapping(value = "/getPlatform/registerFlag")
-    @ApiOperation(value = "获取是否开启注册")
+    @ApiOperation(value = "鑾峰彇鏄惁寮€鍚敞鍐?)
     public String getPlatformRegisterFlag(HttpServletRequest request)throws Exception {
         String res;
         try {
@@ -152,12 +158,12 @@ public class PlatformConfigController extends BaseController {
     }
 
     /**
-     * 获取是否开启验证码
+     * 鑾峰彇鏄惁寮€鍚獙璇佺爜
      * @param request
      * @return
      */
     @GetMapping(value = "/getPlatform/checkcodeFlag")
-    @ApiOperation(value = "获取是否开启验证码")
+    @ApiOperation(value = "鑾峰彇鏄惁寮€鍚獙璇佺爜")
     public String getPlatformCheckcodeFlag(HttpServletRequest request)throws Exception {
         String res;
         try {
@@ -172,13 +178,13 @@ public class PlatformConfigController extends BaseController {
     }
 
     /**
-     * 根据platformKey更新platformValue
+     * 鏍规嵁platformKey鏇存柊platformValue
      * @param object
      * @param request
      * @return
      */
     @PostMapping(value = "/updatePlatformConfigByKey")
-    @ApiOperation(value = "根据platformKey更新platformValue")
+    @ApiOperation(value = "鏍规嵁platformKey鏇存柊platformValue")
     public String updatePlatformConfigByKey(@RequestBody JSONObject object,
                                             HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -193,13 +199,13 @@ public class PlatformConfigController extends BaseController {
     }
 
     /**
-     * 根据platformKey查询信息
+     * 鏍规嵁platformKey鏌ヨ淇℃伅
      * @param platformKey
      * @param request
      * @return
      */
     @GetMapping(value = "/getInfoByKey")
-    @ApiOperation(value = "根据platformKey查询信息")
+    @ApiOperation(value = "鏍规嵁platformKey鏌ヨ淇℃伅")
     public BaseResponseInfo getInfoByKey(@RequestParam("platformKey") String platformKey,
                                             HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -210,7 +216,7 @@ public class PlatformConfigController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "获取数据失败";
+            res.data = "鑾峰彇鏁版嵁澶辫触";
         }
         return res;
     }

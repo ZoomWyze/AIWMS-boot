@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.entities;
+﻿package com.jsh.erp.datasource.entities;
 
+
+/**
+ * 视图对象 (VO)
+ * 用于 MaterialVo4Unit 场景的数据传输
+ *
+ * @author jishenghua
+ */
 import java.math.BigDecimal;
 
 public class MaterialVo4Unit extends Material{
@@ -47,13 +54,11 @@ public class MaterialVo4Unit extends Material{
     private Long depotId;
 
     /**
-     * 换算为大单位的库存
-     */
+     * 鎹㈢畻涓哄ぇ鍗曚綅鐨勫簱瀛?     */
     private String bigUnitStock;
 
     /**
-     * 换算为大单位的初始库存
-     */
+     * 鎹㈢畻涓哄ぇ鍗曚綅鐨勫垵濮嬪簱瀛?     */
     private String bigUnitInitialStock;
 
     private String imgSmall;

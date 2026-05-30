@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.entities;
+﻿package com.jsh.erp.datasource.entities;
 
+
+/**
+ * InOutItem 实体的 MyBatis 查询条件类 (Example)
+ * 封装动态 SQL 查询条件，支持链式调用构建 WHERE 子句
+ *
+ * @author jishenghua
+ */
 import java.util.ArrayList;
 import java.util.List;
 

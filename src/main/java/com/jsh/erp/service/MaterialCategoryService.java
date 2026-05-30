@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 商品分类 Service
+ * 提供商品分类的业务逻辑：新增/编辑/删除/查询/树形结构构建
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -125,7 +132,7 @@ public class MaterialCategoryService {
         int result=0;
         try{
             result=materialCategoryMapper.insertSelective(materialCategory);
-            logService.insertLog("商品类型",
+            logService.insertLog("鍟嗗搧绫诲瀷",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(materialCategory.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -140,7 +147,7 @@ public class MaterialCategoryService {
         int result=0;
         try{
             result=materialCategoryMapperEx.editMaterialCategory(materialCategory);
-            logService.insertLog("商品类型",
+            logService.insertLog("鍟嗗搧绫诲瀷",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(materialCategory.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -162,7 +169,7 @@ public class MaterialCategoryService {
     public int batchDeleteMaterialCategoryByIds(String ids) throws Exception {
         int result=0;
         String [] idArray=ids.split(",");
-        //校验产品表	jsh_material
+        //鏍￠獙浜у搧琛?jsh_material
         List<Material> materialList=null;
         try{
             materialList= materialMapperEx.getMaterialListByCategoryIds(idArray);
@@ -170,7 +177,7 @@ public class MaterialCategoryService {
             JshException.readFail(logger, e);
         }
         if(materialList!=null&&materialList.size()>0){
-            logger.error("异常码[{}],异常提示[{}],参数,CategoryIds[{}]",
+            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,CategoryIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
@@ -181,12 +188,11 @@ public class MaterialCategoryService {
         for(MaterialCategory materialCategory: list){
             sb.append("[").append(materialCategory.getName()).append("]");
         }
-        logService.insertLog("商品类型", sb.toString(),
+        logService.insertLog("鍟嗗搧绫诲瀷", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
-        //更新时间
+        //鏇存柊鏃堕棿
         Date updateDate =new Date();
-        //更新人
-        User userInfo=userService.getCurrentUser();
+        //鏇存柊浜?        User userInfo=userService.getCurrentUser();
         Long updater=userInfo==null?null:userInfo.getId();
         String strArray[]=ids.split(",");
         if(strArray.length<1){
@@ -194,7 +200,7 @@ public class MaterialCategoryService {
         }
         List<MaterialCategory> mcList = materialCategoryMapperEx.getMaterialCategoryListByCategoryIds(idArray);
         if(mcList!=null && mcList.size()>0) {
-            logger.error("异常码[{}],异常提示[{}]",
+            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}]",
                     ExceptionConstants.MATERIAL_CATEGORY_CHILD_NOT_SUPPORT_DELETE_CODE,ExceptionConstants.MATERIAL_CATEGORY_CHILD_NOT_SUPPORT_DELETE_MSG);
             throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_CATEGORY_CHILD_NOT_SUPPORT_DELETE_CODE,
                     ExceptionConstants.MATERIAL_CATEGORY_CHILD_NOT_SUPPORT_DELETE_MSG);
@@ -235,8 +241,7 @@ public class MaterialCategoryService {
     }
     /**
      * description:
-     * 获取商品类别树数据
-     */
+     * 鑾峰彇鍟嗗搧绫诲埆鏍戞暟鎹?     */
     public List<TreeNode> getMaterialCategoryTree(Long id) throws Exception{
         List<TreeNode> list=null;
         try{
@@ -247,8 +252,7 @@ public class MaterialCategoryService {
        return list;
     }
     /**
-     * 根据商品类别编号判断商品类别是否已存在
-     * */
+     * 鏍规嵁鍟嗗搧绫诲埆缂栧彿鍒ゆ柇鍟嗗搧绫诲埆鏄惁宸插瓨鍦?     * */
     public void  checkMaterialCategorySerialNo(MaterialCategory mc)throws Exception {
         if(mc==null){
             return;
@@ -256,7 +260,7 @@ public class MaterialCategoryService {
         if(StringUtil.isEmpty(mc.getSerialNo())){
             return;
         }
-        //根据商品类别编号查询商品类别
+        //鏍规嵁鍟嗗搧绫诲埆缂栧彿鏌ヨ鍟嗗搧绫诲埆
         List<MaterialCategory> mList=null;
         try{
             mList= materialCategoryMapperEx.getMaterialCategoryBySerialNo(mc.getSerialNo(), mc.getId());
@@ -264,31 +268,28 @@ public class MaterialCategoryService {
             JshException.readFail(logger, e);
         }
         if(mList==null||mList.size()<1){
-            //未查询到对应数据，编号可用
-            return;
+            //鏈煡璇㈠埌瀵瑰簲鏁版嵁锛岀紪鍙峰彲鐢?            return;
         }
         if(mList.size()>1){
-            //查询到的数据条数大于1，编号已存在
+            //鏌ヨ鍒扮殑鏁版嵁鏉℃暟澶т簬1锛岀紪鍙峰凡瀛樺湪
             throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_CATEGORY_SERIAL_ALREADY_EXISTS_CODE,
                     ExceptionConstants.MATERIAL_CATEGORY_SERIAL_ALREADY_EXISTS_MSG);
         }
         if(mc.getId()==null){
-            //新增时，编号已存在
-            throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_CATEGORY_SERIAL_ALREADY_EXISTS_CODE,
+            //鏂板鏃讹紝缂栧彿宸插瓨鍦?            throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_CATEGORY_SERIAL_ALREADY_EXISTS_CODE,
                     ExceptionConstants.MATERIAL_CATEGORY_SERIAL_ALREADY_EXISTS_MSG);
         }
         /**
-         * 包装类型用equals来比较
-         * */
+         * 鍖呰绫诲瀷鐢╡quals鏉ユ瘮杈?         * */
         if(mc.getId().equals(mList.get(0).getId())){
-            //修改时，相同编号，id不同
+            //淇敼鏃讹紝鐩稿悓缂栧彿锛宨d涓嶅悓
             throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_CATEGORY_SERIAL_ALREADY_EXISTS_CODE,
                     ExceptionConstants.MATERIAL_CATEGORY_SERIAL_ALREADY_EXISTS_MSG);
         }
     }
 
     /**
-     * 根据名称获取类型
+     * 鏍规嵁鍚嶇О鑾峰彇绫诲瀷
      * @param name
      */
     public Long getCategoryIdByName(String name){

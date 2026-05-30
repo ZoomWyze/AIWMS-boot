@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 商品多属性 Service
+ * 提供商品多属性的业务逻辑：新增/编辑/删除/查询属性名和属性值
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
@@ -73,7 +80,7 @@ public class MaterialAttributeService {
         MaterialAttribute m = JSONObject.parseObject(obj.toJSONString(), MaterialAttribute.class);
         try{
             materialAttributeMapper.insertSelective(m);
-            logService.insertLog("商品属性",
+            logService.insertLog("鍟嗗搧灞炴€?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(m.getAttributeName()).toString(), request);
             return 1;
         }
@@ -91,7 +98,7 @@ public class MaterialAttributeService {
         MaterialAttribute materialAttribute = JSONObject.parseObject(obj.toJSONString(), MaterialAttribute.class);
         try{
             materialAttributeMapper.updateByPrimaryKeySelective(materialAttribute);
-            logService.insertLog("商品属性",
+            logService.insertLog("鍟嗗搧灞炴€?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(materialAttribute.getAttributeName()).toString(), request);
             return 1;
         }catch(Exception e){

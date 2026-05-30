@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.mappers;
+﻿package com.jsh.erp.datasource.mappers;
 
+
+/**
+ * AccountHeadMapper 扩展 Mapper 接口
+ * 定义 AccountHeadMapper 自定义的复杂 SQL 查询方法（非 Generator 生成）
+ *
+ * @author jishenghua
+ */
 import com.jsh.erp.datasource.entities.AccountHead;
 import com.jsh.erp.datasource.entities.AccountHeadExample;
 import com.jsh.erp.datasource.entities.AccountHeadVo4ListEx;

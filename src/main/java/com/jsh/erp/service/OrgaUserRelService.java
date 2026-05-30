@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 机构用户关系 Service
+ * 提供机构与用户关联关系的业务逻辑
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.OrgaUserRel;
@@ -51,7 +58,7 @@ public class OrgaUserRelService {
         int result=0;
         try{
             result=orgaUserRelMapper.insertSelective(orgaUserRel);
-            logService.insertLog("用户与机构关系", BusinessConstants.LOG_OPERATION_TYPE_ADD, request);
+            logService.insertLog("鐢ㄦ埛涓庢満鏋勫叧绯?, BusinessConstants.LOG_OPERATION_TYPE_ADD, request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
         }
@@ -63,7 +70,7 @@ public class OrgaUserRelService {
         int result=0;
         try{
             result=orgaUserRelMapper.updateByPrimaryKeySelective(orgaUserRel);
-            logService.insertLog("用户与机构关系",
+            logService.insertLog("鐢ㄦ埛涓庢満鏋勫叧绯?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(orgaUserRel.getId()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -75,7 +82,7 @@ public class OrgaUserRelService {
         int result=0;
         try{
             result=orgaUserRelMapper.deleteByPrimaryKey(id);
-            logService.insertLog("用户与机构关系",
+            logService.insertLog("鐢ㄦ埛涓庢満鏋勫叧绯?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_DELETE).append(id).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -90,7 +97,7 @@ public class OrgaUserRelService {
         int result=0;
         try{
             result=orgaUserRelMapper.deleteByExample(example);
-            logService.insertLog("用户与机构关系", "批量删除,id集:" + ids, request);
+            logService.insertLog("鐢ㄦ埛涓庢満鏋勫叧绯?, "鎵归噺鍒犻櫎,id闆?" + ids, request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
         }
@@ -99,7 +106,7 @@ public class OrgaUserRelService {
     /**
      * create by: cjl
      * description:
-     *  新增机构用户关联关系,反显id
+     *  鏂板鏈烘瀯鐢ㄦ埛鍏宠仈鍏崇郴,鍙嶆樉id
      * create time: 2019/3/12 9:40
      * @Param: orgaUserRel
      * @return void
@@ -108,20 +115,18 @@ public class OrgaUserRelService {
     public OrgaUserRel addOrgaUserRel(OrgaUserRel orgaUserRel) throws Exception{
         Date date = new Date();
         User userInfo=userService.getCurrentUser();
-        //创建时间
+        //鍒涘缓鏃堕棿
         if(orgaUserRel.getCreateTime()==null){
             orgaUserRel.setCreateTime(date);
         }
-        //创建人
-        if(orgaUserRel.getCreator()==null){
+        //鍒涘缓浜?        if(orgaUserRel.getCreator()==null){
             orgaUserRel.setCreator(userInfo==null?null:userInfo.getId());
         }
-        //更新时间
+        //鏇存柊鏃堕棿
         if(orgaUserRel.getUpdateTime()==null){
             orgaUserRel.setUpdateTime(date);
         }
-        //更新人
-        if(orgaUserRel.getUpdater()==null){
+        //鏇存柊浜?        if(orgaUserRel.getUpdater()==null){
             orgaUserRel.setUpdater(userInfo==null?null:userInfo.getId());
         }
         orgaUserRel.setDeleteFlag(BusinessConstants.DELETE_FLAG_EXISTS);
@@ -139,7 +144,7 @@ public class OrgaUserRelService {
     /**
      * create by: cjl
      * description:
-     *  更新机构用户关联关系
+     *  鏇存柊鏈烘瀯鐢ㄦ埛鍏宠仈鍏崇郴
      * create time: 2019/3/12 9:40
      * @Param: orgaUserRel
      * @return void
@@ -147,12 +152,11 @@ public class OrgaUserRelService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public OrgaUserRel updateOrgaUserRel(OrgaUserRel orgaUserRel) throws Exception{
         User userInfo=userService.getCurrentUser();
-        //更新时间
+        //鏇存柊鏃堕棿
         if(orgaUserRel.getUpdateTime()==null){
             orgaUserRel.setUpdateTime(new Date());
         }
-        //更新人
-        if(orgaUserRel.getUpdater()==null){
+        //鏇存柊浜?        if(orgaUserRel.getUpdater()==null){
             orgaUserRel.setUpdater(userInfo==null?null:userInfo.getId());
         }
         int result=0;
@@ -168,7 +172,7 @@ public class OrgaUserRelService {
     }
 
     /**
-     * 根据用户id获取用户id列表
+     * 鏍规嵁鐢ㄦ埛id鑾峰彇鐢ㄦ埛id鍒楄〃
      * @param userId
      * @return
      * @throws Exception
@@ -192,8 +196,7 @@ public class OrgaUserRelService {
     }
 
     /**
-     * 根据组织id获取所属的用户id列表（包含组织的递归）
-     * @param orgId
+     * 鏍规嵁缁勭粐id鑾峰彇鎵€灞炵殑鐢ㄦ埛id鍒楄〃锛堝寘鍚粍缁囩殑閫掑綊锛?     * @param orgId
      * @return
      */
     public List<Long> getUserIdListByOrgId(Long orgId) {

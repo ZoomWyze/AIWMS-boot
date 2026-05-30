@@ -1,5 +1,12 @@
-package com.jsh.erp.service;
+﻿package com.jsh.erp.service;
 
+
+/**
+ * 商品属性 Service
+ * 提供商品属性的业务逻辑：新增/编辑/删除/查询
+ *
+ * @author jishenghua
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.MaterialProperty;
@@ -55,8 +62,7 @@ public class MaterialPropertyService {
             for(MaterialProperty mp: mpList) {
                 mpMap.put(mp.getNativeName(), mp.getAnotherName());
             }
-            //给list里面的别名和排序做更新
-            for(MaterialProperty item: list) {
+            //缁檒ist閲岄潰鐨勫埆鍚嶅拰鎺掑簭鍋氭洿鏂?            for(MaterialProperty item: list) {
                 if(mpMap.get(item.getNativeName())!=null) {
                     item.setAnotherName(mpMap.get(item.getNativeName()));
                 }
@@ -77,8 +83,7 @@ public class MaterialPropertyService {
             for(MaterialProperty mp: mpList) {
                 mpMap.put(mp.getNativeName(), mp.getAnotherName());
             }
-            //给list里面的别名和排序做更新
-            for(MaterialProperty item: list) {
+            //缁檒ist閲岄潰鐨勫埆鍚嶅拰鎺掑簭鍋氭洿鏂?            for(MaterialProperty item: list) {
                 if(mpMap.get(item.getNativeName())!=null) {
                     item.setAnotherName(mpMap.get(item.getNativeName()));
                 }
@@ -94,16 +99,16 @@ public class MaterialPropertyService {
         MaterialProperty mp2 = new MaterialProperty();
         MaterialProperty mp3 = new MaterialProperty();
         mp1.setId(1L);
-        mp1.setNativeName("扩展1");
-        mp1.setAnotherName("扩展1");
+        mp1.setNativeName("鎵╁睍1");
+        mp1.setAnotherName("鎵╁睍1");
         list.add(mp1);
         mp2.setId(2L);
-        mp2.setNativeName("扩展2");
-        mp2.setAnotherName("扩展2");
+        mp2.setNativeName("鎵╁睍2");
+        mp2.setAnotherName("鎵╁睍2");
         list.add(mp2);
         mp3.setId(3L);
-        mp3.setNativeName("扩展3");
-        mp3.setAnotherName("扩展3");
+        mp3.setNativeName("鎵╁睍3");
+        mp3.setAnotherName("鎵╁睍3");
         list.add(mp3);
     }
 
@@ -113,7 +118,7 @@ public class MaterialPropertyService {
         int  result=0;
         try{
             result = materialPropertyMapper.insertSelective(materialProperty);
-            logService.insertLog("商品属性",
+            logService.insertLog("鍟嗗搧灞炴€?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(materialProperty.getNativeName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -127,7 +132,7 @@ public class MaterialPropertyService {
         int  result=0;
         try{
             result = materialPropertyMapper.updateByPrimaryKeySelective(materialProperty);
-            logService.insertLog("商品属性",
+            logService.insertLog("鍟嗗搧灞炴€?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(materialProperty.getNativeName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -152,7 +157,7 @@ public class MaterialPropertyService {
         int  result=0;
         try{
             result = materialPropertyMapperEx.batchDeleteMaterialPropertyByIds(new Date(), userInfo == null ? null : userInfo.getId(), idArray);
-            logService.insertLog("商品属性",
+            logService.insertLog("鍟嗗搧灞炴€?,
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_DELETE).append(ids).toString(),
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         }catch(Exception e){

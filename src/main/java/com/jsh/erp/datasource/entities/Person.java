@@ -1,5 +1,12 @@
-package com.jsh.erp.datasource.entities;
+﻿package com.jsh.erp.datasource.entities;
 
+
+/**
+ * Person 实体类
+ * 对应数据库 jsh_person 表
+ *
+ * @author jishenghua
+ */
 public class Person {
     private Long id;
 
