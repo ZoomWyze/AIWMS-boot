@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.utils;
+package com.jsh.erp.utils;
 
-
-/**
- * 参数工具类
- * 提供请求参数的获取和类型转换方法
- *
- * @author jishenghua
- */
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Enumeration;

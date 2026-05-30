@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 序列号管理 Controller
- * 提供商品序列号（SN）的管理接口，包括启用/禁用序列号查询
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.datasource.entities.DepotItem;
 import com.jsh.erp.datasource.entities.SerialNumberEx;
@@ -38,7 +31,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/serialNumber")
-@Api(tags = {"搴忓垪鍙风鐞?})
+@Api(tags = {"序列号管理"})
 public class SerialNumberController {
     private Logger logger = LoggerFactory.getLogger(SerialNumberController.class);
 
@@ -54,7 +47,7 @@ public class SerialNumberController {
      * @return java.lang.Object
      */
     @PostMapping("/batAddSerialNumber")
-    @ApiOperation(value = "鎵归噺娣诲姞搴忓垪鍙?)
+    @ApiOperation(value = "批量添加序列号")
     public String batAddSerialNumber(@RequestBody JSONObject jsonObject, HttpServletRequest request)throws Exception{
         Map<String, Object> objectMap = new HashMap<>();
         String materialCode = jsonObject.getString("materialCode");
@@ -66,13 +59,14 @@ public class SerialNumberController {
     }
 
     /**
-     * 鑾峰彇搴忓垪鍙峰晢鍝?     * @param jsonObject
+     * 获取序列号商品
+     * @param jsonObject
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/getEnableSerialNumberList")
-    @ApiOperation(value = "鑾峰彇搴忓垪鍙峰晢鍝?)
+    @ApiOperation(value = "获取序列号商品")
     public BaseResponseInfo getEnableSerialNumberList(@RequestBody JSONObject jsonObject, HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<>();
@@ -89,8 +83,9 @@ public class SerialNumberController {
                 DepotItem depotItem = depotItemService.getDepotItem(depotItemId);
                 number = depotHeadService.getDepotHead(depotItem.getHeaderId()).getNumber();
             }
-            // 鎵归噺鏌ヨ搴忓垪鍙锋椂锛宯ame鍙兘涓哄涓?            if(StringUtil.isNotEmpty(name)) {
-                name = name.replace("锛?,",");
+            // 批量查询序列号时，name可能为多个
+            if(StringUtil.isNotEmpty(name)) {
+                name = name.replace("，",",");
                 if(name.contains(",")) {
                     nameArray = name.split(",");
                     name = null;
@@ -105,7 +100,7 @@ public class SerialNumberController {
             if(nameArray!=null && nameArray.length>0) {
                 List<SerialNumberEx> allList = serialNumberService.getEnableSerialNumberList(number, name, nameArray, depotId, barCode, null, null);
                 if(allList.size() < nameArray.length) {
-                    //璇存槑鏌ュ嚭鐨勬瘮鏌ヨ鏉′欢閲岄潰鐨勫簭鍒楀彿灏戯紝姝ゆ椂闇€瑕佸鎵惧嚭缂哄皯鐨勫簭鍒楀彿
+                    //说明查出的比查询条件里面的序列号少，此时需要寻找出缺少的序列号
                     for (String item : nameArray) {
                         boolean isHave = false;
                         for (SerialNumberEx serialNumberEx : allList) {
@@ -123,7 +118,7 @@ public class SerialNumberController {
             map.put("rows", list);
             map.put("total", total);
             if(!missList.isEmpty()) {
-                //鍒楀嚭鏈煡璇㈠埌鐨勫簭鍒楀彿
+                //列出未查询到的序列号
                 map.put("missInfo", String.join(",", missList));
             }
             res.code = 200;
@@ -131,7 +126,7 @@ public class SerialNumberController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }

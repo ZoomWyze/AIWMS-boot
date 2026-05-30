@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 账户明细 Service
- * 提供收支明细行的业务逻辑：新增/编辑/删除/查询
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
@@ -115,7 +108,8 @@ public class AccountItemService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void saveDetials(String rows, Long headerId, String type, HttpServletRequest request) throws Exception {
-        //鍒犻櫎鍗曟嵁鐨勬槑缁?        deleteAccountItemHeadId(headerId);
+        //删除单据的明细
+        deleteAccountItemHeadId(headerId);
         JSONArray rowArr = JSONArray.parseArray(rows);
         if (null != rowArr && rowArr.size()>0) {
             for (int i = 0; i < rowArr.size(); i++) {
@@ -140,7 +134,7 @@ public class AccountItemService {
                 }
                 if (tempInsertedJson.get("eachAmount") != null && !tempInsertedJson.get("eachAmount").equals("")) {
                     BigDecimal eachAmount = tempInsertedJson.getBigDecimal("eachAmount");
-                    if (type.equals("浠樻")) {
+                    if (type.equals("付款")) {
                         eachAmount = BigDecimal.ZERO.subtract(eachAmount);
                     }
                     accountItem.setEachAmount(eachAmount);
@@ -169,7 +163,7 @@ public class AccountItemService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchDeleteAccountItemByIds(String ids) throws Exception{
-        logService.insertLog("璐㈠姟鏄庣粏",
+        logService.insertLog("财务明细",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_DELETE).append(ids).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();

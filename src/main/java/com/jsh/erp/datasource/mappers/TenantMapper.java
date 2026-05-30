@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * Tenant MyBatis Mapper 接口
- * 提供 Tenant 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.Tenant;
 import com.jsh.erp.datasource.entities.TenantExample;
 import java.util.List;

@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 消息通知 Service
- * 提供系统消息通知的业务逻辑
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -59,7 +52,7 @@ public class MsgService {
         try{
             result=msgMapper.selectByPrimaryKey(id);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_READ_FAIL_CODE, ExceptionConstants.DATA_READ_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_READ_FAIL_CODE,
                     ExceptionConstants.DATA_READ_FAIL_MSG);
@@ -74,7 +67,7 @@ public class MsgService {
         try{
             list=msgMapper.selectByExample(example);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_READ_FAIL_CODE, ExceptionConstants.DATA_READ_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_READ_FAIL_CODE,
                     ExceptionConstants.DATA_READ_FAIL_MSG);
@@ -100,7 +93,7 @@ public class MsgService {
                 list = new ArrayList<>();
             }
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_READ_FAIL_CODE, ExceptionConstants.DATA_READ_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_READ_FAIL_CODE,
                     ExceptionConstants.DATA_READ_FAIL_MSG);
@@ -118,11 +111,11 @@ public class MsgService {
                 msg.setCreateTime(new Date());
                 msg.setStatus("1");
                 result=msgMapper.insertSelective(msg);
-                logService.insertLog("娑堟伅",
+                logService.insertLog("消息",
                         new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(msg.getMsgTitle()).toString(), request);
             }
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_WRITE_FAIL_CODE, ExceptionConstants.DATA_WRITE_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_WRITE_FAIL_CODE,
                     ExceptionConstants.DATA_WRITE_FAIL_MSG);
@@ -136,10 +129,10 @@ public class MsgService {
         int result=0;
         try{
             result=msgMapper.updateByPrimaryKeySelective(msg);
-            logService.insertLog("娑堟伅",
+            logService.insertLog("消息",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(msg.getMsgTitle()).toString(), request);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_WRITE_FAIL_CODE, ExceptionConstants.DATA_WRITE_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_WRITE_FAIL_CODE,
                     ExceptionConstants.DATA_WRITE_FAIL_MSG);
@@ -152,10 +145,10 @@ public class MsgService {
         int result=0;
         try{
             result=msgMapper.deleteByPrimaryKey(id);
-            logService.insertLog("娑堟伅",
+            logService.insertLog("消息",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_DELETE).append(id).toString(), request);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_WRITE_FAIL_CODE, ExceptionConstants.DATA_WRITE_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_WRITE_FAIL_CODE,
                     ExceptionConstants.DATA_WRITE_FAIL_MSG);
@@ -171,9 +164,9 @@ public class MsgService {
         int result=0;
         try{
             result=msgMapper.deleteByExample(example);
-            logService.insertLog("娑堟伅", "鎵归噺鍒犻櫎,id闆?" + ids, request);
+            logService.insertLog("消息", "批量删除,id集:" + ids, request);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_WRITE_FAIL_CODE, ExceptionConstants.DATA_WRITE_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_WRITE_FAIL_CODE,
                     ExceptionConstants.DATA_WRITE_FAIL_MSG);
@@ -188,7 +181,7 @@ public class MsgService {
         try{
             list= msgMapper.selectByExample(example);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_READ_FAIL_CODE, ExceptionConstants.DATA_READ_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_READ_FAIL_CODE,
                     ExceptionConstants.DATA_READ_FAIL_MSG);
@@ -198,14 +191,14 @@ public class MsgService {
 
     /**
      * create by: qiankunpingtai
-     *  閫昏緫鍒犻櫎瑙掕壊淇℃伅
+     *  逻辑删除角色信息
      * create time: 2019/3/28 15:44
      * @Param: ids
      * @return int
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchDeleteMsgByIds(String ids) throws Exception{
-        logService.insertLog("搴忓垪鍙?,
+        logService.insertLog("序列号",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_DELETE).append(ids).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         String [] idArray=ids.split(",");
@@ -213,7 +206,7 @@ public class MsgService {
         try{
             result=msgMapperEx.batchDeleteMsgByIds(idArray);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_WRITE_FAIL_CODE, ExceptionConstants.DATA_WRITE_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_WRITE_FAIL_CODE,
                     ExceptionConstants.DATA_WRITE_FAIL_MSG);
@@ -247,7 +240,7 @@ public class MsgService {
                 }
             }
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_READ_FAIL_CODE, ExceptionConstants.DATA_READ_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_READ_FAIL_CODE,
                     ExceptionConstants.DATA_READ_FAIL_MSG);
@@ -265,7 +258,7 @@ public class MsgService {
         try{
             msgMapper.updateByExampleSelective(msg, example);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_WRITE_FAIL_CODE, ExceptionConstants.DATA_WRITE_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_WRITE_FAIL_CODE,
                     ExceptionConstants.DATA_WRITE_FAIL_MSG);
@@ -280,7 +273,7 @@ public class MsgService {
                 result = msgMapperEx.getMsgCountByStatus(status, userInfo.getId());
             }
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_READ_FAIL_CODE, ExceptionConstants.DATA_READ_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_READ_FAIL_CODE,
                     ExceptionConstants.DATA_READ_FAIL_MSG);
@@ -299,7 +292,7 @@ public class MsgService {
                 msgCount = list.size();
             }
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_READ_FAIL_CODE, ExceptionConstants.DATA_READ_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_READ_FAIL_CODE,
                     ExceptionConstants.DATA_READ_FAIL_MSG);
@@ -319,7 +312,7 @@ public class MsgService {
                 msgMapper.updateByExampleSelective(msg, example);
             }
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_WRITE_FAIL_CODE, ExceptionConstants.DATA_WRITE_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_WRITE_FAIL_CODE,
                     ExceptionConstants.DATA_WRITE_FAIL_MSG);

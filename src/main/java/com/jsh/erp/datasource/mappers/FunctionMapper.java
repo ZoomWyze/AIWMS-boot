@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * Function MyBatis Mapper 接口
- * 提供 Function 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.Function;
 import com.jsh.erp.datasource.entities.FunctionExample;
 import java.util.List;

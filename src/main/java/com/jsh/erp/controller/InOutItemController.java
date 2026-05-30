@@ -1,11 +1,14 @@
 package com.jsh.erp.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
-import com.jsh.erp.datasource.entities.Unit;
-import com.jsh.erp.service.UnitService;
-import com.jsh.erp.utils.*;
+import com.jsh.erp.datasource.entities.InOutItem;
+import com.jsh.erp.service.InOutItemService;
+import com.jsh.erp.utils.Constants;
+import com.jsh.erp.utils.ErpInfo;
+import com.jsh.erp.utils.StringUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -22,28 +25,25 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnJson;
 import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
 
 /**
- * Description
- *
- * @Author: qiankunpingtai
- * @Date: 2019/4/1 15:38
+ * @author jishenghua  jshERP 2018年12月25日14:38:08
  */
 @RestController
-@RequestMapping(value = "/unit")
-@Api(tags = {"单位管理"})
-public class UnitController extends BaseController {
-    private Logger logger = LoggerFactory.getLogger(UnitController.class);
+@RequestMapping(value = "/inOutItem")
+@Api(tags = {"收支项目"})
+public class InOutItemController extends BaseController {
+    private Logger logger = LoggerFactory.getLogger(InOutItemController.class);
 
     @Resource
-    private UnitService unitService;
+    private InOutItemService inOutItemService;
 
     @GetMapping(value = "/info")
     @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
-        Unit unit = unitService.getUnit(id);
+        InOutItem inOutItem = inOutItemService.getInOutItem(id);
         Map<String, Object> objectMap = new HashMap<>();
-        if(unit != null) {
-            objectMap.put("info", unit);
+        if(inOutItem != null) {
+            objectMap.put("info", inOutItem);
             return returnJson(objectMap, ErpInfo.OK.name, ErpInfo.OK.code);
         } else {
             return returnJson(objectMap, ErpInfo.ERROR.name, ErpInfo.ERROR.code);
@@ -55,7 +55,9 @@ public class UnitController extends BaseController {
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
-        List<Unit> list = unitService.select(name);
+        String type = StringUtil.getInfo(search, "type");
+        String remark = StringUtil.getInfo(search, "remark");
+        List<InOutItem> list = inOutItemService.select(name, type, remark);
         return getDataTable(list);
     }
 
@@ -63,7 +65,7 @@ public class UnitController extends BaseController {
     @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int insert = unitService.insertUnit(obj, request);
+        int insert = inOutItemService.insertInOutItem(obj, request);
         return returnStr(objectMap, insert);
     }
 
@@ -71,7 +73,7 @@ public class UnitController extends BaseController {
     @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int update = unitService.updateUnit(obj, request);
+        int update = inOutItemService.updateInOutItem(obj, request);
         return returnStr(objectMap, update);
     }
 
@@ -79,7 +81,7 @@ public class UnitController extends BaseController {
     @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int delete = unitService.deleteUnit(id, request);
+        int delete = inOutItemService.deleteInOutItem(id, request);
         return returnStr(objectMap, delete);
     }
 
@@ -87,16 +89,17 @@ public class UnitController extends BaseController {
     @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int delete = unitService.batchDeleteUnit(ids, request);
+        int delete = inOutItemService.batchDeleteInOutItem(ids, request);
         return returnStr(objectMap, delete);
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "检查名称是否存在")
-    public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
+    @ApiOperation(value = "检查名称是否存在-后续废弃")
+    public String checkIsNameExist(@RequestParam Long id,
+                                   @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int exist = unitService.checkIsNameExist(id, name);
+        int exist = inOutItemService.checkIsNameExist(id, name);
         if(exist > 0) {
             objectMap.put("status", true);
         } else {
@@ -106,23 +109,31 @@ public class UnitController extends BaseController {
     }
 
     /**
-     * 单位列表
+     * 查找收支项目信息-下拉框
      * @param request
      * @return
-     * @throws Exception
      */
-    @GetMapping(value = "/getAllList")
-    @ApiOperation(value = "单位列表")
-    public BaseResponseInfo getAllList(HttpServletRequest request) throws Exception{
-        BaseResponseInfo res = new BaseResponseInfo();
+    @GetMapping(value = "/findBySelect")
+    @ApiOperation(value = "查找收支项目信息")
+    public String findBySelect(@RequestParam("type") String type, HttpServletRequest request) throws Exception{
+        String res = null;
         try {
-            List<Unit> unitList = unitService.getUnit();
-            res.code = 200;
-            res.data = unitList;
+            List<InOutItem> dataList = inOutItemService.findBySelect(type);
+            //存放数据json数组
+            JSONArray dataArray = new JSONArray();
+            if (null != dataList) {
+                for (InOutItem inOutItem : dataList) {
+                    JSONObject item = new JSONObject();
+                    item.put("id", inOutItem.getId());
+                    //收支项目名称
+                    item.put("name", inOutItem.getName());
+                    dataArray.add(item);
+                }
+            }
+            res = dataArray.toJSONString();
         } catch(Exception e){
             logger.error(e.getMessage(), e);
-            res.code = 500;
-            res.data = "获取数据失败";
+            res = "获取数据失败";
         }
         return res;
     }
@@ -140,7 +151,7 @@ public class UnitController extends BaseController {
         Boolean status = jsonObject.getBoolean("status");
         String ids = jsonObject.getString("ids");
         Map<String, Object> objectMap = new HashMap<>();
-        int res = unitService.batchSetStatus(status, ids);
+        int res = inOutItemService.batchSetStatus(status, ids);
         if(res > 0) {
             return returnJson(objectMap, ErpInfo.OK.name, ErpInfo.OK.code);
         } else {

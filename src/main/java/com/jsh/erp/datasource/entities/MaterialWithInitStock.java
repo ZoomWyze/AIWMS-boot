@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * MaterialWithInitStock 实体类
- * 对应数据库 jsh_materialwithinitstock 表
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 
 import java.math.BigDecimal;

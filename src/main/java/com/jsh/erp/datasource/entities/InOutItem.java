@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * 出入库明细实体
- * 对应数据库 jsh_in_out_item 表，记录商品出入库详情
- *
- * @author jishenghua
- */
 public class InOutItem {
     private Long id;
 

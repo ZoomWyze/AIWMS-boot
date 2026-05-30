@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 仓库 Service
- * 提供仓库信息的业务逻辑：新增/编辑/删除/查询/唯一性校验
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
@@ -120,7 +113,7 @@ public class DepotService {
             }
             depot.setEnabled(true);
             result=depotMapper.insertSelective(depot);
-            //鏂板浠撳簱鏃剁粰褰撳墠鐢ㄦ埛鑷姩鎺堟潈
+            //新增仓库时给当前用户自动授权
             Long userId = userService.getUserId(request);
             Long depotId = getIdByName(depot.getName());
             String ubKey = "[" + depotId + "]";
@@ -140,7 +133,7 @@ public class DepotService {
                 ubObj.put("value", ubInfo.getValue() + ubKey);
                 userBusinessService.updateUserBusiness(ubObj, request);
             }
-            logService.insertLog("浠撳簱",
+            logService.insertLog("仓库",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(depot.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -154,7 +147,7 @@ public class DepotService {
         int result=0;
         try{
             result= depotMapper.updateByPrimaryKeySelective(depot);
-            logService.insertLog("浠撳簱",
+            logService.insertLog("仓库",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(depot.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -176,16 +169,16 @@ public class DepotService {
     public int batchDeleteDepotByIds(String ids)throws Exception {
         int result=0;
         String [] idArray=ids.split(",");
-        //鏍￠獙鍗曟嵁瀛愯〃	jsh_depot_item
+        //校验单据子表	jsh_depot_item
         List<DepotItem> depotItemList = depotItemMapperEx.getDepotItemListListByDepotIds(idArray);
         if(depotItemList!=null&&depotItemList.size()>0){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,DepotIds[{}]",
+            logger.error("异常码[{}],异常提示[{}],参数,DepotIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
         try{
-            //璁板綍鏃ュ織
+            //记录日志
             StringBuffer sb = new StringBuffer();
             sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
             List<Depot> list = getDepotListByIds(ids);
@@ -193,15 +186,15 @@ public class DepotService {
                 sb.append("[").append(depot.getName()).append("]");
             }
             User userInfo=userService.getCurrentUser();
-            //鏍￠獙閫氳繃鎵ц鍒犻櫎鎿嶄綔
-            //鍒犻櫎浠撳簱鍏宠仈鐨勫晢鍝佺殑鍒濆搴撳瓨
+            //校验通过执行删除操作
+            //删除仓库关联的商品的初始库存
             materialInitialStockMapperEx.batchDeleteByDepots(idArray);
-            //鍒犻櫎浠撳簱鍏宠仈鐨勫晢鍝佺殑褰撳墠搴撳瓨
+            //删除仓库关联的商品的当前库存
             materialCurrentStockMapperEx.batchDeleteByDepots(idArray);
-            //鍒犻櫎浠撳簱
+            //删除仓库
             result = depotMapperEx.batchDeleteDepotByIds(new Date(),userInfo==null?null:userInfo.getId(),idArray);
-            //璁板綍鏃ュ織
-            logService.insertLog("浠撳簱", sb.toString(),
+            //记录日志
+            logService.insertLog("仓库", sb.toString(),
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         } catch (Exception e) {
             JshException.writeFail(logger, e);
@@ -239,18 +232,19 @@ public class DepotService {
     public int updateIsDefault(Long depotId) throws Exception{
         int result=0;
         try{
-            //鍏ㄩ儴鍙栨秷榛樿
+            //全部取消默认
             Depot allDepot = new Depot();
             allDepot.setIsDefault(false);
             DepotExample allExample = new DepotExample();
             allExample.createCriteria();
             depotMapper.updateByExampleSelective(allDepot, allExample);
-            //缁欐寚瀹氫粨搴撹涓洪粯璁?            Depot depot = new Depot();
+            //给指定仓库设为默认
+            Depot depot = new Depot();
             depot.setIsDefault(true);
             DepotExample example = new DepotExample();
             example.createCriteria().andIdEqualTo(depotId);
             depotMapper.updateByExampleSelective(depot, example);
-            logService.insertLog("浠撳簱",BusinessConstants.LOG_OPERATION_TYPE_EDIT+depotId,
+            logService.insertLog("仓库",BusinessConstants.LOG_OPERATION_TYPE_EDIT+depotId,
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             result = 1;
         }catch(Exception e){
@@ -260,7 +254,7 @@ public class DepotService {
     }
 
     /**
-     * 鏍规嵁鍚嶇О鑾峰彇id
+     * 根据名称获取id
      * @param name
      */
     public Long getIdByName(String name){
@@ -275,7 +269,7 @@ public class DepotService {
     }
 
     /**
-     * 鏍规嵁鍗曚釜浠撳簱鏌ヨ
+     * 根据单个仓库查询
      * @param depotId
      * @return
      * @throws Exception
@@ -285,7 +279,7 @@ public class DepotService {
         if(depotId !=null) {
             depotList.add(depotId);
         } else {
-            //鏈€夋嫨浠撳簱鏃堕粯璁や负褰撳墠鐢ㄦ埛鏈夋潈闄愮殑浠撳簱
+            //未选择仓库时默认为当前用户有权限的仓库
             JSONArray depotArr = findDepotByCurrentUser();
             for(Object obj: depotArr) {
                 JSONObject object = JSONObject.parseObject(obj.toString());
@@ -296,7 +290,7 @@ public class DepotService {
     }
 
     /**
-     * 鏍规嵁澶氫釜浠撳簱鏌ヨ
+     * 根据多个仓库查询
      * @param depotIdArr
      * @return
      * @throws Exception
@@ -308,7 +302,7 @@ public class DepotService {
                 depotList.add(Long.parseLong(depotIdArr[i]));
             }
         } else {
-            //鏈€夋嫨浠撳簱鏃堕粯璁や负褰撳墠鐢ㄦ埛鏈夋潈闄愮殑浠撳簱
+            //未选择仓库时默认为当前用户有权限的仓库
             JSONArray depotArr = findDepotByCurrentUser();
             for(Object obj: depotArr) {
                 JSONObject object = JSONObject.parseObject(obj.toString());
@@ -323,7 +317,7 @@ public class DepotService {
         String type = "UserDepot";
         Long userId = userService.getCurrentUser().getId();
         List<Depot> dataList = findUserDepot();
-        //寮€濮嬫嫾鎺son鏁版嵁
+        //开始拼接json数据
         if (null != dataList) {
             boolean depotFlag = systemConfigService.getDepotFlag();
             if(depotFlag) {
@@ -360,7 +354,7 @@ public class DepotService {
     }
 
     /**
-     * 褰撳墠鐢ㄦ埛鏈夋潈闄愪娇鐢ㄧ殑浠撳簱鍒楄〃鐨刬d锛岀敤閫楀彿闅斿紑
+     * 当前用户有权限使用的仓库列表的id，用逗号隔开
      * @return
      * @throws Exception
      */
@@ -380,7 +374,7 @@ public class DepotService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Boolean status, String ids)throws Exception {
-        logService.insertLog("浠撳簱",
+        logService.insertLog("仓库",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ENABLED).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> depotIds = StringUtil.strToLongList(ids);

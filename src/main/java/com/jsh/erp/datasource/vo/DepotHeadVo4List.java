@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.vo;
+package com.jsh.erp.datasource.vo;
 
-
-/**
- * 视图对象 (VO) - DepotHeadVo4List
- * 用于特定业务场景的数据传输，封装查询结果或前端请求参数
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.DepotHead;
 
 import java.math.BigDecimal;
@@ -51,36 +44,36 @@ public class DepotHeadVo4List extends DepotHead{
     private BigDecimal materialCount;
 
     /**
-     * 鏄惁鏈変粯娆惧崟鎴栨敹娆惧崟
+     * 是否有付款单或收款单
      */
     private Boolean hasFinancialFlag;
     /**
-     * 鏄惁鏈夐€€娆惧崟
+     * 是否有退款单
      */
     private Boolean hasBackFlag;
 
     /**
-     * 瀹為檯娆犳
+     * 实际欠款
      */
     private BigDecimal realNeedDebt;
 
     /**
-     * 寮€鎴疯
+     * 开户行
      */
     private String bankName;
 
     /**
-     * 璐﹀彿
+     * 账号
      */
     private String accountNumber;
 
     /**
-     * 绾崇◣浜鸿瘑鍒彿
+     * 纳税人识别号
      */
     private String taxNum;
 
     /**
-     * 鑱旂郴鐢佃瘽
+     * 联系电话
      */
     private String phoneNum;
 

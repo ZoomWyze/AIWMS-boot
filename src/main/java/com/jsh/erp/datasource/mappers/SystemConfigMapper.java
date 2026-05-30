@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * SystemConfig MyBatis Mapper 接口
- * 提供 SystemConfig 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.SystemConfig;
 import com.jsh.erp.datasource.entities.SystemConfigExample;
 import java.util.List;

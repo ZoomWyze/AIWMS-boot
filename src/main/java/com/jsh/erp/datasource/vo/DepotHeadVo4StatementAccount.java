@@ -1,13 +1,6 @@
-﻿package com.jsh.erp.datasource.vo;
+package com.jsh.erp.datasource.vo;
 
 
-
-/**
- * 视图对象 (VO) - DepotHeadVo4StatementAccount
- * 用于特定业务场景的数据传输，封装查询结果或前端请求参数
- *
- * @author jishenghua
- */
 import java.math.BigDecimal;
 
 public class DepotHeadVo4StatementAccount {
@@ -25,46 +18,48 @@ public class DepotHeadVo4StatementAccount {
     private String email;
 
     /**
-     * 璧峰鏈熷垵閲戦
+     * 起始期初金额
      */
     private BigDecimal beginNeed;
 
     /**
-     * 涓婃湡娆犳閲戦
+     * 上期欠款金额
      */
     private BigDecimal preDebtMoney;
 
     /**
-     * 涓婃湡閫€璐х殑娆犳閲戦
+     * 上期退货的欠款金额
      */
     private BigDecimal preReturnDebtMoney;
 
 
     /**
-     * 涓婃湡鏀朵粯娆?     */
+     * 上期收付款
+     */
     private BigDecimal preBackMoney;
 
     /**
-     * 鏈熷垵搴旀敹
+     * 期初应收
      */
     private BigDecimal preNeed;
 
     /**
-     * 鏈湡娆犳
+     * 本期欠款
      */
     private BigDecimal debtMoney;
 
     /**
-     * 鏈湡閫€璐х殑娆犳閲戦
+     * 本期退货的欠款金额
      */
     private BigDecimal returnDebtMoney;
 
     /**
-     * 鏈湡鏀朵粯娆?     */
+     * 本期收付款
+     */
     private BigDecimal backMoney;
 
     /**
-     * 鏈熸湯搴旀敹
+     * 期末应收
      */
     private BigDecimal allNeed;
 

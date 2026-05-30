@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * 消息实体
- * 对应数据库 jsh_msg 表，存储系统消息通知
- *
- * @author jishenghua
- */
 import java.util.Date;
 
 public class Msg {

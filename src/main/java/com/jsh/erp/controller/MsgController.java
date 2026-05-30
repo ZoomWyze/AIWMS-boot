@@ -1,11 +1,11 @@
 package com.jsh.erp.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
-import com.jsh.erp.datasource.entities.Person;
-import com.jsh.erp.service.PersonService;
+import com.jsh.erp.datasource.entities.Msg;
+import com.jsh.erp.datasource.entities.MsgEx;
+import com.jsh.erp.service.MsgService;
 import com.jsh.erp.utils.BaseResponseInfo;
 import com.jsh.erp.utils.Constants;
 import com.jsh.erp.utils.ErpInfo;
@@ -26,26 +26,25 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnJson;
 import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
 
 /**
- * @author ji|sheng|hua 管伊佳erp
+ * @author ji sheng hua jshERP
  */
 @RestController
-@RequestMapping(value = "/person")
-@Api(tags = {"经手人管理"})
-public class PersonController extends BaseController {
-    private Logger logger = LoggerFactory.getLogger(PersonController.class);
+@RequestMapping(value = "/msg")
+@Api(tags = {"消息管理"})
+public class MsgController extends BaseController {
+    private Logger logger = LoggerFactory.getLogger(MsgController.class);
 
     @Resource
-    private PersonService personService;
-
+    private MsgService msgService;
 
     @GetMapping(value = "/info")
     @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
-        Person person = personService.getPerson(id);
+        Msg msg = msgService.getMsg(id);
         Map<String, Object> objectMap = new HashMap<>();
-        if(person != null) {
-            objectMap.put("info", person);
+        if(msg != null) {
+            objectMap.put("info", msg);
             return returnJson(objectMap, ErpInfo.OK.name, ErpInfo.OK.code);
         } else {
             return returnJson(objectMap, ErpInfo.ERROR.name, ErpInfo.ERROR.code);
@@ -57,8 +56,7 @@ public class PersonController extends BaseController {
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
-        String type = StringUtil.getInfo(search, "type");
-        List<Person> list = personService.select(name, type);
+        List<MsgEx> list = msgService.select(name);
         return getDataTable(list);
     }
 
@@ -66,7 +64,7 @@ public class PersonController extends BaseController {
     @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int insert = personService.insertPerson(obj, request);
+        int insert = msgService.insertMsg(obj, request);
         return returnStr(objectMap, insert);
     }
 
@@ -74,7 +72,7 @@ public class PersonController extends BaseController {
     @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int update = personService.updatePerson(obj, request);
+        int update = msgService.updateMsg(obj, request);
         return returnStr(objectMap, update);
     }
 
@@ -82,7 +80,7 @@ public class PersonController extends BaseController {
     @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int delete = personService.deletePerson(id, request);
+        int delete = msgService.deleteMsg(id, request);
         return returnStr(objectMap, delete);
     }
 
@@ -90,7 +88,7 @@ public class PersonController extends BaseController {
     @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int delete = personService.batchDeletePerson(ids, request);
+        int delete = msgService.batchDeleteMsg(ids, request);
         return returnStr(objectMap, delete);
     }
 
@@ -99,7 +97,7 @@ public class PersonController extends BaseController {
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
-        int exist = personService.checkIsNameExist(id, name);
+        int exist = msgService.checkIsNameExist(id, name);
         if(exist > 0) {
             objectMap.put("status", true);
         } else {
@@ -109,47 +107,21 @@ public class PersonController extends BaseController {
     }
 
     /**
-     * 全部数据列表
+     * 根据状态查询消息
+     * @param status
      * @param request
      * @return
      * @throws Exception
      */
-    @GetMapping(value = "/getAllList")
-    @ApiOperation(value = "全部数据列表")
-    public BaseResponseInfo getAllList(HttpServletRequest request)throws Exception {
-        BaseResponseInfo res = new BaseResponseInfo();
-        Map<String, Object> map = new HashMap<String, Object>();
-        try {
-            List<Person> personList = personService.getPerson();
-            map.put("personList", personList);
-            res.code = 200;
-            res.data = personList;
-        } catch(Exception e){
-            logger.error(e.getMessage(), e);
-            res.code = 500;
-            res.data = "获取数据失败";
-        }
-        return res;
-    }
-
-    /**
-     * 根据Id获取经手人信息
-     * @param personIds
-     * @param request
-     * @return
-     */
-    @GetMapping(value = "/getPersonByIds")
-    @ApiOperation(value = "根据Id获取经手人信息")
-    public BaseResponseInfo getPersonByIds(@RequestParam("personIds") String personIds,
+    @GetMapping("/getMsgByStatus")
+    @ApiOperation(value = "根据状态查询消息")
+    public BaseResponseInfo getMsgByStatus(@RequestParam("status") String status,
                                            HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
-        Map<String, Object> map = new HashMap<String, Object>();
         try {
-            Map<Long,String> personMap = personService.getPersonMap();
-            String names = personService.getPersonByMapAndIds(personMap, personIds);
-            map.put("names", names);
+            List<MsgEx> list = msgService.getMsgByStatus(status);
             res.code = 200;
-            res.data = map;
+            res.data = list;
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
@@ -159,83 +131,102 @@ public class PersonController extends BaseController {
     }
 
     /**
-     * 根据类型获取经手人信息
-     * @param type
-     * @param request
-     * @return
-     */
-    @GetMapping(value = "/getPersonByType")
-    @ApiOperation(value = "根据类型获取经手人信息")
-    public BaseResponseInfo getPersonByType(@RequestParam("type") String type,
-                                            HttpServletRequest request)throws Exception {
-        BaseResponseInfo res = new BaseResponseInfo();
-        Map<String, Object> map = new HashMap<String, Object>();
-        try {
-            List<Person> personList = personService.getPersonByType(type);
-            map.put("personList", personList);
-            res.code = 200;
-            res.data = map;
-        } catch(Exception e){
-            logger.error(e.getMessage(), e);
-            res.code = 500;
-            res.data = "获取数据失败";
-        }
-        return res;
-    }
-
-    /**
-     * 根据类型获取经手人信息 1-销售员，2-仓管员，3-财务员
-     * @param typeNum
-     * @param request
-     * @return
-     */
-    @GetMapping(value = "/getPersonByNumType")
-    @ApiOperation(value = "根据类型获取经手人信息1-销售员，2-仓管员，3-财务员")
-    public JSONArray getPersonByNumType(@RequestParam("type") String typeNum,
-                                        HttpServletRequest request)throws Exception {
-        JSONArray dataArray = new JSONArray();
-        try {
-            String type = "";
-            if (typeNum.equals("1")) {
-                type = "销售员";
-            } else if (typeNum.equals("2")) {
-                type = "仓管员";
-            } else if (typeNum.equals("3")) {
-                type = "财务员";
-            }
-            List<Person> personList = personService.getPersonByType(type);
-            if (null != personList) {
-                for (Person person : personList) {
-                    JSONObject item = new JSONObject();
-                    item.put("value", person.getId().toString());
-                    item.put("text", person.getName());
-                    dataArray.add(item);
-                }
-            }
-        } catch(Exception e){
-            logger.error(e.getMessage(), e);
-        }
-        return dataArray;
-    }
-
-    /**
-     * 批量设置状态-启用或者禁用
+     * 批量更新状态
      * @param jsonObject
      * @param request
      * @return
+     * @throws Exception
      */
-    @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "批量设置状态")
-    public String batchSetStatus(@RequestBody JSONObject jsonObject,
-                                 HttpServletRequest request)throws Exception {
-        Boolean status = jsonObject.getBoolean("status");
-        String ids = jsonObject.getString("ids");
-        Map<String, Object> objectMap = new HashMap<>();
-        int res = personService.batchSetStatus(status, ids);
-        if(res > 0) {
-            return returnJson(objectMap, ErpInfo.OK.name, ErpInfo.OK.code);
-        } else {
-            return returnJson(objectMap, ErpInfo.ERROR.name, ErpInfo.ERROR.code);
+    @PostMapping("/batchUpdateStatus")
+    @ApiOperation(value = "批量更新状态")
+    public BaseResponseInfo batchUpdateStatus(@RequestBody JSONObject jsonObject,
+                                              HttpServletRequest request)throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        try {
+            String ids = jsonObject.getString("ids");
+            String status = jsonObject.getString("status");
+            msgService.batchUpdateStatus(ids, status);
+            res.code = 200;
+            res.data = "更新成功";
+        } catch(Exception e){
+            logger.error(e.getMessage(), e);
+            res.code = 500;
+            res.data = "获取数据失败";
         }
+        return res;
+    }
+
+    /**
+     * 根据状态查询数量
+     * @param status
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("/getMsgCountByStatus")
+    @ApiOperation(value = "根据状态查询数量")
+    public BaseResponseInfo getMsgCountByStatus(@RequestParam("status") String status,
+                                                HttpServletRequest request)throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        try {
+            Map<String, Long> map = new HashMap<String, Long>();
+            Long count = msgService.getMsgCountByStatus(status);
+            map.put("count", count);
+            res.code = 200;
+            res.data = map;
+        } catch(Exception e){
+            logger.error(e.getMessage(), e);
+            res.code = 500;
+            res.data = "获取数据失败";
+        }
+        return res;
+    }
+
+    /**
+     * 根据类型查询数量
+     * @param type
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @GetMapping("/getMsgCountByType")
+    @ApiOperation(value = "根据类型查询数量")
+    public BaseResponseInfo getMsgCountByType(@RequestParam("type") String type,
+                                                HttpServletRequest request)throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        try {
+            Map<String, Integer> map = new HashMap<>();
+            Integer count = msgService.getMsgCountByType(type);
+            map.put("count", count);
+            res.code = 200;
+            res.data = map;
+        } catch(Exception e){
+            logger.error(e.getMessage(), e);
+            res.code = 500;
+            res.data = "获取数据失败";
+        }
+        return res;
+    }
+
+    /**
+     * 全部设置未已读
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/readAllMsg")
+    @ApiOperation(value = "全部设置未已读")
+    public BaseResponseInfo readAllMsg(HttpServletRequest request)throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        try {
+            msgService.readAllMsg();
+            res.code = 200;
+            res.data = "操作成功!";
+        } catch(Exception e){
+            logger.error(e.getMessage(), e);
+            res.code = 500;
+            res.data = "获取数据失败";
+        }
+        return res;
     }
 }

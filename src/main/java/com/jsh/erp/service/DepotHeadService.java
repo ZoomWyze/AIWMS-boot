@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 单据主表 Service
- * 提供单据主表的核心业务逻辑：新增/编辑/删除/审核/反审核/查询/Excel导出
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
@@ -121,7 +114,8 @@ public class DepotHeadService {
             String [] statusArray = StringUtil.isNotEmpty(status) ? status.split(",") : null;
             String [] purchaseStatusArray = StringUtil.isNotEmpty(purchaseStatus) ? purchaseStatus.split(",") : null;
             String [] organArray = getOrganArray(subType, purchaseStatus);
-            //浠ラ攢瀹氳喘锛屾煡鐪嬪叏閮ㄦ暟鎹?            creatorArray = StringUtil.isNotEmpty(purchaseStatus) ? null: creatorArray;
+            //以销定购，查看全部数据
+            creatorArray = StringUtil.isNotEmpty(purchaseStatus) ? null: creatorArray;
             Map<Long,String> personMap = personService.getPersonMap();
             Map<Long,String> accountMap = accountService.getAccountMap();
             beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
@@ -137,7 +131,7 @@ public class DepotHeadService {
                     idList.add(dh.getId());
                     numberList.add(dh.getNumber());
                 }
-                //閫氳繃鎵归噺鏌ヨ鍘绘瀯閫爉ap
+                //通过批量查询去构造map
                 Map<String,BigDecimal> finishDepositMap = getFinishDepositMapByNumberList(numberList);
                 Map<Long,Integer> financialBillNoMap = getFinancialBillNoMapByBillIdList(idList);
                 Map<String,Integer> billSizeMap = getBillSizeMapByLinkNumberList(numberList);
@@ -175,22 +169,23 @@ public class DepotHeadService {
                     } else {
                         dh.setDeposit(roleService.parseBillPriceByLimit(dh.getDeposit(), billCategory, priceLimit, request));
                     }
-                    //宸茬粡瀹屾垚鐨勬瑺娆?                    if(finishDepositMap!=null) {
+                    //已经完成的欠款
+                    if(finishDepositMap!=null) {
                         BigDecimal finishDeposit = finishDepositMap.get(dh.getNumber()) != null ? finishDepositMap.get(dh.getNumber()) : BigDecimal.ZERO;
                         dh.setFinishDeposit(roleService.parseBillPriceByLimit(finishDeposit, billCategory, priceLimit, request));
                     }
-                    //娆犳璁＄畻
+                    //欠款计算
                     BigDecimal otherMoney = dh.getOtherMoney()!=null?dh.getOtherMoney():BigDecimal.ZERO;
                     BigDecimal deposit = dh.getDeposit()!=null?dh.getDeposit():BigDecimal.ZERO;
                     BigDecimal changeAmount = dh.getChangeAmount()!=null?dh.getChangeAmount():BigDecimal.ZERO;
                     BigDecimal debt = discountLastMoney.add(otherMoney).subtract((deposit.add(changeAmount)));
                     dh.setDebt(roleService.parseBillPriceByLimit(debt, billCategory, priceLimit, request));
-                    //鏄惁鏈変粯娆惧崟鎴栨敹娆惧崟
+                    //是否有付款单或收款单
                     if(financialBillNoMap!=null) {
                         Integer financialBillNoSize = financialBillNoMap.get(dh.getId());
                         dh.setHasFinancialFlag(financialBillNoSize!=null && financialBillNoSize>0);
                     }
-                    //鏄惁鏈夐€€娆惧崟
+                    //是否有退款单
                     if(billSizeMap!=null) {
                         Integer billListSize = billSizeMap.get(dh.getNumber());
                         dh.setHasBackFlag(billListSize!=null && billListSize>0);
@@ -201,13 +196,15 @@ public class DepotHeadService {
                     if(dh.getOperTime() != null) {
                         dh.setOperTimeStr(getCenternTime(dh.getOperTime()));
                     }
-                    //鍟嗗搧淇℃伅绠€杩?                    if(materialsListMap!=null) {
+                    //商品信息简述
+                    if(materialsListMap!=null) {
                         dh.setMaterialsList(materialsListMap.get(dh.getId()));
                     }
-                    //鍟嗗搧鎬绘暟閲?                    if(materialCountListMap!=null) {
+                    //商品总数量
+                    if(materialCountListMap!=null) {
                         dh.setMaterialCount(materialCountListMap.get(dh.getId()));
                     }
-                    //浠ラ攢瀹氳喘鐨勬儏鍐碉紙涓嶈兘鏄剧ず閿€鍞崟鎹殑閲戦鍜屽鎴峰悕绉帮級
+                    //以销定购的情况（不能显示销售单据的金额和客户名称）
                     if(StringUtil.isNotEmpty(purchaseStatus)) {
                         dh.setOrganName("****");
                         dh.setTotalPrice(null);
@@ -222,7 +219,7 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏍规嵁鍗曟嵁绫诲瀷鑾峰彇浠撳簱鏁扮粍
+     * 根据单据类型获取仓库数组
      * @param subType
      * @return
      * @throws Exception
@@ -239,7 +236,8 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏍规嵁瑙掕壊绫诲瀷鑾峰彇鎿嶄綔鍛樻暟缁?     * @return
+     * 根据角色类型获取操作员数组
+     * @return
      * @throws Exception
      */
     public String[] getCreatorArray() throws Exception {
@@ -252,7 +250,8 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏍规嵁瑙掕壊绫诲瀷鑾峰彇鎿嶄綔鍛樻暟缁?     * @param organizationId
+     * 根据角色类型获取操作员数组
+     * @param organizationId
      * @return
      * @throws Exception
      */
@@ -267,19 +266,20 @@ public class DepotHeadService {
     }
 
     /**
-     * 鑾峰彇鏈烘瀯鏁扮粍
+     * 获取机构数组
      * @return
      */
     public String[] getOrganArray(String subType, String purchaseStatus) throws Exception {
         String [] organArray = null;
         String type = "UserCustomer";
         Long userId = userService.getCurrentUser().getId();
-        //鑾峰彇鏉冮檺淇℃伅
+        //获取权限信息
         String ubValue = userBusinessService.getUBValueByTypeAndKeyId(type, userId.toString());
         List<SupplierSimple> supplierList = supplierService.getAllCustomer();
         if(BusinessConstants.SUB_TYPE_SALES_ORDER.equals(subType) || BusinessConstants.SUB_TYPE_SALES.equals(subType)
                 ||BusinessConstants.SUB_TYPE_SALES_RETURN.equals(subType) ) {
-            //閲囪喘璁㈠崟閲岄潰閫夋嫨閿€鍞鍗曠殑鏃跺€欎笉瑕佽繃婊?            if(StringUtil.isEmpty(purchaseStatus)) {
+            //采购订单里面选择销售订单的时候不要过滤
+            if(StringUtil.isEmpty(purchaseStatus)) {
                 if (null != supplierList && supplierList.size() > 0) {
                     boolean customerFlag = systemConfigService.getCustomerFlag();
                     List<String> organList = new ArrayList<>();
@@ -299,13 +299,14 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏍规嵁瑙掕壊绫诲瀷鑾峰彇鎿嶄綔鍛?     * @return
+     * 根据角色类型获取操作员
+     * @return
      * @throws Exception
      */
     public String getCreatorByCurrentUser() throws Exception {
         String creator = "";
         User user = userService.getCurrentUser();
-        String roleType = userService.getRoleTypeByUserId(user.getId()).getType(); //瑙掕壊绫诲瀷
+        String roleType = userService.getRoleTypeByUserId(user.getId()).getType(); //角色类型
         if(BusinessConstants.ROLE_TYPE_PRIVATE.equals(roleType)) {
             creator = user.getId().toString();
         } else if(BusinessConstants.ROLE_TYPE_THIS_ORG.equals(roleType)) {
@@ -367,7 +368,7 @@ public class DepotHeadService {
         int result=0;
         try{
             result=depotHeadMapper.insert(depotHead);
-            logService.insertLog("鍗曟嵁", BusinessConstants.LOG_OPERATION_TYPE_ADD, request);
+            logService.insertLog("单据", BusinessConstants.LOG_OPERATION_TYPE_ADD, request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
         }
@@ -388,7 +389,7 @@ public class DepotHeadService {
         int result=0;
         try{
             result = depotHeadMapper.updateByPrimaryKey(depotHead);
-            logService.insertLog("鍗曟嵁",
+            logService.insertLog("单据",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(depotHead.getId()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -412,7 +413,8 @@ public class DepotHeadService {
         sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
         List<DepotHead> dhList = getDepotHeadListByIds(ids);
         for(DepotHead depotHead: dhList){
-            //鍙湁鏈鏍哥殑鍗曟嵁鎵嶈兘琚垹闄?            if(!"0".equals(depotHead.getStatus())) {
+            //只有未审核的单据才能被删除
+            if(!"0".equals(depotHead.getStatus())) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_UN_AUDIT_DELETE_FAILED_CODE,
                         String.format(ExceptionConstants.DEPOT_HEAD_UN_AUDIT_DELETE_FAILED_MSG));
             }
@@ -420,27 +422,30 @@ public class DepotHeadService {
         for(DepotHead depotHead: dhList){
             sb.append("[").append(depotHead.getNumber()).append("]");
             User userInfo = userService.getCurrentUser();
-            //鍒犻櫎鍏ュ簱鍗曟嵁锛屽厛鏍￠獙搴忓垪鍙锋槸鍚﹀嚭搴擄紝濡傛灉鏈嚭搴撳垯鍚屾椂鍒犻櫎搴忓垪鍙凤紝濡傛灉宸插嚭搴撳垯涓嶈兘鍒犻櫎鍗曟嵁
+            //删除入库单据，先校验序列号是否出库，如果未出库则同时删除序列号，如果已出库则不能删除单据
             if (BusinessConstants.DEPOTHEAD_TYPE_IN.equals(depotHead.getType())) {
                 List<DepotItem> depotItemList = depotItemMapperEx.findDepotItemListBydepotheadId(depotHead.getId(), BusinessConstants.ENABLE_SERIAL_NUMBER_ENABLED);
                 if (depotItemList != null && depotItemList.size() > 0) {
-                    //鍗曟嵁鏄庣粏閲岄潰瀛樺湪搴忓垪鍙峰晢鍝?                    int serialNumberSellCount = depotHeadMapperEx.getSerialNumberBySell(depotHead.getNumber());
+                    //单据明细里面存在序列号商品
+                    int serialNumberSellCount = depotHeadMapperEx.getSerialNumberBySell(depotHead.getNumber());
                     if (serialNumberSellCount > 0) {
-                        //宸插嚭搴撳垯涓嶈兘鍒犻櫎鍗曟嵁
+                        //已出库则不能删除单据
                         throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_SERIAL_IS_SELL_CODE,
                                 String.format(ExceptionConstants.DEPOT_HEAD_SERIAL_IS_SELL_MSG, depotHead.getNumber()));
                     } else {
-                        //鍒犻櫎搴忓垪鍙?                        SerialNumberExample example = new SerialNumberExample();
+                        //删除序列号
+                        SerialNumberExample example = new SerialNumberExample();
                         example.createCriteria().andInBillNoEqualTo(depotHead.getNumber());
                         serialNumberService.deleteByExample(example);
                     }
                 }
             }
-            //鍒犻櫎鍑哄簱鏁版嵁鍥炴敹搴忓垪鍙?            if (BusinessConstants.DEPOTHEAD_TYPE_OUT.equals(depotHead.getType())
+            //删除出库数据回收序列号
+            if (BusinessConstants.DEPOTHEAD_TYPE_OUT.equals(depotHead.getType())
                     && !BusinessConstants.SUB_TYPE_TRANSFER.equals(depotHead.getSubType())) {
-                //鏌ヨ鍗曟嵁瀛愯〃鍒楄〃
+                //查询单据子表列表
                 List<DepotItem> depotItemList = depotItemMapperEx.findDepotItemListBydepotheadId(depotHead.getId(), BusinessConstants.ENABLE_SERIAL_NUMBER_ENABLED);
-                /**鍥炴敹搴忓垪鍙?/
+                /**回收序列号*/
                 if (depotItemList != null && depotItemList.size() > 0) {
                     for (DepotItem depotItem : depotItemList) {
                         //BasicNumber=OperNumber*ratio
@@ -449,11 +454,12 @@ public class DepotHeadService {
                 }
             }
             List<DepotItem> list = depotItemService.getListByHeaderId(depotHead.getId());
-            //鍒犻櫎鍗曟嵁瀛愯〃鏁版嵁
+            //删除单据子表数据
             depotItemMapperEx.batchDeleteDepotItemByDepotHeadIds(new Long[]{depotHead.getId()});
-            //鍒犻櫎鍗曟嵁涓昏〃淇℃伅
+            //删除单据主表信息
             batchDeleteDepotHeadByIds(depotHead.getId().toString());
-            //灏嗗叧鑱旂殑鍗曟嵁缃负瀹℃牳鐘舵€?閽堝閲囪喘鍏ュ簱銆侀攢鍞嚭搴撱€佺洏鐐瑰鐩樸€佸叾瀹冨叆搴撱€佸叾瀹冨嚭搴?            if(StringUtil.isNotEmpty(depotHead.getLinkNumber())){
+            //将关联的单据置为审核状态-针对采购入库、销售出库、盘点复盘、其它入库、其它出库
+            if(StringUtil.isNotEmpty(depotHead.getLinkNumber())){
                 if((BusinessConstants.DEPOTHEAD_TYPE_IN.equals(depotHead.getType()) &&
                         BusinessConstants.SUB_TYPE_PURCHASE.equals(depotHead.getSubType()))
                         || (BusinessConstants.DEPOTHEAD_TYPE_OUT.equals(depotHead.getType()) &&
@@ -465,7 +471,7 @@ public class DepotHeadService {
                         || (BusinessConstants.DEPOTHEAD_TYPE_OUT.equals(depotHead.getType()) &&
                         BusinessConstants.SUB_TYPE_OTHER.equals(depotHead.getSubType()))) {
                     String status = BusinessConstants.BILLS_STATUS_AUDIT;
-                    //鏌ヨ闄ゅ綋鍓嶅崟鎹箣澶栫殑鍏宠仈鍗曟嵁鍒楄〃
+                    //查询除当前单据之外的关联单据列表
                     List<DepotHead> exceptCurrentList = getListByLinkNumberExceptCurrent(depotHead.getLinkNumber(), depotHead.getNumber(), depotHead.getType());
                     if(exceptCurrentList!=null && exceptCurrentList.size()>0) {
                         status = BusinessConstants.BILLS_STATUS_SKIPING;
@@ -477,11 +483,12 @@ public class DepotHeadService {
                     depotHeadMapper.updateByExampleSelective(dh, example);
                 }
             }
-            //灏嗗叧鑱旂殑鍗曟嵁缃负瀹℃牳鐘舵€?閽堝璇疯喘鍗曡浆閲囪喘璁㈠崟鐨勬儏鍐?            if(StringUtil.isNotEmpty(depotHead.getLinkApply())){
+            //将关联的单据置为审核状态-针对请购单转采购订单的情况
+            if(StringUtil.isNotEmpty(depotHead.getLinkApply())){
                 if(BusinessConstants.DEPOTHEAD_TYPE_OTHER.equals(depotHead.getType()) &&
                         BusinessConstants.SUB_TYPE_PURCHASE_ORDER.equals(depotHead.getSubType())) {
                     String status = BusinessConstants.BILLS_STATUS_AUDIT;
-                    //鏌ヨ闄ゅ綋鍓嶅崟鎹箣澶栫殑鍏宠仈鍗曟嵁鍒楄〃
+                    //查询除当前单据之外的关联单据列表
                     List<DepotHead> exceptCurrentList = getListByLinkApplyExceptCurrent(depotHead.getLinkApply(), depotHead.getNumber(), depotHead.getType());
                     if(exceptCurrentList!=null && exceptCurrentList.size()>0) {
                         status = BusinessConstants.BILLS_STATUS_SKIPING;
@@ -493,11 +500,12 @@ public class DepotHeadService {
                     depotHeadMapper.updateByExampleSelective(dh, example);
                 }
             }
-            //灏嗗叧鑱旂殑閿€鍞鍗曞崟鎹疆涓烘湭閲囪喘鐘舵€?閽堝閿€鍞鍗曡浆閲囪喘璁㈠崟鐨勬儏鍐?            if(StringUtil.isNotEmpty(depotHead.getLinkNumber())){
+            //将关联的销售订单单据置为未采购状态-针对销售订单转采购订单的情况
+            if(StringUtil.isNotEmpty(depotHead.getLinkNumber())){
                 if(BusinessConstants.DEPOTHEAD_TYPE_OTHER.equals(depotHead.getType()) &&
                         BusinessConstants.SUB_TYPE_PURCHASE_ORDER.equals(depotHead.getSubType())) {
                     DepotHead dh = new DepotHead();
-                    //鑾峰彇鍒嗘壒鎿嶄綔鍚庡崟鎹殑鍟嗗搧鍜屽晢鍝佹暟閲忥紙姹囨€伙級
+                    //获取分批操作后单据的商品和商品数量（汇总）
                     List<DepotItemVo4MaterialAndSum> batchList = depotItemMapperEx.getBatchBillDetailMaterialSum(depotHead.getLinkNumber(), "normal", depotHead.getType());
                     if(batchList.size()>0) {
                         dh.setPurchaseStatus(BusinessConstants.PURCHASE_STATUS_SKIPING);
@@ -509,36 +517,39 @@ public class DepotHeadService {
                     depotHeadMapper.updateByExampleSelective(dh, example);
                 }
             }
-            //瀵逛簬闆跺敭鍑哄簱鍗曟嵁锛屾洿鏂颁細鍛樼殑棰勬敹娆句俊鎭?            if (BusinessConstants.DEPOTHEAD_TYPE_OUT.equals(depotHead.getType())
+            //对于零售出库单据，更新会员的预收款信息
+            if (BusinessConstants.DEPOTHEAD_TYPE_OUT.equals(depotHead.getType())
                     && BusinessConstants.SUB_TYPE_RETAIL.equals(depotHead.getSubType())){
                 if(BusinessConstants.PAY_TYPE_PREPAID.equals(depotHead.getPayType())) {
                     if (depotHead.getOrganId() != null) {
-                        //鏇存柊浼氬憳棰勪粯娆?                        supplierService.updateAdvanceIn(depotHead.getOrganId());
+                        //更新会员预付款
+                        supplierService.updateAdvanceIn(depotHead.getOrganId());
                     }
                 }
             }
             for (DepotItem depotItem : list) {
-                //鏇存柊褰撳墠搴撳瓨
+                //更新当前库存
                 depotItemService.updateCurrentStock(depotItem);
-                //鏇存柊褰撳墠鎴愭湰浠?                depotItemService.updateCurrentUnitPrice(depotItem);
+                //更新当前成本价
+                depotItemService.updateCurrentUnitPrice(depotItem);
             }
         }
-        //璺緞鍒楄〃
+        //路径列表
         List<String> pathList = new ArrayList<>();
         for(DepotHead depotHead: dhList){
             if(StringUtil.isNotEmpty(depotHead.getFileName())) {
                 pathList.add(depotHead.getFileName());
             }
         }
-        //閫昏緫鍒犻櫎鏂囦欢
+        //逻辑删除文件
         systemConfigService.deleteFileByPathList(pathList);
-        logService.insertLog("鍗曟嵁", sb.toString(),
+        logService.insertLog("单据", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         return 1;
     }
 
     /**
-     * 鍒犻櫎鍗曟嵁涓昏〃淇℃伅
+     * 删除单据主表信息
      * @param ids
      * @return
      * @throws Exception
@@ -570,7 +581,7 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏍￠獙鍗曟嵁缂栧彿鏄惁瀛樺湪
+     * 校验单据编号是否存在
      * @param id
      * @param number
      * @return
@@ -595,7 +606,7 @@ public class DepotHeadService {
         List<Long> idList = StringUtil.strToLongList(ids);
         for(Long id: idList) {
             DepotHead depotHead = getDepotHead(id);
-            //鐘舵€侀噷闈笉鍖呭惈閮ㄥ垎涓嶈兘寮哄埗缁撳崟
+            //状态里面不包含部分不能强制结单
             if(!"3".equals(depotHead.getStatus())) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_FORCE_CLOSE_FAILED_CODE,
                         String.format(ExceptionConstants.DEPOT_HEAD_FORCE_CLOSE_FAILED_MSG, depotHead.getNumber()));
@@ -605,17 +616,18 @@ public class DepotHeadService {
         }
         if(idList.size()>0) {
             DepotHead depotHead = new DepotHead();
-            //瀹屾垚鐘舵€?            depotHead.setStatus("2");
-            //缁欏娉ㄥ悗闈㈣拷鍔狅細寮哄埗缁撳崟
-            String remark = StringUtil.isNotEmpty(depotHead.getRemark())? depotHead.getRemark() + "[寮哄埗缁撳崟]": "[寮哄埗缁撳崟]";
+            //完成状态
+            depotHead.setStatus("2");
+            //给备注后面追加：强制结单
+            String remark = StringUtil.isNotEmpty(depotHead.getRemark())? depotHead.getRemark() + "[强制结单]": "[强制结单]";
             depotHead.setRemark(remark);
             DepotHeadExample example = new DepotHeadExample();
             example.createCriteria().andIdIn(idList);
             result = depotHeadMapper.updateByExampleSelective(depotHead, example);
-            //璁板綍鏃ュ織
+            //记录日志
             String billNos = billNoStr.toString();
             if(StringUtil.isNotEmpty(billNos)) {
-                logService.insertLog("鍗曟嵁", "寮哄埗缁撳崟锛? + billNos,
+                logService.insertLog("单据", "强制结单：" + billNos,
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             }
         }
@@ -629,7 +641,7 @@ public class DepotHeadService {
         List<Long> idList = StringUtil.strToLongList(ids);
         for(Long id: idList) {
             DepotHead depotHead = getDepotHead(id);
-            //鐘舵€侀噷闈笉鍖呭惈閮ㄥ垎涓嶈兘寮哄埗缁撳崟
+            //状态里面不包含部分不能强制结单
             if(!"3".equals(depotHead.getPurchaseStatus())) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_FORCE_CLOSE_FAILED_CODE,
                         String.format(ExceptionConstants.DEPOT_HEAD_FORCE_CLOSE_FAILED_MSG, depotHead.getNumber()));
@@ -639,17 +651,18 @@ public class DepotHeadService {
         }
         if(idList.size()>0) {
             DepotHead depotHead = new DepotHead();
-            //瀹屾垚鐘舵€?            depotHead.setPurchaseStatus("2");
-            //缁欏娉ㄥ悗闈㈣拷鍔狅細寮哄埗缁撳崟-浠ラ攢瀹氳喘
-            String remark = StringUtil.isNotEmpty(depotHead.getRemark())? depotHead.getRemark() + "[寮哄埗缁撳崟-浠ラ攢瀹氳喘]": "[寮哄埗缁撳崟-浠ラ攢瀹氳喘]";
+            //完成状态
+            depotHead.setPurchaseStatus("2");
+            //给备注后面追加：强制结单-以销定购
+            String remark = StringUtil.isNotEmpty(depotHead.getRemark())? depotHead.getRemark() + "[强制结单-以销定购]": "[强制结单-以销定购]";
             depotHead.setRemark(remark);
             DepotHeadExample example = new DepotHeadExample();
             example.createCriteria().andIdIn(idList);
             result = depotHeadMapper.updateByExampleSelective(depotHead, example);
-            //璁板綍鏃ュ織
+            //记录日志
             String billNos = billNoStr.toString();
             if(StringUtil.isNotEmpty(billNos)) {
-                logService.insertLog("鍗曟嵁", "寮哄埗缁撳崟-浠ラ攢瀹氳喘锛? + billNos,
+                logService.insertLog("单据", "强制结单-以销定购：" + billNos,
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             }
         }
@@ -665,7 +678,8 @@ public class DepotHeadService {
         for(Long id: ids) {
             DepotHead depotHead = getDepotHead(id);
             if("0".equals(status)){
-                //杩涜鍙嶅鏍告搷浣?                if("1".equals(depotHead.getStatus()) && "0".equals(depotHead.getPurchaseStatus())) {
+                //进行反审核操作
+                if("1".equals(depotHead.getStatus()) && "0".equals(depotHead.getPurchaseStatus())) {
                     dhIds.add(id);
                     noList.add(depotHead.getNumber());
                 } else if("2".equals(depotHead.getPurchaseStatus())) {
@@ -679,7 +693,7 @@ public class DepotHeadService {
                             String.format(ExceptionConstants.DEPOT_HEAD_AUDIT_TO_UN_AUDIT_FAILED_MSG));
                 }
             } else if("1".equals(status)){
-                //杩涜瀹℃牳鎿嶄綔
+                //进行审核操作
                 if("0".equals(depotHead.getStatus())) {
                     dhIds.add(id);
                     noList.add(depotHead.getNumber());
@@ -695,7 +709,7 @@ public class DepotHeadService {
             DepotHeadExample example = new DepotHeadExample();
             example.createCriteria().andIdIn(dhIds);
             result = depotHeadMapper.updateByExampleSelective(depotHead, example);
-            //鏇存柊褰撳墠搴撳瓨
+            //更新当前库存
             if(systemConfigService.getForceApprovalFlag()) {
                 for(Long dhId: dhIds) {
                     List<DepotItem> list = depotItemService.getListByHeaderId(dhId);
@@ -704,10 +718,10 @@ public class DepotHeadService {
                     }
                 }
             }
-            //璁板綍鏃ュ織
+            //记录日志
             if(!noList.isEmpty() && ("0".equals(status) || "1".equals(status))) {
-                String statusStr = status.equals("1")?"[瀹℃牳]":"[鍙嶅鏍竇";
-                logService.insertLog("鍗曟嵁",
+                String statusStr = status.equals("1")?"[审核]":"[反审核]";
+                logService.insertLog("单据",
                         new StringBuffer(statusStr).append(String.join(", ", noList)).toString(),
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             }
@@ -722,7 +736,7 @@ public class DepotHeadService {
             for (MaterialsListVo materialsListVo : list) {
                 String materialsList = materialsListVo.getMaterialsList();
                 if(StringUtil.isNotEmpty(materialsList)) {
-                    materialsList = materialsList.replace(",","锛?);
+                    materialsList = materialsList.replace(",","，");
                 }
                 materialsListMap.put(materialsListVo.getHeaderId(), materialsList);
             }
@@ -796,7 +810,7 @@ public class DepotHeadService {
             if(creatorArray == null && organizationId != null) {
                 creatorArray = getCreatorArrayByOrg(organizationId);
             }
-            String subType = "鍑哄簱".equals(type)? "閿€鍞? : "";
+            String subType = "出库".equals(type)? "销售" : "";
             String [] organArray = getOrganArray(subType, "");
             list =depotHeadMapperEx.findInOutMaterialCount(beginTime, endTime, type, categoryList, forceFlag, inOutManageFlag, materialParam, depotList, oId,
                     creatorArray, organArray, column, order, offset, rows);
@@ -815,7 +829,7 @@ public class DepotHeadService {
             if(creatorArray == null && organizationId != null) {
                 creatorArray = getCreatorArrayByOrg(organizationId);
             }
-            String subType = "鍑哄簱".equals(type)? "閿€鍞? : "";
+            String subType = "出库".equals(type)? "销售" : "";
             String [] organArray = getOrganArray(subType, "");
             result =depotHeadMapperEx.findInOutMaterialCountTotal(beginTime, endTime, type, categoryList, forceFlag, inOutManageFlag, materialParam, depotList, oId,
                     creatorArray, organArray);
@@ -834,7 +848,7 @@ public class DepotHeadService {
             if(creatorArray == null && organizationId != null) {
                 creatorArray = getCreatorArrayByOrg(organizationId);
             }
-            String subType = "鍑哄簱".equals(type)? "閿€鍞? : "";
+            String subType = "出库".equals(type)? "销售" : "";
             String [] organArray = getOrganArray(subType, "");
             List<DepotHeadVo4InOutMCount> list = depotHeadMapperEx.findInOutMaterialCountStatistic(beginTime, endTime, type, categoryList,
                     forceFlag, inOutManageFlag, materialParam, depotList, oId, creatorArray, organArray);
@@ -932,18 +946,18 @@ public class DepotHeadService {
         String typeBack = "";
         String subTypeBack = "";
         String billType = "";
-        if (("渚涘簲鍟?).equals(supplierType)) {
-            type = "鍏ュ簱";
-            subType = "閲囪喘";
-            typeBack = "鍑哄簱";
-            subTypeBack = "閲囪喘閫€璐?;
-            billType = "浠樻";
-        } else if (("瀹㈡埛").equals(supplierType)) {
-            type = "鍑哄簱";
-            subType = "閿€鍞?;
-            typeBack = "鍏ュ簱";
-            subTypeBack = "閿€鍞€€璐?;
-            billType = "鏀舵";
+        if (("供应商").equals(supplierType)) {
+            type = "入库";
+            subType = "采购";
+            typeBack = "出库";
+            subTypeBack = "采购退货";
+            billType = "付款";
+        } else if (("客户").equals(supplierType)) {
+            type = "出库";
+            subType = "销售";
+            typeBack = "入库";
+            subTypeBack = "销售退货";
+            billType = "收款";
         }
         String beginTime = Tools.parseDayToTime(Tools.getYearBegin(), BusinessConstants.DAY_FIRST_TIME);
         String endTime = Tools.getCenternTime(new Date());
@@ -967,7 +981,7 @@ public class DepotHeadService {
                     idList.add(dh.getId());
                     numberList.add(dh.getNumber());
                 }
-                //閫氳繃鎵归噺鏌ヨ鍘绘瀯閫爉ap
+                //通过批量查询去构造map
                 Map<Long,Integer> financialBillNoMap = getFinancialBillNoMapByBillIdList(idList);
                 Map<String,Integer> billSizeMap = getBillSizeMapByLinkNumberList(numberList);
                 Map<Long,String> materialsListMap = findMaterialsListMapByHeaderIdList(idList);
@@ -1003,18 +1017,18 @@ public class DepotHeadService {
                 } else {
                     dh.setDeposit(roleService.parseBillPriceByLimit(dh.getDeposit(), billCategory, priceLimit, request));
                 }
-                //娆犳璁＄畻
+                //欠款计算
                 BigDecimal otherMoney = dh.getOtherMoney()!=null?dh.getOtherMoney():BigDecimal.ZERO;
                 BigDecimal deposit = dh.getDeposit()!=null?dh.getDeposit():BigDecimal.ZERO;
                 BigDecimal changeAmount = dh.getChangeAmount()!=null?dh.getChangeAmount():BigDecimal.ZERO;
                 BigDecimal debt = discountLastMoney.add(otherMoney).subtract((deposit.add(changeAmount)));
                 dh.setDebt(roleService.parseBillPriceByLimit(debt, billCategory, priceLimit, request));
-                //鏄惁鏈変粯娆惧崟鎴栨敹娆惧崟
+                //是否有付款单或收款单
                 if(financialBillNoMap!=null) {
                     Integer financialBillNoSize = financialBillNoMap.get(dh.getId());
                     dh.setHasFinancialFlag(financialBillNoSize!=null && financialBillNoSize>0);
                 }
-                //鏄惁鏈夐€€娆惧崟
+                //是否有退款单
                 if(billSizeMap!=null) {
                     Integer billListSize = billSizeMap.get(dh.getNumber());
                     dh.setHasBackFlag(billListSize!=null && billListSize>0);
@@ -1025,10 +1039,12 @@ public class DepotHeadService {
                 if(dh.getOperTime() != null) {
                     dh.setOperTimeStr(getCenternTime(dh.getOperTime()));
                 }
-                //鍟嗗搧淇℃伅绠€杩?                if(materialsListMap!=null) {
+                //商品信息简述
+                if(materialsListMap!=null) {
                     dh.setMaterialsList(materialsListMap.get(dh.getId()));
                 }
-                //鍟嗗搧鎬绘暟閲?                if(materialCountListMap!=null) {
+                //商品总数量
+                if(materialCountListMap!=null) {
                     dh.setMaterialCount(materialCountListMap.get(dh.getId()));
                 }
                 User creatorUser = userService.getUser(dh.getCreator());
@@ -1044,7 +1060,7 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏌ヨ闄ゅ綋鍓嶅崟鎹箣澶栫殑鍏宠仈鍗曟嵁鍒楄〃
+     * 查询除当前单据之外的关联单据列表
      * @param linkNumber
      * @param number
      * @return
@@ -1058,7 +1074,7 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏌ヨ闄ゅ綋鍓嶅崟鎹箣澶栫殑鍏宠仈鍗曟嵁鍒楄〃
+     * 查询除当前单据之外的关联单据列表
      * @param linkApply
      * @param number
      * @return
@@ -1072,7 +1088,7 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏍规嵁鍘熷崟鍙锋煡璇㈠叧鑱旂殑鍗曟嵁鍒楄〃(鎵归噺)
+     * 根据原单号查询关联的单据列表(批量)
      * @param linkNumberList
      * @return
      * @throws Exception
@@ -1080,7 +1096,7 @@ public class DepotHeadService {
     public List<DepotHead> getBillListByLinkNumberList(List<String> linkNumberList)throws Exception {
         if(linkNumberList!=null && linkNumberList.size()>0) {
             DepotHeadExample example = new DepotHeadExample();
-            example.createCriteria().andLinkNumberIn(linkNumberList).andSubTypeLike("閫€璐?).andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
+            example.createCriteria().andLinkNumberIn(linkNumberList).andSubTypeLike("退货").andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
             return depotHeadMapper.selectByExample(example);
         } else {
             return new ArrayList<>();
@@ -1088,19 +1104,20 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏍规嵁鍘熷崟鍙锋煡璇㈠叧鑱旂殑鍗曟嵁鍒楄〃
+     * 根据原单号查询关联的单据列表
      * @param linkNumber
      * @return
      * @throws Exception
      */
     public List<DepotHead> getBillListByLinkNumber(String linkNumber)throws Exception {
         DepotHeadExample example = new DepotHeadExample();
-        example.createCriteria().andLinkNumberEqualTo(linkNumber).andSubTypeLike("閫€璐?).andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
+        example.createCriteria().andLinkNumberEqualTo(linkNumber).andSubTypeLike("退货").andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         return depotHeadMapper.selectByExample(example);
     }
 
     /**
-     * 鏂板鍗曟嵁涓昏〃鍙婂崟鎹瓙琛ㄤ俊鎭?     * @param beanJson
+     * 新增单据主表及单据子表信息
+     * @param beanJson
      * @param rows
      * @param request
      * @throws Exception
@@ -1108,10 +1125,12 @@ public class DepotHeadService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void addDepotHeadAndDetail(String beanJson, String rows,
                                       HttpServletRequest request) throws Exception {
-        /**澶勭悊鍗曟嵁涓昏〃鏁版嵁*/
+        /**处理单据主表数据*/
         DepotHead depotHead = JSONObject.parseObject(beanJson, DepotHead.class);
-        //鍒ゆ柇鐢ㄦ埛鏄惁宸茬粡鐧诲綍杩囷紝鐧诲綍杩囦笉鍐嶅鐞?        User userInfo=userService.getCurrentUser();
-        //閫氳繃redis鍘绘牎楠岄噸澶?        String keyNo = userInfo.getLoginName() + "_" + depotHead.getNumber();
+        //判断用户是否已经登录过，登录过不再处理
+        User userInfo=userService.getCurrentUser();
+        //通过redis去校验重复
+        String keyNo = userInfo.getLoginName() + "_" + depotHead.getNumber();
         String keyValue = redisService.getCacheObject(keyNo);
         if(StringUtil.isNotEmpty(keyValue)) {
             throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_SUBMIT_REPEAT_FAILED_CODE,
@@ -1119,19 +1138,19 @@ public class DepotHeadService {
         } else {
             redisService.storageKeyWithTime(keyNo, depotHead.getNumber(), 2L);
         }
-        //鏍￠獙鍗曞彿鏄惁閲嶅
+        //校验单号是否重复
         if(checkIsBillNumberExist(0L, depotHead.getNumber())>0) {
             throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_BILL_NUMBER_EXIST_CODE,
                     String.format(ExceptionConstants.DEPOT_HEAD_BILL_NUMBER_EXIST_MSG));
         }
-        //鏍￠獙鏄惁鍚屾椂褰曞叆鍏宠仈璇疯喘鍗曞彿鍜屽叧鑱旇鍗曞彿
+        //校验是否同时录入关联请购单号和关联订单号
         if(StringUtil.isNotEmpty(depotHead.getLinkNumber()) && StringUtil.isNotEmpty(depotHead.getLinkApply())) {
             throw new BusinessRunTimeException(ExceptionConstants.DEPOT_ITEM_EXIST_REPEAT_NO_FAILED_CODE,
                     String.format(ExceptionConstants.DEPOT_ITEM_EXIST_REPEAT_NO_FAILED_MSG));
         }
         String subType = depotHead.getSubType();
-        //缁撶畻璐︽埛鏍￠獙
-        if("閲囪喘".equals(subType) || "閲囪喘閫€璐?.equals(subType) || "閿€鍞?.equals(subType) || "閿€鍞€€璐?.equals(subType)) {
+        //结算账户校验
+        if("采购".equals(subType) || "采购退货".equals(subType) || "销售".equals(subType) || "销售退货".equals(subType)) {
             if (StringUtil.isEmpty(depotHead.getAccountIdList()) && depotHead.getAccountId() == null) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_ACCOUNT_FAILED_CODE,
                         String.format(ExceptionConstants.DEPOT_HEAD_ACCOUNT_FAILED_MSG));
@@ -1143,12 +1162,12 @@ public class DepotHeadService {
             depotHead.setStatus(BusinessConstants.BILLS_STATUS_UN_AUDIT);
         }
         depotHead.setPurchaseStatus(BusinessConstants.BILLS_STATUS_UN_AUDIT);
-        depotHead.setPayType(depotHead.getPayType()==null?"鐜颁粯":depotHead.getPayType());
+        depotHead.setPayType(depotHead.getPayType()==null?"现付":depotHead.getPayType());
         if(StringUtil.isNotEmpty(depotHead.getAccountIdList())){
             depotHead.setAccountIdList(depotHead.getAccountIdList().replace("[", "").replace("]", "").replaceAll("\"", ""));
         }
         if(StringUtil.isNotEmpty(depotHead.getAccountMoneyList())) {
-            //鏍￠獙澶氳处鎴风殑缁撶畻閲戦
+            //校验多账户的结算金额
             String accountMoneyList = depotHead.getAccountMoneyList().replace("[", "").replace("]", "").replaceAll("\"", "");
             BigDecimal sum = StringUtil.getArrSum(accountMoneyList.split(","));
             BigDecimal manyAccountSum = sum.abs();
@@ -1158,10 +1177,10 @@ public class DepotHeadService {
             }
             depotHead.setAccountMoneyList(accountMoneyList);
         }
-        //鏍￠獙绱鎵ｉ櫎璁㈤噾鏄惁瓒呭嚭璁㈠崟涓殑閲戦
+        //校验累计扣除订金是否超出订单中的金额
         if(depotHead.getDeposit()!=null && StringUtil.isNotEmpty(depotHead.getLinkNumber())) {
             BigDecimal finishDeposit = depotHeadMapperEx.getFinishDepositByNumberExceptCurrent(depotHead.getLinkNumber(), depotHead.getNumber());
-            //璁㈠崟涓殑璁㈤噾閲戦
+            //订单中的订金金额
             BigDecimal changeAmount = getDepotHead(depotHead.getLinkNumber()).getChangeAmount();
             if(changeAmount!=null) {
                 BigDecimal preDeposit = changeAmount.abs();
@@ -1171,7 +1190,8 @@ public class DepotHeadService {
                 }
             }
         }
-        //鏍￠獙闄勪欢鐨勬暟閲?        if(StringUtil.isNotEmpty(depotHead.getFileName())) {
+        //校验附件的数量
+        if(StringUtil.isNotEmpty(depotHead.getFileName())) {
             String[] fileArr = depotHead.getFileName().split(",");
             if(fileArr.length>4) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_FILE_NUM_LIMIT_CODE,
@@ -1179,12 +1199,12 @@ public class DepotHeadService {
             }
         }
         depotHeadMapper.insertSelective(depotHead);
-        /**鍏ュ簱鍜屽嚭搴撳鐞嗛浠樻淇℃伅*/
+        /**入库和出库处理预付款信息*/
         if(BusinessConstants.PAY_TYPE_PREPAID.equals(depotHead.getPayType())){
             if(depotHead.getOrganId()!=null) {
                 BigDecimal currentAdvanceIn = supplierService.getSupplier(depotHead.getOrganId()).getAdvanceIn();
                 if(currentAdvanceIn.compareTo(depotHead.getTotalPrice())>=0) {
-                    //鏇存柊浼氬憳鐨勯浠樻
+                    //更新会员的预付款
                     supplierService.updateAdvanceIn(depotHead.getOrganId());
                 } else {
                     throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_MEMBER_PAY_LACK_CODE,
@@ -1192,51 +1212,52 @@ public class DepotHeadService {
                 }
             }
         }
-        //鏍规嵁鍗曟嵁缂栧彿鏌ヨ鍗曟嵁id
+        //根据单据编号查询单据id
         DepotHeadExample dhExample = new DepotHeadExample();
         dhExample.createCriteria().andNumberEqualTo(depotHead.getNumber()).andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         List<DepotHead> list = depotHeadMapper.selectByExample(dhExample);
         if(list!=null) {
             Long headId = list.get(0).getId();
-            /**鍏ュ簱鍜屽嚭搴撳鐞嗗崟鎹瓙琛ㄤ俊鎭?/
+            /**入库和出库处理单据子表信息*/
             depotItemService.saveDetials(rows,headId, "add",request);
         }
-        String statusStr = depotHead.getStatus().equals("1")?"[瀹℃牳]":"";
-        logService.insertLog("鍗曟嵁",
+        String statusStr = depotHead.getStatus().equals("1")?"[审核]":"";
+        logService.insertLog("单据",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(depotHead.getNumber()).append(statusStr).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
     }
 
     /**
-     * 鏇存柊鍗曟嵁涓昏〃鍙婂崟鎹瓙琛ㄤ俊鎭?     * @param beanJson
+     * 更新单据主表及单据子表信息
+     * @param beanJson
      * @param rows
      * @param request
      * @throws Exception
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void updateDepotHeadAndDetail(String beanJson, String rows,HttpServletRequest request)throws Exception {
-        /**鏇存柊鍗曟嵁涓昏〃淇℃伅*/
+        /**更新单据主表信息*/
         DepotHead depotHead = JSONObject.parseObject(beanJson, DepotHead.class);
-        //鏍￠獙鍗曞彿鏄惁閲嶅
+        //校验单号是否重复
         if(checkIsBillNumberExist(depotHead.getId(), depotHead.getNumber())>0) {
             throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_BILL_NUMBER_EXIST_CODE,
                     String.format(ExceptionConstants.DEPOT_HEAD_BILL_NUMBER_EXIST_MSG));
         }
-        //鏍￠獙鏄惁鍚屾椂褰曞叆鍏宠仈璇疯喘鍗曞彿鍜屽叧鑱旇鍗曞彿
+        //校验是否同时录入关联请购单号和关联订单号
         if(StringUtil.isNotEmpty(depotHead.getLinkNumber()) && StringUtil.isNotEmpty(depotHead.getLinkApply())) {
             throw new BusinessRunTimeException(ExceptionConstants.DEPOT_ITEM_EXIST_REPEAT_NO_FAILED_CODE,
                     String.format(ExceptionConstants.DEPOT_ITEM_EXIST_REPEAT_NO_FAILED_MSG));
         }
-        //鏍￠獙鍗曟嵁鐘舵€侊紝濡傛灉涓嶆槸鏈鏍稿垯鎻愮ず
+        //校验单据状态，如果不是未审核则提示
         if(!"0".equals(getDepotHead(depotHead.getId()).getStatus())) {
             throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_BILL_CANNOT_EDIT_CODE,
                     String.format(ExceptionConstants.DEPOT_HEAD_BILL_CANNOT_EDIT_MSG));
         }
-        //鑾峰彇涔嬪墠鐨勪細鍛榠d
+        //获取之前的会员id
         Long preOrganId = getDepotHead(depotHead.getId()).getOrganId();
         String subType = depotHead.getSubType();
-        //缁撶畻璐︽埛鏍￠獙
-        if("閲囪喘".equals(subType) || "閲囪喘閫€璐?.equals(subType) || "閿€鍞?.equals(subType) || "閿€鍞€€璐?.equals(subType)) {
+        //结算账户校验
+        if("采购".equals(subType) || "采购退货".equals(subType) || "销售".equals(subType) || "销售退货".equals(subType)) {
             if (StringUtil.isEmpty(depotHead.getAccountIdList()) && depotHead.getAccountId() == null) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_ACCOUNT_FAILED_CODE,
                         String.format(ExceptionConstants.DEPOT_HEAD_ACCOUNT_FAILED_MSG));
@@ -1246,7 +1267,7 @@ public class DepotHeadService {
             depotHead.setAccountIdList(depotHead.getAccountIdList().replace("[", "").replace("]", "").replaceAll("\"", ""));
         }
         if(StringUtil.isNotEmpty(depotHead.getAccountMoneyList())) {
-            //鏍￠獙澶氳处鎴风殑缁撶畻閲戦
+            //校验多账户的结算金额
             String accountMoneyList = depotHead.getAccountMoneyList().replace("[", "").replace("]", "").replaceAll("\"", "");
             BigDecimal sum = StringUtil.getArrSum(accountMoneyList.split(","));
             BigDecimal manyAccountSum = sum.abs();
@@ -1256,10 +1277,10 @@ public class DepotHeadService {
             }
             depotHead.setAccountMoneyList(accountMoneyList);
         }
-        //鏍￠獙绱鎵ｉ櫎璁㈤噾鏄惁瓒呭嚭璁㈠崟涓殑閲戦
+        //校验累计扣除订金是否超出订单中的金额
         if(depotHead.getDeposit()!=null && StringUtil.isNotEmpty(depotHead.getLinkNumber())) {
             BigDecimal finishDeposit = depotHeadMapperEx.getFinishDepositByNumberExceptCurrent(depotHead.getLinkNumber(), depotHead.getNumber());
-            //璁㈠崟涓殑璁㈤噾閲戦
+            //订单中的订金金额
             BigDecimal changeAmount = getDepotHead(depotHead.getLinkNumber()).getChangeAmount();
             if(changeAmount!=null) {
                 BigDecimal preDeposit = changeAmount.abs();
@@ -1269,7 +1290,8 @@ public class DepotHeadService {
                 }
             }
         }
-        //鏍￠獙闄勪欢鐨勬暟閲?        if(StringUtil.isNotEmpty(depotHead.getFileName())) {
+        //校验附件的数量
+        if(StringUtil.isNotEmpty(depotHead.getFileName())) {
             String[] fileArr = depotHead.getFileName().split(",");
             if(fileArr.length>4) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_HEAD_FILE_NUM_LIMIT_CODE,
@@ -1277,19 +1299,19 @@ public class DepotHeadService {
             }
         }
         depotHeadMapper.updateByPrimaryKeySelective(depotHead);
-        //濡傛灉瀛樺湪澶氳处鎴风粨绠楅渶瑕佸皢鍘熻处鎴风殑id缃┖
+        //如果存在多账户结算需要将原账户的id置空
         if(StringUtil.isNotEmpty(depotHead.getAccountIdList())) {
             depotHeadMapperEx.setAccountIdToNull(depotHead.getId());
         }
-        /**鍏ュ簱鍜屽嚭搴撳鐞嗛浠樻淇℃伅*/
+        /**入库和出库处理预付款信息*/
         if(BusinessConstants.PAY_TYPE_PREPAID.equals(depotHead.getPayType())){
             if(depotHead.getOrganId()!=null){
                 BigDecimal currentAdvanceIn = supplierService.getSupplier(depotHead.getOrganId()).getAdvanceIn();
                 if(currentAdvanceIn.compareTo(depotHead.getTotalPrice())>=0) {
-                    //鏇存柊浼氬憳鐨勯浠樻
+                    //更新会员的预付款
                     supplierService.updateAdvanceIn(depotHead.getOrganId());
                     if(null != preOrganId && !preOrganId.equals(depotHead.getOrganId())) {
-                        //鏇存柊涔嬪墠浼氬憳鐨勯浠樻
+                        //更新之前会员的预付款
                         supplierService.updateAdvanceIn(preOrganId);
                     }
                 } else {
@@ -1298,10 +1320,10 @@ public class DepotHeadService {
                 }
             }
         }
-        /**鍏ュ簱鍜屽嚭搴撳鐞嗗崟鎹瓙琛ㄤ俊鎭?/
+        /**入库和出库处理单据子表信息*/
         depotItemService.saveDetials(rows,depotHead.getId(), "update",request);
-        String statusStr = depotHead.getStatus().equals("1")?"[瀹℃牳]":"";
-        logService.insertLog("鍗曟嵁",
+        String statusStr = depotHead.getStatus().equals("1")?"[审核]":"";
+        logService.insertLog("单据",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(depotHead.getNumber()).append(statusStr).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
     }
@@ -1319,7 +1341,7 @@ public class DepotHeadService {
 
         Map<String, BigDecimal> statistics = new HashMap<>();
 
-        // 鍒濆鍖?statistics Map
+        // 初始化 statistics Map
         for (String period : periods) {
             for (String type : types) {
                 statistics.put(period + type, BigDecimal.ZERO);
@@ -1371,28 +1393,28 @@ public class DepotHeadService {
 
     private void updateStatistics(Map<String, BigDecimal> statistics, InOutPriceVo item, String period, BigDecimal discountLastMoney, BigDecimal totalPriceAbs) {
         switch (item.getType()) {
-            case "鍏ュ簱":
+            case "入库":
                 switch (item.getSubType()) {
-                    case "閲囪喘":
+                    case "采购":
                         statistics.put(period + "Buy", statistics.get(period + "Buy").add(discountLastMoney));
                         break;
-                    case "閿€鍞€€璐?:
+                    case "销售退货":
                         statistics.put(period + "SaleBack", statistics.get(period + "SaleBack").add(discountLastMoney));
                         break;
-                    case "闆跺敭閫€璐?:
+                    case "零售退货":
                         statistics.put(period + "RetailSaleBack", statistics.get(period + "RetailSaleBack").add(totalPriceAbs));
                         break;
                 }
                 break;
-            case "鍑哄簱":
+            case "出库":
                 switch (item.getSubType()) {
-                    case "閲囪喘閫€璐?:
+                    case "采购退货":
                         statistics.put(period + "BuyBack", statistics.get(period + "BuyBack").add(discountLastMoney));
                         break;
-                    case "閿€鍞?:
+                    case "销售":
                         statistics.put(period + "Sale", statistics.get(period + "Sale").add(discountLastMoney));
                         break;
-                    case "闆跺敭":
+                    case "零售":
                         statistics.put(period + "RetailSale", statistics.get(period + "RetailSale").add(totalPriceAbs));
                         break;
                 }
@@ -1472,21 +1494,21 @@ public class DepotHeadService {
             if (null != list) {
                 dhList = parseDebtBillList(list);
             }
-            //鐢熸垚Excel鏂囦欢
-            String fileName = "鍗曟嵁淇℃伅";
+            //生成Excel文件
+            String fileName = "单据信息";
             File file = new File("/opt/"+ fileName);
             WritableWorkbook wtwb = Workbook.createWorkbook(file);
             String oneTip = "";
             String sheetOneStr = "";
-            if("閲囪喘".equals(subType)) {
-                oneTip = "渚涘簲鍟嗗璐﹀垪琛?;
-                sheetOneStr = "渚涘簲鍟?鍗曟嵁缂栧彿,鍏宠仈鍗曟嵁,鍟嗗搧淇℃伅,鍗曟嵁鏃ユ湡,鎿嶄綔鍛?鍗曟嵁閲戦,鏈崟娆犳,宸蹭粯娆犳,寰呬粯娆犳,澶囨敞";
-            } else if("鍑哄簱".equals(type) && "閿€鍞?.equals(subType)) {
-                oneTip = "瀹㈡埛瀵硅处鍒楄〃";
-                sheetOneStr = "瀹㈡埛,鍗曟嵁缂栧彿,鍏宠仈鍗曟嵁,鍟嗗搧淇℃伅,鍗曟嵁鏃ユ湡,鎿嶄綔鍛?鍗曟嵁閲戦,鏈崟娆犳,宸叉敹娆犳,寰呮敹娆犳,澶囨敞";
+            if("采购".equals(subType)) {
+                oneTip = "供应商对账列表";
+                sheetOneStr = "供应商,单据编号,关联单据,商品信息,单据日期,操作员,单据金额,本单欠款,已付欠款,待付欠款,备注";
+            } else if("出库".equals(type) && "销售".equals(subType)) {
+                oneTip = "客户对账列表";
+                sheetOneStr = "客户,单据编号,关联单据,商品信息,单据日期,操作员,单据金额,本单欠款,已收欠款,待收欠款,备注";
             }
             if(StringUtil.isNotEmpty(beginTime) && StringUtil.isNotEmpty(endTime)) {
-                oneTip = oneTip + "锛? + beginTime + "鑷? + endTime + "锛?;
+                oneTip = oneTip + "（" + beginTime + "至" + endTime + "）";
             }
             List<String> sheetOneList = StringUtil.strToStringList(sheetOneStr);
             String[] sheetOneArr = StringUtil.listToStringArray(sheetOneList);
@@ -1517,21 +1539,21 @@ public class DepotHeadService {
                 objs[10] = dh.getRemark();
                 billList.add(objs);
             }
-            ExcelUtils.exportObjectsManySheet(wtwb, oneTip, sheetOneArr, "鍗曟嵁鍒楄〃", 0, billList);
-            //瀵煎嚭鏄庣粏鏁版嵁
+            ExcelUtils.exportObjectsManySheet(wtwb, oneTip, sheetOneArr, "单据列表", 0, billList);
+            //导出明细数据
             if(idList.size()>0) {
                 List<DepotItemVo4WithInfoEx> dataList = depotItemMapperEx.getBillDetailListByIds(idList);
                 String twoTip = "";
                 String sheetTwoStr = "";
-                if ("閲囪喘".equals(subType)) {
-                    twoTip = "渚涘簲鍟嗗崟鎹槑缁?;
-                    sheetTwoStr = "渚涘簲鍟?鍗曟嵁缂栧彿,鍗曟嵁鏃ユ湡,浠撳簱鍚嶇О,鏉＄爜,鍚嶇О,瑙勬牸,鍨嬪彿,棰滆壊,鍝佺墝,鍒堕€犲晢," + mpList + ",鍗曚綅,搴忓垪鍙?鎵瑰彿,鏈夋晥鏈?澶氬睘鎬?鏁伴噺,鍗曚环,閲戦,绋庣巼(%),绋庨,浠风◣鍚堣,閲嶉噺,澶囨敞";
-                } else if ("閿€鍞?.equals(subType)) {
-                    twoTip = "瀹㈡埛鍗曟嵁鏄庣粏";
-                    sheetTwoStr = "瀹㈡埛,鍗曟嵁缂栧彿,鍗曟嵁鏃ユ湡,浠撳簱鍚嶇О,鏉＄爜,鍚嶇О,瑙勬牸,鍨嬪彿,棰滆壊,鍝佺墝,鍒堕€犲晢," + mpList + ",鍗曚綅,搴忓垪鍙?鎵瑰彿,鏈夋晥鏈?澶氬睘鎬?鏁伴噺,鍗曚环,閲戦,绋庣巼(%),绋庨,浠风◣鍚堣,閲嶉噺,澶囨敞";
+                if ("采购".equals(subType)) {
+                    twoTip = "供应商单据明细";
+                    sheetTwoStr = "供应商,单据编号,单据日期,仓库名称,条码,名称,规格,型号,颜色,品牌,制造商," + mpList + ",单位,序列号,批号,有效期,多属性,数量,单价,金额,税率(%),税额,价税合计,重量,备注";
+                } else if ("销售".equals(subType)) {
+                    twoTip = "客户单据明细";
+                    sheetTwoStr = "客户,单据编号,单据日期,仓库名称,条码,名称,规格,型号,颜色,品牌,制造商," + mpList + ",单位,序列号,批号,有效期,多属性,数量,单价,金额,税率(%),税额,价税合计,重量,备注";
                 }
                 if (StringUtil.isNotEmpty(beginTime) && StringUtil.isNotEmpty(endTime)) {
-                    twoTip = twoTip + "锛? + beginTime + "鑷? + endTime + "锛?;
+                    twoTip = twoTip + "（" + beginTime + "至" + endTime + "）";
                 }
                 List<String> sheetTwoList = StringUtil.strToStringList(sheetTwoStr);
                 String[] sheetTwoArr = StringUtil.listToStringArray(sheetTwoList);
@@ -1569,7 +1591,7 @@ public class DepotHeadService {
                     objs[26] = diEx.getRemark();
                     billDetail.add(objs);
                 }
-                ExcelUtils.exportObjectsManySheet(wtwb, twoTip, sheetTwoArr, "鍗曟嵁鏄庣粏", 1, billDetail);
+                ExcelUtils.exportObjectsManySheet(wtwb, twoTip, sheetTwoArr, "单据明细", 1, billDetail);
             }
             wtwb.write();
             wtwb.close();
@@ -1585,7 +1607,7 @@ public class DepotHeadService {
         for (DepotHeadVo4List dh : list) {
             idList.add(dh.getId());
         }
-        //閫氳繃鎵归噺鏌ヨ鍘绘瀯閫爉ap
+        //通过批量查询去构造map
         Map<Long,String> materialsListMap = findMaterialsListMapByHeaderIdList(idList);
         for (DepotHeadVo4List dh : list) {
             if(dh.getChangeAmount() != null) {
@@ -1604,7 +1626,7 @@ public class DepotHeadService {
             BigDecimal otherMoney = dh.getOtherMoney()!=null?dh.getOtherMoney():BigDecimal.ZERO;
             BigDecimal deposit = dh.getDeposit()!=null?dh.getDeposit():BigDecimal.ZERO;
             BigDecimal changeAmount = dh.getChangeAmount()!=null?dh.getChangeAmount().abs():BigDecimal.ZERO;
-            //鏈崟娆犳(濡傛灉閫€璐у垯涓鸿礋鏁?
+            //本单欠款(如果退货则为负数)
             dh.setNeedDebt(discountLastMoney.add(otherMoney).subtract(deposit.add(changeAmount)));
             if(BusinessConstants.SUB_TYPE_PURCHASE_RETURN.equals(dh.getSubType()) || BusinessConstants.SUB_TYPE_SALES_RETURN.equals(dh.getSubType())) {
                 dh.setNeedDebt(BigDecimal.ZERO.subtract(dh.getNeedDebt()));
@@ -1612,11 +1634,12 @@ public class DepotHeadService {
             BigDecimal needDebt = dh.getNeedDebt()!=null?dh.getNeedDebt():BigDecimal.ZERO;
             BigDecimal finishDebt = accountItemService.getEachAmountByBillId(dh.getId());
             finishDebt = finishDebt!=null?finishDebt:BigDecimal.ZERO;
-            //宸叉敹娆犳
+            //已收欠款
             dh.setFinishDebt(finishDebt);
-            //寰呮敹娆犳
+            //待收欠款
             dh.setDebt(needDebt.subtract(finishDebt));
-            //鍟嗗搧淇℃伅绠€杩?            if(materialsListMap!=null) {
+            //商品信息简述
+            if(materialsListMap!=null) {
                 dh.setMaterialsList(materialsListMap.get(dh.getId()));
             }
             dhList.add(dh);
@@ -1625,9 +1648,9 @@ public class DepotHeadService {
     }
 
     public String getBillCategory(String subType) {
-        if(subType.equals("闆跺敭") || subType.equals("闆跺敭閫€璐?)) {
+        if(subType.equals("零售") || subType.equals("零售退货")) {
             return "retail";
-        } else if(subType.equals("閿€鍞鍗?) || subType.equals("閿€鍞?) || subType.equals("閿€鍞€€璐?)) {
+        } else if(subType.equals("销售订单") || subType.equals("销售") || subType.equals("销售退货")) {
             return "sale";
         } else {
             return "buy";
@@ -1635,7 +1658,8 @@ public class DepotHeadService {
     }
 
     /**
-     * 鏍煎紡鍖栭噾棰濇牱寮?     * @param decimal
+     * 格式化金额样式
+     * @param decimal
      * @param num
      * @return
      */
@@ -1648,25 +1672,25 @@ public class DepotHeadService {
             if("purchase".equals(type)) {
                 switch (status) {
                     case "2":
-                        return "瀹屾垚閲囪喘";
+                        return "完成采购";
                     case "3":
-                        return "閮ㄥ垎閲囪喘";
+                        return "部分采购";
                 }
             } else if("sale".equals(type)) {
                 switch (status) {
                     case "2":
-                        return "瀹屾垚閿€鍞?;
+                        return "完成销售";
                     case "3":
-                        return "閮ㄥ垎閿€鍞?;
+                        return "部分销售";
                 }
             }
             switch (status) {
                 case "0":
-                    return "鏈鏍?;
+                    return "未审核";
                 case "1":
-                    return "宸插鏍?;
+                    return "已审核";
                 case "9":
-                    return "瀹℃牳涓?;
+                    return "审核中";
             }
         }
         return "";
@@ -1676,8 +1700,8 @@ public class DepotHeadService {
                                                String beginTime, String endTime, String status, int offset, int rows) {
         List<DepotHeadVo4List> resList = new ArrayList<>();
         try{
-            String [] depotArray = getDepotArray("鍏跺畠");
-            //缁欎粨绠″彲浠ョ湅鍏ㄩ儴鐨勫崟鎹紙姝ゆ椂鍙互閫氳繃鍒嗛厤浠撳簱鍘绘帶鍒舵潈闄愶級
+            String [] depotArray = getDepotArray("其它");
+            //给仓管可以看全部的单据（此时可以通过分配仓库去控制权限）
             String [] creatorArray = null;
             String [] subTypeArray = StringUtil.isNotEmpty(subType) ? subType.split(",") : null;
             String [] statusArray = StringUtil.isNotEmpty(status) ? status.split(",") : null;
@@ -1691,7 +1715,7 @@ public class DepotHeadService {
                 for (DepotHeadVo4List dh : list) {
                     idList.add(dh.getId());
                 }
-                //閫氳繃鎵归噺鏌ヨ鍘绘瀯閫爉ap
+                //通过批量查询去构造map
                 Map<Long,String> materialsListMap = findMaterialsListMapByHeaderIdList(idList);
                 Map<Long,BigDecimal> materialCountListMap = getMaterialCountListMapByHeaderIdList(idList);
                 for (DepotHeadVo4List dh : list) {
@@ -1702,10 +1726,12 @@ public class DepotHeadService {
                     if(dh.getOperTime() != null) {
                         dh.setOperTimeStr(getCenternTime(dh.getOperTime()));
                     }
-                    //鍟嗗搧淇℃伅绠€杩?                    if(materialsListMap!=null) {
+                    //商品信息简述
+                    if(materialsListMap!=null) {
                         dh.setMaterialsList(materialsListMap.get(dh.getId()));
                     }
-                    //鍟嗗搧鎬绘暟閲?                    if(materialCountListMap!=null) {
+                    //商品总数量
+                    if(materialCountListMap!=null) {
                         dh.setMaterialCount(materialCountListMap.get(dh.getId()));
                     }
                     resList.add(dh);
@@ -1721,8 +1747,8 @@ public class DepotHeadService {
                              String beginTime, String endTime, String status) {
         Long result=null;
         try{
-            String [] depotArray = getDepotArray("鍏跺畠");
-            //缁欎粨绠″彲浠ョ湅鍏ㄩ儴鐨勫崟鎹紙姝ゆ椂鍙互閫氳繃鍒嗛厤浠撳簱鍘绘帶鍒舵潈闄愶級
+            String [] depotArray = getDepotArray("其它");
+            //给仓管可以看全部的单据（此时可以通过分配仓库去控制权限）
             String [] creatorArray = null;
             String [] subTypeArray = StringUtil.isNotEmpty(subType) ? subType.split(",") : null;
             String [] statusArray = StringUtil.isNotEmpty(status) ? status.split(",") : null;
@@ -1743,18 +1769,21 @@ public class DepotHeadService {
         User userInfo=userService.getCurrentUser();
         for(DepotHead depotHead : dhList) {
             String prefixNo = BusinessConstants.DEPOTHEAD_TYPE_IN.equals(depotHead.getType())?"QTRK":"QTCK";
-            //鍏宠仈鍗曟嵁鍗曞彿
+            //关联单据单号
             String oldNumber = depotHead.getNumber();
-            //鏍￠獙鍗曟嵁鏈€鏂扮姸鎬佷笉鑳借繘琛屾壒閲忔搷浣?            if("0".equals(depotHead.getStatus()) || "2".equals(depotHead.getStatus()) || "9".equals(depotHead.getStatus())) {
+            //校验单据最新状态不能进行批量操作
+            if("0".equals(depotHead.getStatus()) || "2".equals(depotHead.getStatus()) || "9".equals(depotHead.getStatus())) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_ITEM_EXIST_NEW_STATUS_FAILED_CODE,
                         String.format(ExceptionConstants.DEPOT_ITEM_EXIST_NEW_STATUS_FAILED_MSG, oldNumber, depotHead.getType()));
             }
-            //鏍￠獙鏄惁鏄儴鍒嗗叆搴撴垨鑰呴儴鍒嗗嚭搴?            if("3".equals(depotHead.getStatus())) {
+            //校验是否是部分入库或者部分出库
+            if("3".equals(depotHead.getStatus())) {
                 throw new BusinessRunTimeException(ExceptionConstants.DEPOT_ITEM_EXIST_PARTIALLY_STATUS_FAILED_CODE,
                         String.format(ExceptionConstants.DEPOT_ITEM_EXIST_PARTIALLY_STATUS_FAILED_MSG, oldNumber, depotHead.getType()));
             }
             depotHead.setLinkNumber(oldNumber);
-            //缁欏崟鍙烽噸鏂拌祴鍊?            String number = prefixNo + sequenceService.buildOnlyNumber();
+            //给单号重新赋值
+            String number = prefixNo + sequenceService.buildOnlyNumber();
             depotHead.setNumber(number);
             depotHead.setDefaultNumber(number);
             depotHead.setOperTime(new Date());
@@ -1771,7 +1800,7 @@ public class DepotHeadService {
             depotHead.setSalesMan(null);
             depotHead.setStatus("0");
             depotHead.setTenantId(null);
-            //鏌ヨ鏄庣粏
+            //查询明细
             List<DepotItemVo4WithInfoEx> itemList = depotItemService.getDetailList(depotHead.getId());
             depotHead.setId(null);
             JSONArray rowArr = new JSONArray();
@@ -1794,19 +1823,20 @@ public class DepotHeadService {
                 rowArr.add(itemObj.toJSONString());
             }
             String rows = rowArr.toJSONString();
-            //鏂板鍏跺畠鍏ュ簱鍗曟垨鍏跺畠鍑哄簱鍗?            sb.append("[").append(depotHead.getNumber()).append("]");
+            //新增其它入库单或其它出库单
+            sb.append("[").append(depotHead.getNumber()).append("]");
             depotHeadMapper.insertSelective(depotHead);
-            //鏍规嵁鍗曟嵁缂栧彿鏌ヨ鍗曟嵁id
+            //根据单据编号查询单据id
             DepotHeadExample dhExample = new DepotHeadExample();
             dhExample.createCriteria().andNumberEqualTo(depotHead.getNumber()).andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
             List<DepotHead> list = depotHeadMapper.selectByExample(dhExample);
             if(list!=null) {
                 Long headId = list.get(0).getId();
-                /**鍏ュ簱鍜屽嚭搴撳鐞嗗崟鎹瓙琛ㄤ俊鎭?/
+                /**入库和出库处理单据子表信息*/
                 depotItemService.saveDetials(rows, headId, "add", request);
             }
         }
-        logService.insertLog("鍗曟嵁",
+        logService.insertLog("单据",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_BATCH_ADD).append(sb).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
     }

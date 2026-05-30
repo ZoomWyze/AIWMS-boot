@@ -1,23 +1,16 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 功能开关 Service
- * 提供系统功能模块的启用/禁用开关管理
- *
- * @author jishenghua
- */
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * 鍔熻兘寮€鍏虫湇鍔°€?
+ * 功能开关服务。
  */
 @Service
 public class FeatureSwitchService {
 
 	/**
-	 * 姣曡妯″紡寮€鍏筹細true 琛ㄧず姣曡妯″紡锛堝叧闂晢涓氬寲鍏ュ彛锛夛紝false 琛ㄧず鍟嗕笟妯″紡銆?
+	 * 毕设模式开关：true 表示毕设模式（关闭商业化入口），false 表示商业模式。
 	 */
 	@Value("${biz.graduationMode:true}")
 	private Boolean graduationMode;
@@ -27,7 +20,7 @@ public class FeatureSwitchService {
 	}
 
 	/**
-	 * 鍟嗕笟鍖栧叆鍙ｆ槸鍚﹀彲鐢ㄣ€?
+	 * 商业化入口是否可用。
 	 */
 	public boolean isCommercialEntryEnabled() {
 		return !isGraduationMode();

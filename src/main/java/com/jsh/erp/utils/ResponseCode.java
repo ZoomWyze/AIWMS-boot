@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.utils;
+package com.jsh.erp.utils;
 
-
-/**
- * 响应码枚举类
- * 定义接口统一响应的状态码枚举（成功、失败、未登录等）
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.annotation.JSONCreator;
 import com.alibaba.fastjson.annotation.JSONField;
 

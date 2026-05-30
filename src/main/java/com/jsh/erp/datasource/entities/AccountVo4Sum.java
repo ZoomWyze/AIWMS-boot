@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * 视图对象 (VO)
- * 用于 AccountVo4Sum 场景的数据传输
- *
- * @author jishenghua
- */
 import java.math.BigDecimal;
 
 public class AccountVo4Sum {

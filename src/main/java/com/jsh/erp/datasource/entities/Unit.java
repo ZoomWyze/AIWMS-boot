@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * Unit 实体类
- * 对应数据库 jsh_unit 表
- *
- * @author jishenghua
- */
 import java.math.BigDecimal;
 
 public class Unit {

@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 序列号生成 Controller
- * 提供单据编号序列的自动生成接口
- *
- * @author jishenghua
- */
 import com.jsh.erp.service.SequenceService;
 import com.jsh.erp.utils.BaseResponseInfo;
 import io.swagger.annotations.Api;
@@ -27,7 +20,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping(value = "/sequence")
-@Api(tags = {"鍗曟嵁缂栧彿"})
+@Api(tags = {"单据编号"})
 public class SequenceController {
     private Logger logger = LoggerFactory.getLogger(SequenceController.class);
 
@@ -35,12 +28,12 @@ public class SequenceController {
     private SequenceService sequenceService;
 
     /**
-     * 鍗曟嵁缂栧彿鐢熸垚鎺ュ彛
+     * 单据编号生成接口
      * @param request
      * @return
      */
     @GetMapping(value = "/buildNumber")
-    @ApiOperation(value = "鍗曟嵁缂栧彿鐢熸垚鎺ュ彛")
+    @ApiOperation(value = "单据编号生成接口")
     public BaseResponseInfo buildNumber(HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -52,7 +45,7 @@ public class SequenceController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }

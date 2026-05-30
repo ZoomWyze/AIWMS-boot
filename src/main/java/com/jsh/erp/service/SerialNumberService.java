@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 序列号 Service
- * 提供商品序列号（SN）的业务逻辑：新增/查询/启用/禁用
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -109,15 +102,18 @@ public class SerialNumberService {
     }
 
     /**
-     *  鏍规嵁鍟嗗搧鍚嶇О鍒ゆ柇缁欏晢鍝佹坊鍔犲簭鍒楀彿鏄惁鍙
-     *  1銆佹牴鎹晢鍝佸悕绉板繀椤绘煡璇㈠埌鍞竴鐨勫晢鍝?     *  2銆佽鍟嗗搧蹇呴』宸茬粡鍚敤搴忓垪鍙?     *  3銆佽鍟嗗搧宸茬粦瀹氬簭鍒楀彿鏁伴噺灏忎簬鍟嗗搧鐜版湁搴撳瓨
-     *  鐢ㄥ晢鍝佺殑搴撳瓨鍘婚檺鍒跺簭鍒楀彿鐨勬坊鍔犳湁鐐逛笉鍚堜箮閬撶悊锛屽幓鎺夋闄愬埗
-     * @return Long 婊¤冻浣跨敤鏉′欢鐨勫晢鍝佺殑id
+     *  根据商品名称判断给商品添加序列号是否可行
+     *  1、根据商品名称必须查询到唯一的商品
+     *  2、该商品必须已经启用序列号
+     *  3、该商品已绑定序列号数量小于商品现有库存
+     *  用商品的库存去限制序列号的添加有点不合乎道理，去掉此限制
+     * @return Long 满足使用条件的商品的id
      */
     public Long getSerialNumberMaterialIdByBarCode(String materialCode)throws Exception{
         if(StringUtil.isNotEmpty(materialCode)){
-            //璁＄畻鍟嗗搧搴撳瓨鍜岀洰鍓嶅崰鐢ㄧ殑鍙敤搴忓垪鍙锋暟閲忓叧绯?            //搴撳瓨=鍏ュ簱-鍑哄簱
-            //鍏ュ簱鏁伴噺
+            //计算商品库存和目前占用的可用序列号数量关系
+            //库存=入库-出库
+            //入库数量
             Long materialId = 0L;
             List<MaterialVo4Unit> list = materialService.getMaterialByBarCode(materialCode);
             if(list!=null && list.size()>0) {
@@ -129,7 +125,9 @@ public class SerialNumberService {
     }
 
     /**
-     * 鍑哄簱鏃跺垽鏂簭鍒楀彿搴撳瓨鏄惁瓒冲锛?     * 鍚屾椂灏嗗搴旂殑搴忓垪鍙风粦瀹氬崟鎹?     */
+     * 出库时判断序列号库存是否足够，
+     * 同时将对应的序列号绑定单据
+     */
     public void checkAndUpdateSerialNumber(DepotItem depotItem, String outBillNo,User userInfo, String snList) throws Exception{
         if(depotItem!=null){
             sellSerialNumber(depotItem.getMaterialId(), outBillNo, snList,userInfo);
@@ -137,16 +135,18 @@ public class SerialNumberService {
     }
 
     /**
-     * 鍑哄敭搴忓垪鍙?     */
+     * 出售序列号
+     */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void sellSerialNumber(Long materialId, String outBillNo, String snList, User user) throws Exception{
-        //灏嗕腑鏂囩殑閫楀彿鎵归噺鏇挎崲涓鸿嫳鏂囬€楀彿
-        snList = snList.replaceAll("锛?,",");
+        //将中文的逗号批量替换为英文逗号
+        snList = snList.replaceAll("，",",");
         String [] snArray=snList.split(",");
         for (String sn : snArray) {
             int isNotSellCount = serialNumberMapperEx.getIsNotSellCountByParam(materialId, sn);
             if (isNotSellCount == 0) {
-                //濡傛灉搴忓垪鍙蜂笉瀛樺湪鎴栬€呭凡鍞嚭鍒欒繘琛屾彁绀猴紝涓嶅啀杩涜鍚庣画鐨勫嚭鍞搷浣?                throw new BusinessRunTimeException(ExceptionConstants.SERIAL_NUMBERE_NOT_EXISTS_CODE,
+                //如果序列号不存在或者已售出则进行提示，不再进行后续的出售操作
+                throw new BusinessRunTimeException(ExceptionConstants.SERIAL_NUMBERE_NOT_EXISTS_CODE,
                         String.format(ExceptionConstants.SERIAL_NUMBERE_NOT_EXISTS_MSG, sn));
             }
         }
@@ -154,10 +154,11 @@ public class SerialNumberService {
     }
 
     /**
-     * 璧庡洖搴忓垪鍙?     * @Param: materialId
+     * 赎回序列号
+     * @Param: materialId
      * @Param: depotheadId
-     * @Param: isSell 璧庡洖'0'
-     * @Param: Count 鍗栧嚭鎴栬€呰祹鍥炵殑鏁伴噺
+     * @Param: isSell 赎回'0'
+     * @Param: Count 卖出或者赎回的数量
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int cancelSerialNumber(Long materialId, String outBillNo,int count,User user) throws Exception{
@@ -171,16 +172,17 @@ public class SerialNumberService {
     }
 
     /**
-     * 鎵归噺娣诲姞搴忓垪鍙凤紝鏈€澶?00涓?     */
+     * 批量添加序列号，最多500个
+     */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batAddSerialNumber(String materialCode, String serialNumberPrefix, Integer batAddTotal, String remark)throws Exception {
         int result=0;
         try {
             if (StringUtil.isNotEmpty(materialCode)) {
-                //鏌ヨ鍟嗗搧id
+                //查询商品id
                 Long materialId = getSerialNumberMaterialIdByBarCode(materialCode);
                 List<SerialNumberEx> list = null;
-                //褰撳墠鐢ㄦ埛
+                //当前用户
                 User userInfo = userService.getCurrentUser();
                 Long userId = userInfo == null ? null : userInfo.getId();
                 Date date = null;
@@ -206,7 +208,7 @@ public class SerialNumberService {
                     list.add(each);
                 }
                 result = serialNumberMapperEx.batAddSerialNumber(list);
-                logService.insertLog("搴忓垪鍙?,
+                logService.insertLog("序列号",
                         new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_BATCH_ADD).append(batAddTotal).append(BusinessConstants.LOG_DATA_UNIT).toString(),
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             }
@@ -237,14 +239,14 @@ public class SerialNumberService {
     }
 
     public void addSerialNumberByBill(String type, String subType, String inBillNo, Long materialId, Long depotId, BigDecimal inPrice, String snList) throws Exception {
-        //褰曞叆搴忓垪鍙风殑鏃跺€欎笉鑳藉拰搴撻噷闈㈢殑閲嶅-鍏ュ簱
+        //录入序列号的时候不能和库里面的重复-入库
         if ((BusinessConstants.SUB_TYPE_PURCHASE.equals(subType) ||
                 BusinessConstants.SUB_TYPE_OTHER.equals(subType) ||
                 BusinessConstants.SUB_TYPE_SALES_RETURN.equals(subType)||
                 BusinessConstants.SUB_TYPE_RETAIL_RETURN.equals(subType)) &&
                 BusinessConstants.DEPOTHEAD_TYPE_IN.equals(type)) {
-            //灏嗕腑鏂囩殑閫楀彿鎵归噺鏇挎崲涓鸿嫳鏂囬€楀彿
-            snList = snList.replaceAll("锛?, ",");
+            //将中文的逗号批量替换为英文逗号
+            snList = snList.replaceAll("，", ",");
             List<String> snArr = StringUtil.strToStringList(snList);
             for (String sn : snArr) {
                 List<SerialNumber> list = new ArrayList<>();
@@ -252,7 +254,8 @@ public class SerialNumberService {
                 example.createCriteria().andMaterialIdEqualTo(materialId).andSerialNumberEqualTo(sn.trim()).andIsSellEqualTo("0")
                         .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
                 list = serialNumberMapper.selectByExample(example);
-                //鍒ゆ柇濡傛灉涓嶅瓨鍦ㄩ噸澶嶅簭鍒楀彿灏辨柊澧?                if (list == null || list.size() == 0) {
+                //判断如果不存在重复序列号就新增
+                if (list == null || list.size() == 0) {
                     SerialNumber serialNumber = new SerialNumber();
                     serialNumber.setMaterialId(materialId);
                     serialNumber.setDepotId(depotId);
@@ -277,7 +280,8 @@ public class SerialNumberService {
     }
 
     /**
-     * 鐩存帴鍒犻櫎搴忓垪鍙?     * @param example
+     * 直接删除序列号
+     * @param example
      */
     public void deleteByExample(SerialNumberExample example) {
         serialNumberMapper.deleteByExample(example);

@@ -1,15 +1,5 @@
 package com.jsh.erp.config;
 
-/**
- * Swagger2 API 文档配置类
- *
- * 功能：
- *   1. 启用 Swagger2 自动生成 API 文档
- *   2. 配置 API 信息（标题、描述、版本等）
- *   3. 扫描所有 Controller 生成接口文档
- *
- * 访问地址：http://localhost:9999/AIWMS-boot/swagger-ui.html
- */
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;

@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * Person MyBatis Mapper 接口
- * 提供 Person 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.Person;
 import com.jsh.erp.datasource.entities.PersonExample;
 import java.util.List;

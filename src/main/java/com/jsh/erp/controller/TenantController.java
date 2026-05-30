@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 租户管理 Controller
- * 提供多租户的 CRUD 接口，支持租户信息的唯一性校验
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
 import com.jsh.erp.base.TableDataInfo;
@@ -30,18 +23,18 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnJson;
 import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
 
 /**
- * @author ji_sheng_hua 绠′紛浣砮rp
+ * @author ji_sheng_hua 管伊佳erp
  */
 @RestController
 @RequestMapping(value = "/tenant")
-@Api(tags = {"绉熸埛绠＄悊"})
+@Api(tags = {"租户管理"})
 public class TenantController extends BaseController {
 
     @Resource
     private TenantService tenantService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Tenant tenant = tenantService.getTenant(id);
@@ -55,7 +48,7 @@ public class TenantController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
+    @ApiOperation(value = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String loginName = StringUtil.getInfo(search, "loginName");
@@ -67,7 +60,7 @@ public class TenantController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "鏂板")
+    @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = tenantService.insertTenant(obj, request);
@@ -75,7 +68,7 @@ public class TenantController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "淇敼")
+    @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = tenantService.updateTenant(obj, request);
@@ -83,7 +76,7 @@ public class TenantController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "鍒犻櫎")
+    @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = tenantService.deleteTenant(id, request);
@@ -91,7 +84,7 @@ public class TenantController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "鎵归噺鍒犻櫎")
+    @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = tenantService.batchDeleteTenant(ids, request);
@@ -99,7 +92,7 @@ public class TenantController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -113,12 +106,13 @@ public class TenantController extends BaseController {
     }
 
     /**
-     * 鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?     * @param jsonObject
+     * 批量设置状态-启用或者禁用
+     * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?)
+    @ApiOperation(value = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");

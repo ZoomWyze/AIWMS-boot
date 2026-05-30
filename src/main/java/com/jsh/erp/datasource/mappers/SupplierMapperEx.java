@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * SupplierMapper 扩展 Mapper 接口
- * 定义 SupplierMapper 自定义的复杂 SQL 查询方法（非 Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.Supplier;
 import com.jsh.erp.datasource.entities.SupplierExample;
 import com.jsh.erp.datasource.vo.SupplierSimple;

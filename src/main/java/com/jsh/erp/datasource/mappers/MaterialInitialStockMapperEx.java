@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * MaterialInitialStockMapper 扩展 Mapper 接口
- * 定义 MaterialInitialStockMapper 自定义的复杂 SQL 查询方法（非 Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.MaterialCurrentStock;
 import com.jsh.erp.datasource.entities.MaterialInitialStock;
 import com.jsh.erp.datasource.entities.MaterialInitialStockExample;

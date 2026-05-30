@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 出入库明细 Service
- * 提供出入库明细记录的查询和统计逻辑
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -101,7 +94,7 @@ public class InOutItemService {
         InOutItem inOutItem = JSONObject.parseObject(obj.toJSONString(), InOutItem.class);
         int exist = checkIsNameAndTypeExist(inOutItem.getId(), inOutItem.getName(), inOutItem.getType());
         if(exist>0) {
-            //瀛樺湪
+            //存在
             throw new BusinessRunTimeException(ExceptionConstants.IN_OUT_ITEM_NAME_EXIST_FAILED_CODE,
                     ExceptionConstants.IN_OUT_ITEM_NAME_EXIST_FAILED_MSG);
         }
@@ -109,7 +102,7 @@ public class InOutItemService {
         try{
             inOutItem.setEnabled(true);
             result=inOutItemMapper.insertSelective(inOutItem);
-            logService.insertLog("鏀舵敮椤圭洰",
+            logService.insertLog("收支项目",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(inOutItem.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -122,14 +115,14 @@ public class InOutItemService {
         InOutItem inOutItem = JSONObject.parseObject(obj.toJSONString(), InOutItem.class);
         int exist = checkIsNameAndTypeExist(inOutItem.getId(), inOutItem.getName(), inOutItem.getType());
         if(exist>0) {
-            //瀛樺湪
+            //存在
             throw new BusinessRunTimeException(ExceptionConstants.IN_OUT_ITEM_NAME_EXIST_FAILED_CODE,
                     ExceptionConstants.IN_OUT_ITEM_NAME_EXIST_FAILED_MSG);
         }
         int result=0;
         try{
             result=inOutItemMapper.updateByPrimaryKeySelective(inOutItem);
-            logService.insertLog("鏀舵敮椤圭洰",
+            logService.insertLog("收支项目",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(inOutItem.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -151,7 +144,7 @@ public class InOutItemService {
     public int batchDeleteInOutItemByIds(String ids)throws Exception {
         int result = 0;
         String [] idArray=ids.split(",");
-        //鏍￠獙璐㈠姟瀛愯〃	jsh_accountitem
+        //校验财务子表	jsh_accountitem
         List<AccountItem> accountItemList=null;
         try{
             accountItemList=accountItemMapperEx.getAccountItemListByInOutItemIds(idArray);
@@ -159,19 +152,19 @@ public class InOutItemService {
             JshException.readFail(logger, e);
         }
         if(accountItemList!=null&&accountItemList.size()>0){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,InOutItemIds[{}]",
+            logger.error("异常码[{}],异常提示[{}],参数,InOutItemIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //鏍￠獙閫氳繃鎵ц鍒犻櫎鎿嶄綔
+        //校验通过执行删除操作
         StringBuffer sb = new StringBuffer();
         sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
         List<InOutItem> list = getInOutItemListByIds(ids);
         for(InOutItem inOutItem: list){
             sb.append("[").append(inOutItem.getName()).append("]");
         }
-        logService.insertLog("鏀舵敮椤圭洰", sb.toString(),
+        logService.insertLog("收支项目", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
         try{
@@ -212,10 +205,10 @@ public class InOutItemService {
     public List<InOutItem> findBySelect(String type)throws Exception {
         InOutItemExample example = new InOutItemExample();
         if (type.equals("in")) {
-            example.createCriteria().andTypeEqualTo("鏀跺叆").andEnabledEqualTo(true)
+            example.createCriteria().andTypeEqualTo("收入").andEnabledEqualTo(true)
                     .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         } else if (type.equals("out")) {
-            example.createCriteria().andTypeEqualTo("鏀嚭").andEnabledEqualTo(true)
+            example.createCriteria().andTypeEqualTo("支出").andEnabledEqualTo(true)
                     .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         } else {
             example.createCriteria().andEnabledEqualTo(true)
@@ -233,7 +226,7 @@ public class InOutItemService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Boolean status, String ids)throws Exception {
-        logService.insertLog("鏀舵敮椤圭洰",
+        logService.insertLog("收支项目",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ENABLED).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> inOutItemIds = StringUtil.strToLongList(ids);

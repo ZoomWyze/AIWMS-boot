@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 账户 Service
- * 提供账户信息的业务逻辑：新增/编辑/删除/查询/唯一性校验
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.PageDomain;
 import com.jsh.erp.base.TableSupport;
@@ -148,7 +141,8 @@ public class AccountService {
                     if ((thisMonthAmount.compareTo(BigDecimal.ZERO))!=0) {
                         thisMonthAmountFmt = df.format(thisMonthAmount);
                     }
-                    al.setThisMonthAmount(thisMonthAmountFmt);  //鏈湀鍙戠敓棰?                    BigDecimal currentAmount = currentAccountSumMap.get(al.getId())
+                    al.setThisMonthAmount(thisMonthAmountFmt);  //本月发生额
+                    BigDecimal currentAmount = currentAccountSumMap.get(al.getId())
                             .add(currentAccountSumByHeadMap.get(al.getId()))
                             .add(currentAccountSumByDetailMap.get(al.getId()))
                             .add(getManyAccountSumParse(al.getId(), currentManyAmountList))
@@ -178,7 +172,7 @@ public class AccountService {
         int result=0;
         try{
             result = accountMapper.insertSelective(account);
-            logService.insertLog("璐︽埛",
+            logService.insertLog("账户",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(account.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -192,7 +186,7 @@ public class AccountService {
         int result=0;
         try{
             result = accountMapper.updateByPrimaryKeySelective(account);
-            logService.insertLog("璐︽埛",
+            logService.insertLog("账户",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(account.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -214,7 +208,7 @@ public class AccountService {
     public int batchDeleteAccountByIds(String ids) throws Exception{
         int result=0;
         String [] idArray=ids.split(",");
-        //鏍￠獙璐㈠姟涓昏〃	jsh_accounthead
+        //校验财务主表	jsh_accounthead
         List<AccountHead> accountHeadList=null;
         try{
             accountHeadList = accountHeadMapperEx.getAccountHeadListByAccountIds(idArray);
@@ -222,12 +216,12 @@ public class AccountService {
             JshException.readFail(logger, e);
         }
         if(accountHeadList!=null&&accountHeadList.size()>0){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,AccountIds[{}]",
+            logger.error("异常码[{}],异常提示[{}],参数,AccountIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //鏍￠獙璐㈠姟瀛愯〃	jsh_accountitem
+        //校验财务子表	jsh_accountitem
         List<AccountItem> accountItemList=null;
         try{
             accountItemList = accountItemMapperEx.getAccountItemListByAccountIds(idArray);
@@ -235,12 +229,12 @@ public class AccountService {
             JshException.readFail(logger, e);
         }
         if(accountItemList!=null&&accountItemList.size()>0){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,AccountIds[{}]",
+            logger.error("异常码[{}],异常提示[{}],参数,AccountIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //鏍￠獙鍗曟嵁涓昏〃	jsh_depot_head
+        //校验单据主表	jsh_depot_head
         List<DepotHead> depotHeadList =null;
         try{
             depotHeadList = depotHeadMapperEx.getDepotHeadListByAccountIds(idArray);
@@ -248,22 +242,22 @@ public class AccountService {
             JshException.readFail(logger, e);
         }
         if(depotHeadList!=null&&depotHeadList.size()>0){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,AccountIds[{}]",
+            logger.error("异常码[{}],异常提示[{}],参数,AccountIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //璁板綍鏃ュ織
+        //记录日志
         StringBuffer sb = new StringBuffer();
         sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
         List<Account> list = getAccountListByIds(ids);
         for(Account account: list){
             sb.append("[").append(account.getName()).append("]");
         }
-        logService.insertLog("璐︽埛", sb.toString(),
+        logService.insertLog("账户", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
-        //鏍￠獙閫氳繃鎵ц鍒犻櫎鎿嶄綔
+        //校验通过执行删除操作
         try{
             result = accountMapperEx.batchDeleteAccountByIds(new Date(),userInfo==null?null:userInfo.getId(),idArray);
         }catch(Exception e){
@@ -298,28 +292,31 @@ public class AccountService {
     }
 
     /**
-     * 鍗曚釜璐︽埛鐨勯噾棰濇眰鍜?鍏ュ簱鍜屽嚭搴?     * @return
+     * 单个账户的金额求和-入库和出库
+     * @return
      */
     public BigDecimal getAccountSum(Long accountId, String beginTime, String endTime, Boolean forceFlag) {
         return accountMapperEx.getAccountSum(accountId, beginTime, endTime, forceFlag);
     }
 
     /**
-     * 鍗曚釜璐︽埛鐨勯噾棰濇眰鍜?鏀跺叆銆佹敮鍑恒€佽浆璐︾殑鍗曟嵁琛ㄥご鐨勫悎璁?     * @return
+     * 单个账户的金额求和-收入、支出、转账的单据表头的合计
+     * @return
      */
     public BigDecimal getAccountSumByHead(Long accountId, String beginTime, String endTime, Boolean forceFlag) {
         return accountMapperEx.getAccountSumByHead(accountId, beginTime, endTime, forceFlag);
     }
 
     /**
-     * 鍗曚釜璐︽埛鐨勯噾棰濇眰鍜?鏀舵銆佷粯娆俱€佽浆璐︺€佹敹棰勪粯娆剧殑鍗曟嵁鏄庣粏鐨勫悎璁?     * @return
+     * 单个账户的金额求和-收款、付款、转账、收预付款的单据明细的合计
+     * @return
      */
     public BigDecimal getAccountSumByDetail(Long accountId, String beginTime, String endTime, Boolean forceFlag) {
         return accountMapperEx.getAccountSumByDetail(accountId, beginTime, endTime, forceFlag);
     }
 
     /**
-     * 鍗曚釜璐︽埛鐨勯噾棰濇眰鍜?澶氳处鎴风殑鏄庣粏鍚堣
+     * 单个账户的金额求和-多账户的明细合计
      * @return
      */
     public BigDecimal getManyAccountSum(Long accountId, String beginTime, String endTime, Boolean forceFlag) {
@@ -348,7 +345,7 @@ public class AccountService {
     }
 
     /**
-     * 鍗曚釜璐︽埛鐨勯噾棰濇眰鍜?澶氳处鎴风殑鏄庣粏鍚堣(鏍煎紡鍖?
+     * 单个账户的金额求和-多账户的明细合计(格式化)
      * @return
      */
     public BigDecimal getManyAccountSumParse(Long accountId, List<DepotHead> manyAmountList) {
@@ -398,18 +395,19 @@ public class AccountService {
     public int updateIsDefault(Long accountId) throws Exception{
         int result=0;
         try{
-            //鍏ㄩ儴鍙栨秷榛樿
+            //全部取消默认
             Account allAccount = new Account();
             allAccount.setIsDefault(false);
             AccountExample allExample = new AccountExample();
             allExample.createCriteria();
             accountMapper.updateByExampleSelective(allAccount, allExample);
-            //缁欐寚瀹氳处鎴疯涓洪粯璁?            Account account = new Account();
+            //给指定账户设为默认
+            Account account = new Account();
             account.setIsDefault(true);
             AccountExample example = new AccountExample();
             example.createCriteria().andIdEqualTo(accountId);
             accountMapper.updateByExampleSelective(account, example);
-            logService.insertLog("璐︽埛",BusinessConstants.LOG_OPERATION_TYPE_EDIT+accountId,
+            logService.insertLog("账户",BusinessConstants.LOG_OPERATION_TYPE_EDIT+accountId,
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             result = 1;
         }catch(Exception e){
@@ -434,7 +432,7 @@ public class AccountService {
         for (int i = 0; i < idList.size(); i++) {
             Long id = idList.get(i);
             BigDecimal money =  moneyList.get(i).abs();
-            sb.append(accountMap.get(id) + "(" + money + "鍏? ");
+            sb.append(accountMap.get(id) + "(" + money + "元) ");
         }
         return sb.toString();
     }
@@ -482,7 +480,8 @@ public class AccountService {
                     if ((thisMonthAmount.compareTo(BigDecimal.ZERO))!=0) {
                         thisMonthAmountFmt = df.format(thisMonthAmount);
                     }
-                    al.setThisMonthAmount(thisMonthAmountFmt);  //鏈湀鍙戠敓棰?                    BigDecimal currentAmount = currentAccountSumMap.get(al.getId())
+                    al.setThisMonthAmount(thisMonthAmountFmt);  //本月发生额
+                    BigDecimal currentAmount = currentAccountSumMap.get(al.getId())
                             .add(currentAccountSumByHeadMap.get(al.getId()))
                             .add(currentAccountSumByDetailMap.get(al.getId()))
                             .add(getManyAccountSumParse(al.getId(), currentManyAmountList))
@@ -541,14 +540,17 @@ public class AccountService {
                     allCurrentAmount = allCurrentAmount.add(currentAmount);
                 }
             }
-            map.put("allMonthAmount", priceFormat(allMonthAmount));  //鏈湀鍙戠敓棰?            map.put("allCurrentAmount", priceFormat(allCurrentAmount));  //褰撳墠鎬婚噾棰?        } catch (Exception e) {
+            map.put("allMonthAmount", priceFormat(allMonthAmount));  //本月发生额
+            map.put("allCurrentAmount", priceFormat(allCurrentAmount));  //当前总金额
+        } catch (Exception e) {
             JshException.readFail(logger, e);
         }
         return map;
     }
 
     /**
-     * 浠锋牸鏍煎紡鍖?     * @param price
+     * 价格格式化
+     * @param price
      * @return
      */
     private String priceFormat(BigDecimal price) {
@@ -562,7 +564,7 @@ public class AccountService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Boolean status, String ids)throws Exception {
-        logService.insertLog("璐︽埛",
+        logService.insertLog("账户",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ENABLED).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> accountIds = StringUtil.strToLongList(ids);

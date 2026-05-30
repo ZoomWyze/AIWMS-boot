@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.utils;
+package com.jsh.erp.utils;
 
-
-/**
- * 查询工具类
- * 提供 SQL 查询条件的构建工具方法
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -33,8 +26,8 @@ public class QueryUtils {
 
     public static <T> T list2One(List<T> list, String label) {
         Assert.notNull(label);
-        Assert.notEmpty(list, label + "瀵瑰簲鐨勮褰曚笉瀛樺湪");
-        Assert.isTrue(list.size() == 1, label + "瀵瑰簲鐨勮褰曚笉姝竴涓?);
+        Assert.notEmpty(list, label + "对应的记录不存在");
+        Assert.isTrue(list.size() == 1, label + "对应的记录不止一个");
         return list.get(0);
     }
 
@@ -44,7 +37,7 @@ public class QueryUtils {
         if (list.isEmpty())
             return defaultValue;
         else {
-            Assert.isTrue(list.size() == 1, label + "瀵瑰簲鐨勮褰曚笉姝竴涓?);
+            Assert.isTrue(list.size() == 1, label + "对应的记录不止一个");
             return list.get(0);
         }
     }
@@ -74,7 +67,7 @@ public class QueryUtils {
     public static int currentPage(Map<String, String> map) {
         int val = Integer.parseInt(map.get(CURRENT_PAGE));
         if (val < 1)
-            throw new RuntimeException("褰撳墠椤垫暟鐩?" + val + " 蹇呴』澶т簬0");
+            throw new RuntimeException("当前页数目:" + val + " 必须大于0");
         return val;
     }
 

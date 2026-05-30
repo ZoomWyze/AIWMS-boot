@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 操作日志 Service
- * 提供操作日志的记录和查询业务逻辑
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.Log;
@@ -143,7 +136,7 @@ public class LogService {
                 String createTime = Tools.getNow3();
                 Long count = logMapperEx.getCountByIpAndDate(userId, moduleName, clientIp, createTime);
                 if(count > 0) {
-                    //濡傛灉鏌愪釜鐢ㄦ埛鏌愪釜IP鍦ㄥ悓1绉掑唴杩炵画鎿嶄綔涓ら亶锛屾鏃堕渶瑕佸垹闄よredis璁板綍锛屼娇鍏堕€€鍑猴紝闃叉鎭舵剰鏀诲嚮
+                    //如果某个用户某个IP在同1秒内连续操作两遍，此时需要删除该redis记录，使其退出，防止恶意攻击
                     redisService.deleteObjectByUserAndIp(userId, clientIp);
                 } else {
                     Log log = new Log();

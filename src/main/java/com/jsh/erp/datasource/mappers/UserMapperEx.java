@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * UserMapper 扩展 Mapper 接口
- * 定义 UserMapper 自定义的复杂 SQL 查询方法（非 Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.User;
 import com.jsh.erp.datasource.entities.UserEx;
 import com.jsh.erp.datasource.entities.UserExample;

@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.utils;
+package com.jsh.erp.utils;
 
-
-/**
- * 正则表达式工具类
- * 提供常用的正则匹配方法（数字、邮箱、手机号等校验）
- *
- * @author jishenghua
- */
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -17,11 +10,11 @@ import java.util.List;
  *
  * @author yubiao
  *         <p/>
- *         mysql鍖归厤姝ｅ垯琛ㄨ揪寮?
+ *         mysql匹配正则表达式
  */
 public class RegExpTools {
     /**
-     * @param search 妯＄硦鍖归厤瀛楃涓叉暟缁?
+     * @param search 模糊匹配字符串数组
      */
     public static String regexp(List<String> search) {
         if (search == null || search.isEmpty())
@@ -39,9 +32,9 @@ public class RegExpTools {
     }
 
     /**
-     * @param key    json瀛楁key
-     * @param search 妯＄硦鍖归厤瀛楃涓叉暟缁?
-     *               json鐨刴ysql鍖归厤姝ｅ垯琛ㄨ揪寮?
+     * @param key    json字段key
+     * @param search 模糊匹配字符串数组
+     *               json的mysql匹配正则表达式
      */
     public static String regexp(String key, List<String> search) {
         if (search == null || search.isEmpty())
@@ -96,13 +89,13 @@ public class RegExpTools {
         }
 
         public RegExp quote(String str) {
-            Assert.notNull(str, "str涓虹┖");
+            Assert.notNull(str, "str为空");
             builder.append(QUOTE).append(str).append(QUOTE);
             return this;
         }
 
         public RegExp value(String str) {
-            Assert.notNull(str, "str涓虹┖");
+            Assert.notNull(str, "str为空");
             builder.append(str);
             return this;
         }
@@ -113,7 +106,7 @@ public class RegExpTools {
         }
 
         public RegExp or(List<String> values) {
-            Assert.notEmpty(values, "values蹇呴』闈炵┖");
+            Assert.notEmpty(values, "values必须非空");
             lftParen();
             boolean first = true;
             for (String value : values) {

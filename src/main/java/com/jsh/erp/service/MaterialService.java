@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 商品（物料） Service
- * 提供商品信息的核心业务逻辑：新增/编辑/删除/查询/批量更新/条码管理/拼音转换
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -163,7 +156,7 @@ public class MaterialService {
     public int insertMaterial(JSONObject obj, HttpServletRequest request)throws Exception {
         Material m = JSONObject.parseObject(obj.toJSONString(), Material.class);
         m.setEnabled(true);
-        //鏋勯€犲灞炴€ф暟缁勫瓧绗︿覆
+        //构造多属性数组字符串
         m.setAttribute(parseAttributeBySku(obj));
         try{
             materialMapperEx.insertSelectiveEx(m);
@@ -191,7 +184,7 @@ public class MaterialService {
                     }
                 }
             }
-            logService.insertLog("鍟嗗搧",
+            logService.insertLog("商品",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(m.getName()).toString(), request);
             return 1;
         }
@@ -207,7 +200,7 @@ public class MaterialService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int updateMaterial(JSONObject obj, HttpServletRequest request) throws Exception{
         Material material = JSONObject.parseObject(obj.toJSONString(), Material.class);
-        //鏋勯€犲灞炴€ф暟缁勫瓧绗︿覆
+        //构造多属性数组字符串
         material.setAttribute(parseAttributeBySku(obj));
         try{
             materialMapper.updateByPrimaryKeySelective(material);
@@ -234,19 +227,19 @@ public class MaterialService {
                             highSafeStock = jsonObj.getBigDecimal("highSafeStock");
                         }
                         Long depotId = jsonObj.getLong("id");
-                        //鍒濆搴撳瓨-鍏堟竻闄ゅ啀鎻掑叆
+                        //初始库存-先清除再插入
                         MaterialInitialStockExample example = new MaterialInitialStockExample();
                         example.createCriteria().andMaterialIdEqualTo(material.getId()).andDepotIdEqualTo(depotId);
                         materialInitialStockMapper.deleteByExample(example);
                         if (StringUtil.isNotEmpty(number) || lowSafeStock!=null || highSafeStock!=null) {
                             insertInitialStockByMaterialAndDepot(depotId, material.getId(), parseBigDecimalEx(number), lowSafeStock, highSafeStock);
                         }
-                        //鏇存柊褰撳墠搴撳瓨
+                        //更新当前库存
                         depotItemService.updateCurrentStockFun(material.getId(), depotId, currentUnitPrice);
                     }
                 }
             }
-            logService.insertLog("鍟嗗搧",
+            logService.insertLog("商品",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(material.getName()).toString(), request);
             return 1;
         }catch(Exception e){
@@ -268,7 +261,7 @@ public class MaterialService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchDeleteMaterialByIds(String ids) throws Exception{
         String [] idArray=ids.split(",");
-        //鏍￠獙鍗曟嵁瀛愯〃	jsh_depot_item
+        //校验单据子表	jsh_depot_item
         List<DepotItem> depotItemList =null;
         try{
             depotItemList=  depotItemMapperEx.getDepotItemListListByMaterialIds(idArray);
@@ -276,15 +269,15 @@ public class MaterialService {
             JshException.readFail(logger, e);
         }
         if(depotItemList!=null&&depotItemList.size()>0){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,MaterialIds[{}]",
+            logger.error("异常码[{}],异常提示[{}],参数,MaterialIds[{}]",
                     ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,ExceptionConstants.DELETE_FORCE_CONFIRM_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.DELETE_FORCE_CONFIRM_CODE,
                     ExceptionConstants.DELETE_FORCE_CONFIRM_MSG);
         }
-        //璁板綍鏃ュ織
+        //记录日志
         StringBuffer sb = new StringBuffer();
         sb.append(BusinessConstants.LOG_OPERATION_TYPE_DELETE);
-        //璺緞鍒楄〃
+        //路径列表
         List<String> pathList = new ArrayList<>();
         List<Material> list = getMaterialListByIds(ids);
         for(Material material: list){
@@ -293,16 +286,16 @@ public class MaterialService {
                 pathList.add(material.getImgName());
             }
         }
-        logService.insertLog("鍟嗗搧", sb.toString(),
+        logService.insertLog("商品", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
-        //鏍￠獙閫氳繃鎵ц鍒犻櫎鎿嶄綔
+        //校验通过执行删除操作
         try{
-            //閫昏緫鍒犻櫎鍟嗗搧
+            //逻辑删除商品
             materialMapperEx.batchDeleteMaterialByIds(new Date(),userInfo==null?null:userInfo.getId(),idArray);
-            //閫昏緫鍒犻櫎鍟嗗搧浠锋牸鎵╁睍
+            //逻辑删除商品价格扩展
             materialExtendMapperEx.batchDeleteMaterialExtendByMIds(idArray);
-            //閫昏緫鍒犻櫎鏂囦欢
+            //逻辑删除文件
             systemConfigService.deleteFileByPathList(pathList);
             return 1;
         }catch(Exception e){
@@ -331,7 +324,7 @@ public class MaterialService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Boolean status, String ids)throws Exception {
-        logService.insertLog("鍟嗗搧",
+        logService.insertLog("商品",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(ids).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> materialIds = StringUtil.strToLongList(ids);
@@ -470,7 +463,7 @@ public class MaterialService {
             result = materialMapperEx.findBySelectWithBarCodeCount(idList, q, standardOrModel, color, brand, mfrs,
                     otherField1, otherField2, otherField3, enableSerialNumber, enableBatchNumber);
         }catch(Exception e){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],寮傚父[{}]",
+            logger.error("异常码[{}],异常提示[{}],异常[{}]",
                     ExceptionConstants.DATA_READ_FAIL_CODE,ExceptionConstants.DATA_READ_FAIL_MSG,e);
             throw new BusinessRunTimeException(ExceptionConstants.DATA_READ_FAIL_CODE,
                     ExceptionConstants.DATA_READ_FAIL_MSG);
@@ -481,38 +474,41 @@ public class MaterialService {
     public void exportExcel(String categoryId, String materialParam, String color, String materialOther, String weight,
                                              String expiryNum, String enabled, String enableSerialNumber, String enableBatchNumber,
                                              String remark, String mpList, HttpServletResponse response)throws Exception {
-        String title = "鍟嗗搧淇℃伅";
+        String title = "商品信息";
         List<Long> idList = new ArrayList<>();
         if(StringUtil.isNotEmpty(categoryId)){
             idList = getListByParentId(Long.parseLong(categoryId));
         }
-        //鏌ヨ鍟嗗搧涓绘潯鐮佺浉鍏冲垪琛?        List<MaterialVo4Unit> dataList = materialMapperEx.exportExcel(materialParam, color, materialOther, weight, expiryNum, enabled, enableSerialNumber,
+        //查询商品主条码相关列表
+        List<MaterialVo4Unit> dataList = materialMapperEx.exportExcel(materialParam, color, materialOther, weight, expiryNum, enabled, enableSerialNumber,
                 enableBatchNumber, remark, idList);
         if (null != dataList && dataList.size() > EXPORT_LIMIT) {
-            File file = ExcelUtils.exportObjectsOneSheet(title, "鍗曟瀵煎嚭鏉℃暟瓒呭嚭闄愬埗锛?涓囨潯锛?, new String[0], title, new ArrayList<>());
+            File file = ExcelUtils.exportObjectsOneSheet(title, "单次导出条数超出限制（1万条）", new String[0], title, new ArrayList<>());
             ExcelUtils.downloadExcel(file, file.getName(), response);
             return;
         }
-        //鏌ヨ鍟嗗搧鍓潯鐮佺浉鍏冲垪琛?        Map<Long, MaterialExtend> otherMaterialMap = new HashMap<>();
+        //查询商品副条码相关列表
+        Map<Long, MaterialExtend> otherMaterialMap = new HashMap<>();
         List<MaterialExtend> otherDataList = materialMapperEx.getOtherMaterialList();
         for(MaterialExtend me: otherDataList) {
-            //閬囧埌澶氫釜鍓潯鐮佺殑鎯呭喌锛屽彧鍔犵涓€涓?            otherMaterialMap.putIfAbsent(me.getMaterialId(), me);
+            //遇到多个副条码的情况，只加第一个
+            otherMaterialMap.putIfAbsent(me.getMaterialId(), me);
         }
-        String otherField = "鎵╁睍1,鎵╁睍2,鎵╁睍3";
+        String otherField = "扩展1,扩展2,扩展3";
         if(StringUtil.isNotEmpty(mpList)) {
             otherField = mpList;
         }
-        String nameStr = "鍚嶇О*,瑙勬牸,鍨嬪彿,棰滆壊,鍝佺墝,绫诲埆,鍩虹閲嶉噺(kg),淇濊川鏈?澶?,鍩烘湰鍗曚綅*,鍓崟浣?鍩烘湰鏉＄爜*,鍓潯鐮?姣斾緥,澶氬睘鎬?" +
-                "閲囪喘浠?闆跺敭浠?閿€鍞环,鏈€浣庡敭浠?鐘舵€?,搴忓垪鍙?鎵瑰彿,浠撲綅璐ф灦,鍒堕€犲晢," + otherField + ",澶囨敞";
+        String nameStr = "名称*,规格,型号,颜色,品牌,类别,基础重量(kg),保质期(天),基本单位*,副单位,基本条码*,副条码,比例,多属性," +
+                "采购价,零售价,销售价,最低售价,状态*,序列号,批号,仓位货架,制造商," + otherField + ",备注";
         List<String> nameList = StringUtil.strToStringList(nameStr);
-        //浠撳簱鍒楄〃
+        //仓库列表
         List<Depot> depotList = depotService.getAllList();
         if (nameList != null) {
             for(Depot depot: depotList) {
                 nameList.add(depot.getName());
             }
         }
-        //鏈熷垵搴撳瓨缂撳瓨
+        //期初库存缓存
         List<MaterialInitialStock> misList = materialInitialStockMapperEx.getListExceptZero();
         Map<String, BigDecimal> misMap = new HashMap<>();
         if (misList != null) {
@@ -552,7 +548,7 @@ public class MaterialService {
                 objs[24] = m.getOtherField2();
                 objs[25] = m.getOtherField3();
                 objs[26] = m.getRemark();
-                //浠撳簱鏈熷垵搴撳瓨
+                //仓库期初库存
                 int i = 27;
                 for(Depot depot: depotList) {
                     BigDecimal number = misMap.get(m.getId() + "_" + depot.getId());
@@ -562,7 +558,7 @@ public class MaterialService {
                 objects.add(objs);
             }
         }
-        File file = ExcelUtils.exportObjectsOneSheet(title, "*瀵煎叆鏃舵湰琛屽唴瀹硅鍕垮垹闄わ紝鍒囪锛?, names, title, objects);
+        File file = ExcelUtils.exportObjectsOneSheet(title, "*导入时本行内容请勿删除，切记！", names, title, objects);
         ExcelUtils.downloadExcel(file, file.getName(), response);
     }
 
@@ -571,7 +567,7 @@ public class MaterialService {
         BaseResponseInfo info = new BaseResponseInfo();
         try {
             Long beginTime = System.currentTimeMillis();
-            //鏂囦欢鎵╁睍鍚嶅彧鑳戒负xls
+            //文件扩展名只能为xls
             String fileName = file.getOriginalFilename();
             if(StringUtil.isNotEmpty(fileName)) {
                 String fileExt = fileName.substring(fileName.indexOf(".")+1);
@@ -582,48 +578,49 @@ public class MaterialService {
             }
             Workbook workbook = Workbook.getWorkbook(file.getInputStream());
             Sheet src = workbook.getSheet(0);
-            //鑾峰彇鐪熷疄鐨勮鏁帮紝鍓旈櫎鎺夌┖鐧借
+            //获取真实的行数，剔除掉空白行
             int rightRows = ExcelUtils.getRightRows(src);
             List<Depot> depotList= depotService.getDepot();
             int depotCount = depotList.size();
             Map<String, Long> depotMap = parseDepotToMap(depotList);
             User user = userService.getCurrentUser();
             List<MaterialWithInitStock> mList = new ArrayList<>();
-            //鍗曟瀵煎叆瓒呭嚭1000鏉?            if(rightRows > 1002) {
+            //单次导入超出1000条
+            if(rightRows > 1002) {
                 throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_IMPORT_OVER_LIMIT_CODE,
                         String.format(ExceptionConstants.MATERIAL_IMPORT_OVER_LIMIT_MSG));
             }
             for (int i = 2; i < rightRows; i++) {
-                String name = ExcelUtils.getContent(src, i, 0); //鍚嶇О
-                String standard = ExcelUtils.getContent(src, i, 1); //瑙勬牸
-                String model = ExcelUtils.getContent(src, i, 2); //鍨嬪彿
-                String color = ExcelUtils.getContent(src, i, 3); //棰滆壊
-                String brand = ExcelUtils.getContent(src, i, 4); //鍝佺墝
-                String categoryName = ExcelUtils.getContent(src, i, 5); //绫诲埆
-                String weight = ExcelUtils.getContent(src, i, 6); //鍩虹閲嶉噺(kg)
-                String expiryNum = ExcelUtils.getContent(src, i, 7); //淇濊川鏈?澶?
-                String unit = ExcelUtils.getContent(src, i, 8); //鍩烘湰鍗曚綅
-                //鍚嶇О涓虹┖
+                String name = ExcelUtils.getContent(src, i, 0); //名称
+                String standard = ExcelUtils.getContent(src, i, 1); //规格
+                String model = ExcelUtils.getContent(src, i, 2); //型号
+                String color = ExcelUtils.getContent(src, i, 3); //颜色
+                String brand = ExcelUtils.getContent(src, i, 4); //品牌
+                String categoryName = ExcelUtils.getContent(src, i, 5); //类别
+                String weight = ExcelUtils.getContent(src, i, 6); //基础重量(kg)
+                String expiryNum = ExcelUtils.getContent(src, i, 7); //保质期(天)
+                String unit = ExcelUtils.getContent(src, i, 8); //基本单位
+                //名称为空
                 if(StringUtil.isEmpty(name)) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_NAME_EMPTY_CODE,
                             String.format(ExceptionConstants.MATERIAL_NAME_EMPTY_MSG, i+1));
                 }
-                //鍚嶇О闀垮害瓒呭嚭
+                //名称长度超出
                 if(name.length()>100) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_NAME_OVER_CODE,
                             String.format(ExceptionConstants.MATERIAL_NAME_OVER_MSG, i+1));
                 }
-                //瑙勬牸闀垮害瓒呭嚭
+                //规格长度超出
                 if(StringUtil.isNotEmpty(standard) && standard.length()>100) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_STANDARD_OVER_CODE,
                             String.format(ExceptionConstants.MATERIAL_STANDARD_OVER_MSG, i+1));
                 }
-                //鍨嬪彿闀垮害瓒呭嚭
+                //型号长度超出
                 if(StringUtil.isNotEmpty(model) && model.length()>100) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_MODEL_OVER_CODE,
                             String.format(ExceptionConstants.MATERIAL_MODEL_OVER_MSG, i+1));
                 }
-                //鍩烘湰鍗曚綅涓虹┖
+                //基本单位为空
                 if(StringUtil.isEmpty(unit)) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_UNIT_EMPTY_CODE,
                             String.format(ExceptionConstants.MATERIAL_UNIT_EMPTY_MSG, i+1));
@@ -634,13 +631,14 @@ public class MaterialService {
                 m.setModel(model);
                 m.setColor(color);
                 m.setBrand(brand);
-                //閫氳繃鍚嶇О鐢熸垚鍔╄鐮?                m.setMnemonic(PinYinUtil.getFirstLettersLo(name));
+                //通过名称生成助记码
+                m.setMnemonic(PinYinUtil.getFirstLettersLo(name));
                 Long categoryId = materialCategoryService.getCategoryIdByName(categoryName);
                 if(null!=categoryId){
                     m.setCategoryId(categoryId);
                 }
                 if(StringUtil.isNotEmpty(weight)) {
-                    //鏍￠獙鍩虹閲嶉噺鏄惁鏄暟瀛楋紙鍚皬鏁帮級
+                    //校验基础重量是否是数字（含小数）
                     if(!StringUtil.isPositiveBigDecimal(weight)) {
                         throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_WEIGHT_NOT_DECIMAL_CODE,
                                 String.format(ExceptionConstants.MATERIAL_WEIGHT_NOT_DECIMAL_MSG, i+1));
@@ -648,47 +646,60 @@ public class MaterialService {
                     m.setWeight(new BigDecimal(weight));
                 }
                 if(StringUtil.isNotEmpty(expiryNum)) {
-                    //鏍￠獙淇濊川鏈熸槸鍚︽槸姝ｆ暣鏁?                    if(!StringUtil.isPositiveLong(expiryNum)) {
+                    //校验保质期是否是正整数
+                    if(!StringUtil.isPositiveLong(expiryNum)) {
                         throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_EXPIRY_NUM_NOT_INTEGER_CODE,
                                 String.format(ExceptionConstants.MATERIAL_EXPIRY_NUM_NOT_INTEGER_MSG, i+1));
                     }
                     m.setExpiryNum(Integer.parseInt(expiryNum));
                 }
-                String manyUnit = ExcelUtils.getContent(src, i, 9); //鍓崟浣?                String barCode = ExcelUtils.getContent(src, i, 10); //鍩虹鏉＄爜
-                String manyBarCode = ExcelUtils.getContent(src, i, 11); //鍓潯鐮?                String ratio = ExcelUtils.getContent(src, i, 12); //姣斾緥
-                String sku = ExcelUtils.getContent(src, i, 13); //澶氬睘鎬?                String purchaseDecimal = ExcelUtils.getContent(src, i, 14); //閲囪喘浠?                String commodityDecimal = ExcelUtils.getContent(src, i, 15); //闆跺敭浠?                String wholesaleDecimal = ExcelUtils.getContent(src, i, 16); //閿€鍞环
-                String lowDecimal = ExcelUtils.getContent(src, i, 17); //鏈€浣庡敭浠?                String enabled = ExcelUtils.getContent(src, i, 18); //鐘舵€?                String enableSerialNumber = ExcelUtils.getContent(src, i, 19); //搴忓垪鍙?                String enableBatchNumber = ExcelUtils.getContent(src, i, 20); //鎵瑰彿
-                String position = ExcelUtils.getContent(src, i, 21); //浠撲綅璐ф灦
-                String mfrs = ExcelUtils.getContent(src, i, 22); //鍒堕€犲晢
-                String otherField1 = ExcelUtils.getContent(src, i, 23); //鑷畾涔?
-                String otherField2 = ExcelUtils.getContent(src, i, 24); //鑷畾涔?
-                String otherField3 = ExcelUtils.getContent(src, i, 25); //鑷畾涔?
-                String remark = ExcelUtils.getContent(src, i, 26); //澶囨敞
+                String manyUnit = ExcelUtils.getContent(src, i, 9); //副单位
+                String barCode = ExcelUtils.getContent(src, i, 10); //基础条码
+                String manyBarCode = ExcelUtils.getContent(src, i, 11); //副条码
+                String ratio = ExcelUtils.getContent(src, i, 12); //比例
+                String sku = ExcelUtils.getContent(src, i, 13); //多属性
+                String purchaseDecimal = ExcelUtils.getContent(src, i, 14); //采购价
+                String commodityDecimal = ExcelUtils.getContent(src, i, 15); //零售价
+                String wholesaleDecimal = ExcelUtils.getContent(src, i, 16); //销售价
+                String lowDecimal = ExcelUtils.getContent(src, i, 17); //最低售价
+                String enabled = ExcelUtils.getContent(src, i, 18); //状态
+                String enableSerialNumber = ExcelUtils.getContent(src, i, 19); //序列号
+                String enableBatchNumber = ExcelUtils.getContent(src, i, 20); //批号
+                String position = ExcelUtils.getContent(src, i, 21); //仓位货架
+                String mfrs = ExcelUtils.getContent(src, i, 22); //制造商
+                String otherField1 = ExcelUtils.getContent(src, i, 23); //自定义1
+                String otherField2 = ExcelUtils.getContent(src, i, 24); //自定义2
+                String otherField3 = ExcelUtils.getContent(src, i, 25); //自定义3
+                String remark = ExcelUtils.getContent(src, i, 26); //备注
                 m.setPosition(StringUtil.isNotEmpty(position)?position:null);
                 m.setMfrs(StringUtil.isNotEmpty(mfrs)?mfrs:null);
                 m.setOtherField1(StringUtil.isNotEmpty(otherField1)?otherField1:null);
                 m.setOtherField2(StringUtil.isNotEmpty(otherField2)?otherField2:null);
                 m.setOtherField3(StringUtil.isNotEmpty(otherField3)?otherField3:null);
                 m.setRemark(remark);
-                //鐘舵€佹牸寮忛敊璇?                if(!"1".equals(enabled) && !"0".equals(enabled)) {
+                //状态格式错误
+                if(!"1".equals(enabled) && !"0".equals(enabled)) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_ENABLED_ERROR_CODE,
                             String.format(ExceptionConstants.MATERIAL_ENABLED_ERROR_MSG, i+1));
                 }
-                //鍩烘湰鏉＄爜涓虹┖
+                //基本条码为空
                 if(StringUtil.isEmpty(barCode)) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_BARCODE_EMPTY_CODE,
                             String.format(ExceptionConstants.MATERIAL_BARCODE_EMPTY_MSG, i+1));
                 }
-                //鏍￠獙鍩烘湰鏉＄爜闀垮害涓?鍒?0浣?                if(!StringUtil.checkBarCodeLength(barCode)) {
+                //校验基本条码长度为4到40位
+                if(!StringUtil.checkBarCodeLength(barCode)) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_BARCODE_LENGTH_ERROR_CODE,
                             String.format(ExceptionConstants.MATERIAL_BARCODE_LENGTH_ERROR_MSG, barCode));
                 }
-                //鏍￠獙鍓潯鐮侀暱搴︿负4鍒?0浣?                if(StringUtil.isNotEmpty(manyBarCode) && !StringUtil.checkBarCodeLength(manyBarCode)) {
+                //校验副条码长度为4到40位
+                if(StringUtil.isNotEmpty(manyBarCode) && !StringUtil.checkBarCodeLength(manyBarCode)) {
                     throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_BARCODE_LENGTH_ERROR_CODE,
                             String.format(ExceptionConstants.MATERIAL_BARCODE_LENGTH_ERROR_MSG, manyBarCode));
                 }
-                //鎵归噺鏍￠獙excel涓湁鏃犻噸澶嶅晢鍝侊紝鏄寚鍚嶇О銆佽鏍笺€佸瀷鍙枫€侀鑹层€佸崟浣嶃€佸灞炴€?                batchCheckExistMaterialListByParam(mList, name, standard, model, color, unit, sku);
-                //鎵归噺鏍￠獙excel涓湁鏃犻噸澶嶆潯鐮侊紙1-鏂囨。鑷韩鏍￠獙锛?-鍜屾暟鎹簱閲岄潰鐨勫晢鍝佹牎楠岋級
+                //批量校验excel中有无重复商品，是指名称、规格、型号、颜色、单位、多属性
+                batchCheckExistMaterialListByParam(mList, name, standard, model, color, unit, sku);
+                //批量校验excel中有无重复条码（1-文档自身校验，2-和数据库里面的商品校验）
                 batchCheckExistBarCodeByParam(mList, barCode, manyBarCode);
                 JSONObject materialExObj = new JSONObject();
                 JSONObject basicObj = new JSONObject();
@@ -700,7 +711,8 @@ public class MaterialService {
                 basicObj.put("wholesaleDecimal", wholesaleDecimal);
                 basicObj.put("lowDecimal", lowDecimal);
                 materialExObj.put("basic", basicObj);
-                if(StringUtil.isNotEmpty(manyUnit) && StringUtil.isNotEmpty(ratio)){ //澶氬崟浣?                    //鏍￠獙姣斾緥鏄惁鏄暟瀛楋紙鍚皬鏁帮級
+                if(StringUtil.isNotEmpty(manyUnit) && StringUtil.isNotEmpty(ratio)){ //多单位
+                    //校验比例是否是数字（含小数）
                     if(!StringUtil.isPositiveBigDecimal(ratio.trim())) {
                         throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_RATIO_NOT_INTEGER_CODE,
                                 String.format(ExceptionConstants.MATERIAL_RATIO_NOT_INTEGER_MSG, i+1));
@@ -748,11 +760,12 @@ public class MaterialService {
             List<Long> deleteCurrentStockMaterialIdList = new ArrayList<>();
             List<MaterialInitialStock> insertInitialStockMaterialList = new ArrayList<>();
             List<MaterialCurrentStock> insertCurrentStockMaterialList = new ArrayList<>();
-            //闃叉鍒濆搴撳瓨鍜屽綋鍓嶅簱瀛樺嚭鐜伴噸澶?            Map<String, String> materialDepotInitialMap = new HashMap<>();
+            //防止初始库存和当前库存出现重复
+            Map<String, String> materialDepotInitialMap = new HashMap<>();
             Map<String, String> materialDepotCurrentMap = new HashMap<>();
             for(MaterialWithInitStock m: mList) {
                 Long mId = 0L;
-                //鍒ゆ柇璇ュ晢鍝佹槸鍚﹀瓨鍦紝濡傛灉涓嶅瓨鍦ㄥ氨鏂板锛屽鏋滃瓨鍦ㄥ氨鏇存柊
+                //判断该商品是否存在，如果不存在就新增，如果存在就更新
                 String basicBarCode = getBasicBarCode(m);
                 List<Material> materials = getMaterialListByParam(m.getName(),m.getStandard(),m.getModel(),m.getColor(),m.getUnit(),m.getUnitId(), basicBarCode);
                 if(materials.size() == 0) {
@@ -764,24 +777,30 @@ public class MaterialService {
                     Material material = JSONObject.parseObject(materialJson, Material.class);
                     material.setId(mId);
                     materialMapper.updateByPrimaryKeySelective(material);
-                    //鏇存柊澶氬崟浣?                    if(material.getUnitId() == null) {
+                    //更新多单位
+                    if(material.getUnitId() == null) {
                         materialMapperEx.setUnitIdToNull(material.getId());
                     }
-                    //濡傛灉涔嬪墠鏈変繚璐ㄦ湡锛屽垯鏇存柊淇濊川鏈?                    if(materials.get(0).getExpiryNum()!=null && material.getExpiryNum() == null) {
+                    //如果之前有保质期，则更新保质期
+                    if(materials.get(0).getExpiryNum()!=null && material.getExpiryNum() == null) {
                         materialMapperEx.setExpiryNumToNull(material.getId());
                     }
                 }
-                //缁欏晢鍝佹柊澧炴垨鏇存柊鏉＄爜涓庝环鏍肩浉鍏充俊鎭?                JSONObject materialExObj = m.getMaterialExObj();
+                //给商品新增或更新条码与价格相关信息
+                JSONObject materialExObj = m.getMaterialExObj();
                 insertOrUpdateMaterialExtend(materialExObj, "basic", "1", mId, user);
                 insertOrUpdateMaterialExtend(materialExObj, "other", "0", mId, user);
-                //缁欏晢鍝佹洿鏂板簱瀛?                Map<Long, BigDecimal> stockMap = m.getStockMap();
+                //给商品更新库存
+                Map<Long, BigDecimal> stockMap = m.getStockMap();
                 for(Depot depot: depotList){
                     Long depotId = depot.getId();
                     String materialDepotKey = mId + "_" + depotId;
-                    //鑾峰彇鍒濆搴撳瓨
+                    //获取初始库存
                     BigDecimal initStock = getInitStock(mId, depotId);
-                    //excel閲岄潰鐨勫綋鍓嶅簱瀛?                    BigDecimal stock = stockMap.get(depot.getId());
-                    //鏂板鎴栨洿鏂板垵濮嬪簱瀛?                    if(stock!=null && stock.compareTo(BigDecimal.ZERO)!=0) {
+                    //excel里面的当前库存
+                    BigDecimal stock = stockMap.get(depot.getId());
+                    //新增或更新初始库存
+                    if(stock!=null && stock.compareTo(BigDecimal.ZERO)!=0) {
                         String basicStr = materialExObj.getString("basic");
                         MaterialExtend materialExtend = JSONObject.parseObject(basicStr, MaterialExtend.class);
                         if(StringUtil.isNotEmpty(materialExtend.getSku())) {
@@ -794,7 +813,8 @@ public class MaterialService {
                             buildChangeInitialStock(deleteInitialStockMaterialIdList, insertInitialStockMaterialList, materialDepotInitialMap, mId, depotId, materialDepotKey, stock);
                         }
                     }
-                    //鏂板鎴栨洿鏂板綋鍓嶅簱瀛?                    Long billCount = depotItemService.getCountByMaterialAndDepot(mId, depotId);
+                    //新增或更新当前库存
+                    Long billCount = depotItemService.getCountByMaterialAndDepot(mId, depotId);
                     if(billCount == 0) {
                         if(stock!=null && stock.compareTo(BigDecimal.ZERO)!=0) {
                             buildChangeCurrentStock(deleteCurrentStockMaterialIdList, insertCurrentStockMaterialList, materialDepotCurrentMap, mId, depotId, materialDepotKey, stock);
@@ -805,7 +825,7 @@ public class MaterialService {
                         }
                     } else {
                         BigDecimal currentNumber = getCurrentStockByMaterialIdAndDepotId(mId, depotId);
-                        //褰撳墠搴撳瓨鐨勬洿鏂帮細鍑忓幓鍒濆搴撳瓨锛屽啀鍔犱笂瀵煎叆鐨勬柊鍒濆搴撳瓨
+                        //当前库存的更新：减去初始库存，再加上导入的新初始库存
                         if(currentNumber!=null && initStock!=null && stock!=null) {
                             currentNumber = currentNumber.subtract(initStock).add(stock);
                         }
@@ -813,7 +833,7 @@ public class MaterialService {
                     }
                 }
             }
-            //鎵归噺鏇存柊搴撳瓨,鍏堝垹闄ゅ悗鏂板
+            //批量更新库存,先删除后新增
             if(insertInitialStockMaterialList.size()>0) {
                 batchDeleteInitialStockByMaterialList(deleteInitialStockMaterialIdList);
                 materialInitialStockMapperEx.batchInsert(insertInitialStockMaterialList);
@@ -822,26 +842,26 @@ public class MaterialService {
                 batchDeleteCurrentStockByMaterialList(deleteCurrentStockMaterialIdList);
                 materialCurrentStockMapperEx.batchInsert(insertCurrentStockMaterialList);
             }
-            logService.insertLog("鍟嗗搧",
+            logService.insertLog("商品",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_IMPORT).append(mList.size()).append(BusinessConstants.LOG_DATA_UNIT).toString(),
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             Long endTime = System.currentTimeMillis();
-            logger.info("瀵煎叆鑰楁椂锛歿}", endTime-beginTime);
+            logger.info("导入耗时：{}", endTime-beginTime);
             info.code = 200;
-            info.data = "瀵煎叆鎴愬姛";
+            info.data = "导入成功";
         } catch (BusinessRunTimeException e) {
             info.code = e.getCode();
             info.data = e.getData().get("message");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             info.code = 500;
-            info.data = "瀵煎叆澶辫触";
+            info.data = "导入失败";
         }
         return info;
     }
 
     /**
-     * 鏋勯€犲垵濮嬪簱瀛樼殑鍙樺寲
+     * 构造初始库存的变化
      */
     private void buildChangeInitialStock(List<Long> deleteInitialStockMaterialIdList, List<MaterialInitialStock> insertInitialStockMaterialList,
                                          Map<String, String> materialDepotInitialMap, Long mId, Long depotId, String materialDepotKey, BigDecimal stock) {
@@ -857,7 +877,7 @@ public class MaterialService {
     }
 
     /**
-     * 鏋勯€犲綋鍓嶅簱瀛樼殑鍙樺寲
+     * 构造当前库存的变化
      */
     private void buildChangeCurrentStock(List<Long> deleteCurrentStockMaterialIdList, List<MaterialCurrentStock> insertCurrentStockMaterialList,
                                          Map<String, String> materialDepotCurrentMap, Long mId, Long depotId, String materialDepotKey, BigDecimal stock) {
@@ -881,7 +901,8 @@ public class MaterialService {
     }
 
     /**
-     * 缂撳瓨鍚勪釜浠撳簱鐨勫簱瀛樹俊鎭?     * @param src
+     * 缓存各个仓库的库存信息
+     * @param src
      * @param depotCount
      * @param depotMap
      * @param i
@@ -893,7 +914,7 @@ public class MaterialService {
         for(int j = 1; j<= depotCount; j++) {
             int col = 26 + j;
             if(col < src.getColumns()){
-                String depotName = ExcelUtils.getContent(src, 1, col); //鑾峰彇浠撳簱鍚嶇О
+                String depotName = ExcelUtils.getContent(src, 1, col); //获取仓库名称
                 if(StringUtil.isNotEmpty(depotName)) {
                     Long depotId = depotMap.get(depotName);
                     if(depotId!=null && depotId!=0L){
@@ -909,7 +930,8 @@ public class MaterialService {
     }
 
     /**
-     * 鎵归噺鏍￠獙excel涓湁鏃犻噸澶嶅晢鍝侊紝鏄寚鍚嶇О銆佽鏍笺€佸瀷鍙枫€侀鑹层€佸崟浣?     * @param mList
+     * 批量校验excel中有无重复商品，是指名称、规格、型号、颜色、单位
+     * @param mList
      */
     public void batchCheckExistMaterialListByParam(List<MaterialWithInitStock> mList, String name, String standard,
                                                    String model, String color, String unit, String sku) {
@@ -936,18 +958,19 @@ public class MaterialService {
     }
 
     /**
-     * 鎵归噺鏍￠獙excel涓湁鏃犻噸澶嶆潯鐮侊紙1-鏂囨。鑷韩鏍￠獙锛?-鍜屾暟鎹簱閲岄潰鐨勫晢鍝佹牎楠岋級
+     * 批量校验excel中有无重复条码（1-文档自身校验，2-和数据库里面的商品校验）
      * @param mList
      */
     public void batchCheckExistBarCodeByParam(List<MaterialWithInitStock> mList,
                                               String barCode, String manyBarCode) throws Exception {
         if(StringUtil.isNotEmpty(manyBarCode)) {
             if(barCode.equals(manyBarCode)) {
-                //鍚屼竴涓晢鍝佺殑涓诲壇鏉＄爜閲嶅浜嗭紝杩涜鎻愰啋
+                //同一个商品的主副条码重复了，进行提醒
                 throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_EXCEL_IMPORT_BARCODE_EXIST_CODE,
                         String.format(ExceptionConstants.MATERIAL_EXCEL_IMPORT_BARCODE_EXIST_MSG, manyBarCode));
             }
-            //EXCEL涓湁鍓潯鐮佸湪绯荤粺涓凡瀛樺湪锛堥櫎鑷韩鍟嗗搧涔嬪锛?            int count = materialExtendService.getCountByManyBarCodeWithoutUs(manyBarCode, barCode);
+            //EXCEL中有副条码在系统中已存在（除自身商品之外）
+            int count = materialExtendService.getCountByManyBarCodeWithoutUs(manyBarCode, barCode);
             if (count>0) {
                 throw new BusinessRunTimeException(ExceptionConstants.MATERIAL_EXCEL_IMPORT_MANY_BARCODE_EXIST_CODE,
                         String.format(ExceptionConstants.MATERIAL_EXCEL_IMPORT_MANY_BARCODE_EXIST_MSG, manyBarCode));
@@ -979,7 +1002,8 @@ public class MaterialService {
     }
 
     /**
-     * 缁欏晢鍝佹柊澧炴垨鏇存柊鏉＄爜涓庝环鏍肩浉鍏充俊鎭?     * @param materialExObj
+     * 给商品新增或更新条码与价格相关信息
+     * @param materialExObj
      * @param type
      * @param defaultFlag
      * @param mId
@@ -998,7 +1022,7 @@ public class MaterialService {
             materialExtend.setUpdateSerial(user.getLoginName());
             Long meId = 0L;
             if(StringUtil.isNotEmpty(materialExtend.getSku())){
-                //鍚玸ku鐨勫晢鍝侊紝鐗规畩閫昏緫
+                //含sku的商品，特殊逻辑
                 meId = materialExtendService.selectIdByMaterialIdAndBarCode(mId, materialExtend.getBarCode());
                 List<MaterialExtend> meList = materialExtendService.getListByMaterialIdAndDefaultFlagAndBarCode(mId, "1", materialExtend.getBarCode());
                 if(meList.size() == 0) {
@@ -1014,7 +1038,8 @@ public class MaterialService {
             } else {
                 materialExtend.setId(meId);
                 materialExtendMapper.updateByPrimaryKeySelective(materialExtend);
-                //濡傛灉閲戦涓虹┖锛屾澶勫崟鐙疆绌?                materialExtendMapperEx.specialUpdatePrice(materialExtend);
+                //如果金额为空，此处单独置空
+                materialExtendMapperEx.specialUpdatePrice(materialExtend);
             }
         }
     }
@@ -1031,7 +1056,7 @@ public class MaterialService {
     }
 
     /**
-     * 鏍规嵁鏉′欢杩斿洖浜у搧鍒楄〃
+     * 根据条件返回产品列表
      * @param name
      * @param standard
      * @param model
@@ -1063,7 +1088,8 @@ public class MaterialService {
         criteria.andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         list = materialMapper.selectByExample(example);
         if(list.size()==0) {
-            //濡傛灉閫氳繃缁勫悎鏉′欢娌℃湁鏌ュ埌璇ュ晢鍝侊紝鍒欓€氳繃鏉＄爜鍐嶆煡涓€娆?            MaterialExtend materialExtend = materialExtendService.getInfoByBarCode(basicBarCode);
+            //如果通过组合条件没有查到该商品，则通过条码再查一次
+            MaterialExtend materialExtend = materialExtendService.getInfoByBarCode(basicBarCode);
             if(materialExtend != null && materialExtend.getMaterialId()!=null) {
                 Material material = new Material();
                 material.setId(materialExtend.getMaterialId());
@@ -1074,7 +1100,7 @@ public class MaterialService {
     }
 
     /**
-     * 鍐欏叆鍒濆搴撳瓨
+     * 写入初始库存
      * @param depotId
      * @param mId
      * @param stock
@@ -1092,11 +1118,11 @@ public class MaterialService {
         if(highSafeStock!=null) {
             materialInitialStock.setHighSafeStock(highSafeStock);
         }
-        materialInitialStockMapper.insertSelective(materialInitialStock); //瀛樺叆鍒濆搴撳瓨
+        materialInitialStockMapper.insertSelective(materialInitialStock); //存入初始库存
     }
 
     /**
-     * 鍐欏叆褰撳墠搴撳瓨
+     * 写入当前库存
      * @param depotId
      * @param mId
      * @param stock
@@ -1107,11 +1133,11 @@ public class MaterialService {
         materialCurrentStock.setDepotId(depotId);
         materialCurrentStock.setMaterialId(mId);
         materialCurrentStock.setCurrentNumber(stock);
-        materialCurrentStockMapper.insertSelective(materialCurrentStock); //瀛樺叆鍒濆搴撳瓨
+        materialCurrentStockMapper.insertSelective(materialCurrentStock); //存入初始库存
     }
 
     /**
-     * 鎵归噺鍒犻櫎鍒濆搴撳瓨
+     * 批量删除初始库存
      * @param mIdList
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
@@ -1122,7 +1148,7 @@ public class MaterialService {
     }
 
     /**
-     * 鎵归噺鍒犻櫎褰撳墠搴撳瓨
+     * 批量删除当前库存
      * @param mIdList
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
@@ -1171,7 +1197,8 @@ public class MaterialService {
     }
 
     /**
-     * 鏍规嵁鍟嗗搧鑾峰彇鍒濆搴撳瓨-澶氫粨搴?     * @param depotList
+     * 根据商品获取初始库存-多仓库
+     * @param depotList
      * @param materialId
      * @return
      */
@@ -1197,7 +1224,8 @@ public class MaterialService {
     }
 
     /**
-     * 鏍规嵁鍟嗗搧鍜屼粨搴撹幏鍙栧垵濮嬪簱瀛?     * @param materialId
+     * 根据商品和仓库获取初始库存
+     * @param materialId
      * @param depotId
      * @return
      */
@@ -1214,7 +1242,8 @@ public class MaterialService {
     }
 
     /**
-     * 鏍规嵁鍟嗗搧鍜屼粨搴撹幏鍙栧綋鍓嶅簱瀛?     * @param materialId
+     * 根据商品和仓库获取当前库存
+     * @param materialId
      * @param depotId
      * @return
      */
@@ -1233,7 +1262,7 @@ public class MaterialService {
     }
 
     /**
-     * 鏍规嵁鍟嗗搧鍒楄〃鑾峰彇鍒濆搴撳瓨Map
+     * 根据商品列表获取初始库存Map
      * @param list
      * @return
      */
@@ -1251,7 +1280,7 @@ public class MaterialService {
     }
 
     /**
-     * 鏍规嵁鍟嗗搧鍒楄〃鑾峰彇褰撳墠搴撳瓨Map
+     * 根据商品列表获取当前库存Map
      * @param list
      * @return
      */
@@ -1269,7 +1298,8 @@ public class MaterialService {
     }
 
     /**
-     * 鏍规嵁鍟嗗搧鍜屼粨搴撹幏鍙栧畨鍏ㄥ簱瀛樹俊鎭?     * @param materialId
+     * 根据商品和仓库获取安全库存信息
+     * @param materialId
      * @param depotId
      * @return
      */
@@ -1299,11 +1329,13 @@ public class MaterialService {
 
     public String getMaxBarCode() {
         List<String> barCodeOldList = materialMapperEx.getBarCodeList();
-        // 浣跨敤 Stream API 澶勭悊鏉＄爜鍒楄〃
-        // 浣跨敤 BigInteger 澶勭悊鍙兘鐨勫ぇ鏁板瓧
+        // 使用 Stream API 处理条码列表
+        // 使用 BigInteger 处理可能的大数字
         Optional<BigInteger> maxBarcode = barCodeOldList.stream()
-                .filter(StringUtil::isNumeric)   // 杩囨护鎺夐潪鏁板瓧鏉＄爜
-                .map(BigInteger::new)            // 浣跨敤 BigInteger 鏋勯€犲嚱鏁?                .max(Comparator.naturalOrder()); // 鑾峰彇鏈€澶у€?        // 濡傛灉瀛樺湪鏈€澶у€硷紝杩斿洖瀹冿紱鍚﹀垯杩斿洖 1000L
+                .filter(StringUtil::isNumeric)   // 过滤掉非数字条码
+                .map(BigInteger::new)            // 使用 BigInteger 构造函数
+                .max(Comparator.naturalOrder()); // 获取最大值
+        // 如果存在最大值，返回它；否则返回 1000L
         BigInteger maxBarCodeOld = maxBarcode.orElse(new BigInteger("1000"));
         return maxBarCodeOld.toString();
     }
@@ -1340,7 +1372,7 @@ public class MaterialService {
                 item.setPurchaseDecimal(item.getCurrentUnitPrice());
                 item.setCurrentStockPrice(item.getCurrentStockMovePrice());
             }
-            item.setUnitName(null!=item.getUnitId()?item.getUnitName() + "[澶氬崟浣峕":item.getUnitName());
+            item.setUnitName(null!=item.getUnitId()?item.getUnitName() + "[多单位]":item.getUnitName());
             item.setInitialStock(null!=initialStockMap.get(item.getId())?initialStockMap.get(item.getId()):BigDecimal.ZERO);
             item.setBigUnitStock(getBigUnitStock(item.getCurrentStock(), item.getUnitId()));
             if(fileUploadType == 2) {
@@ -1360,7 +1392,7 @@ public class MaterialService {
     }
 
     /**
-     * 灏嗗皬鍗曚綅鐨勫簱瀛樻崲绠椾负澶у崟浣嶇殑搴撳瓨
+     * 将小单位的库存换算为大单位的库存
      * @param stock
      * @param unitId
      * @return
@@ -1378,20 +1410,21 @@ public class MaterialService {
     }
 
     /**
-     * 鏋勯€犳墿灞曚俊鎭?     * @param mpArr
+     * 构造扩展信息
+     * @param mpArr
      * @param m
      * @return
      */
     public String getMaterialOtherByParam(String[] mpArr, MaterialVo4Unit m) {
         String materialOther = "";
         for (int i = 0; i < mpArr.length; i++) {
-            if (mpArr[i].equals("鑷畾涔?")) {
+            if (mpArr[i].equals("自定义1")) {
                 materialOther = materialOther + ((m.getOtherField1() == null || m.getOtherField1().equals("")) ? "" : "(" + m.getOtherField1() + ")");
             }
-            if (mpArr[i].equals("鑷畾涔?")) {
+            if (mpArr[i].equals("自定义2")) {
                 materialOther = materialOther + ((m.getOtherField2() == null || m.getOtherField2().equals("")) ? "" : "(" + m.getOtherField2() + ")");
             }
-            if (mpArr[i].equals("鑷畾涔?")) {
+            if (mpArr[i].equals("自定义3")) {
                 materialOther = materialOther + ((m.getOtherField3() == null || m.getOtherField3().equals("")) ? "" : "(" + m.getOtherField3() + ")");
             }
         }
@@ -1444,7 +1477,7 @@ public class MaterialService {
     }
 
     /**
-     * 鏋勯€犲灞炴€ф暟缁勫瓧绗︿覆
+     * 构造多属性数组字符串
      * @param obj
      * @return
      */

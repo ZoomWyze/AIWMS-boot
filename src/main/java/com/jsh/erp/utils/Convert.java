@@ -1,29 +1,25 @@
-﻿package com.jsh.erp.utils;
+package com.jsh.erp.utils;
 
-
-/**
- * 类型转换工具类
- * 提供常用的数据类型转换方法（String 转 Integer/Long 等）
- *
- * @author jishenghua
- */
 import com.jsh.erp.utils.StringUtil;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 
 /**
- * 绫诲瀷杞崲鍣? *
+ * 类型转换器
+ *
  * @author ji-sheng-hua
  */
 public class Convert
 {
     /**
-     * 杞崲涓哄瓧绗︿覆<br>
-     * 濡傛灉缁欏畾鐨勫€间负null锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为字符串<br>
+     * 如果给定的值为null，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static String toStr(Object value, String defaultValue)
     {
@@ -39,11 +35,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓哄瓧绗︿覆<br>
-     * 濡傛灉缁欏畾鐨勫€间负<code>null</code>锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为字符串<br>
+     * 如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static String toStr(Object value)
     {
@@ -51,11 +48,13 @@ public class Convert
     }
 
     /**
-     * 杞崲涓哄瓧绗?br>
-     * 濡傛灉缁欏畾鐨勫€间负null锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为字符<br>
+     * 如果给定的值为null，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static Character toChar(Object value, Character defaultValue)
     {
@@ -73,11 +72,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓哄瓧绗?br>
-     * 濡傛灉缁欏畾鐨勫€间负<code>null</code>锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为字符<br>
+     * 如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static Character toChar(Object value)
     {
@@ -85,11 +85,13 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篵yte<br>
-     * 濡傛灉缁欏畾鐨勫€间负<code>null</code>锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为byte<br>
+     * 如果给定的值为<code>null</code>，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static Byte toByte(Object value, Byte defaultValue)
     {
@@ -121,11 +123,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篵yte<br>
-     * 濡傛灉缁欏畾鐨勫€间负<code>null</code>锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为byte<br>
+     * 如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static Byte toByte(Object value)
     {
@@ -133,11 +136,13 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篠hort<br>
-     * 濡傛灉缁欏畾鐨勫€间负<code>null</code>锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为Short<br>
+     * 如果给定的值为<code>null</code>，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static Short toShort(Object value, Short defaultValue)
     {
@@ -169,11 +174,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篠hort<br>
-     * 濡傛灉缁欏畾鐨勫€间负<code>null</code>锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为Short<br>
+     * 如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static Short toShort(Object value)
     {
@@ -181,11 +187,13 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篘umber<br>
-     * 濡傛灉缁欏畾鐨勫€间负绌猴紝鎴栬€呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为Number<br>
+     * 如果给定的值为空，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static Number toNumber(Object value, Number defaultValue)
     {
@@ -213,11 +221,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篘umber<br>
-     * 濡傛灉缁欏畾鐨勫€间负绌猴紝鎴栬€呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为Number<br>
+     * 如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static Number toNumber(Object value)
     {
@@ -225,11 +234,13 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篿nt<br>
-     * 濡傛灉缁欏畾鐨勫€间负绌猴紝鎴栬€呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为int<br>
+     * 如果给定的值为空，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static Integer toInt(Object value, Integer defaultValue)
     {
@@ -261,11 +272,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篿nt<br>
-     * 濡傛灉缁欏畾鐨勫€间负<code>null</code>锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为int<br>
+     * 如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static Integer toInt(Object value)
     {
@@ -273,9 +285,10 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篒nteger鏁扮粍<br>
+     * 转换为Integer数组<br>
      *
-     * @param str 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param str 被转换的值
+     * @return 结果
      */
     public static Integer[] toIntArray(String str)
     {
@@ -283,9 +296,10 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篖ong鏁扮粍<br>
+     * 转换为Long数组<br>
      *
-     * @param str 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param str 被转换的值
+     * @return 结果
      */
     public static Long[] toLongArray(String str)
     {
@@ -293,9 +307,11 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篒nteger鏁扮粍<br>
+     * 转换为Integer数组<br>
      *
-     * @param split 鍒嗛殧绗?     * @param split 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param split 分隔符
+     * @param split 被转换的值
+     * @return 结果
      */
     public static Integer[] toIntArray(String split, String str)
     {
@@ -314,9 +330,11 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篖ong鏁扮粍<br>
+     * 转换为Long数组<br>
      *
-     * @param split 鍒嗛殧绗?     * @param str 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param split 分隔符
+     * @param str 被转换的值
+     * @return 结果
      */
     public static Long[] toLongArray(String split, String str)
     {
@@ -335,9 +353,10 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篠tring鏁扮粍<br>
+     * 转换为String数组<br>
      *
-     * @param str 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param str 被转换的值
+     * @return 结果
      */
     public static String[] toStrArray(String str)
     {
@@ -345,9 +364,11 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篠tring鏁扮粍<br>
+     * 转换为String数组<br>
      *
-     * @param split 鍒嗛殧绗?     * @param split 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param split 分隔符
+     * @param split 被转换的值
+     * @return 结果
      */
     public static String[] toStrArray(String split, String str)
     {
@@ -355,11 +376,13 @@ public class Convert
     }
 
     /**
-     * 杞崲涓簂ong<br>
-     * 濡傛灉缁欏畾鐨勫€间负绌猴紝鎴栬€呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为long<br>
+     * 如果给定的值为空，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static Long toLong(Object value, Long defaultValue)
     {
@@ -382,7 +405,8 @@ public class Convert
         }
         try
         {
-            // 鏀寔绉戝璁℃暟娉?            return new BigDecimal(valueStr.trim()).longValue();
+            // 支持科学计数法
+            return new BigDecimal(valueStr.trim()).longValue();
         }
         catch (Exception e)
         {
@@ -391,11 +415,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓簂ong<br>
-     * 濡傛灉缁欏畾鐨勫€间负<code>null</code>锛屾垨鑰呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为long<br>
+     * 如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static Long toLong(Object value)
     {
@@ -403,11 +428,13 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篸ouble<br>
-     * 濡傛灉缁欏畾鐨勫€间负绌猴紝鎴栬€呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为double<br>
+     * 如果给定的值为空，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static Double toDouble(Object value, Double defaultValue)
     {
@@ -430,7 +457,8 @@ public class Convert
         }
         try
         {
-            // 鏀寔绉戝璁℃暟娉?            return new BigDecimal(valueStr.trim()).doubleValue();
+            // 支持科学计数法
+            return new BigDecimal(valueStr.trim()).doubleValue();
         }
         catch (Exception e)
         {
@@ -439,11 +467,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篸ouble<br>
-     * 濡傛灉缁欏畾鐨勫€间负绌猴紝鎴栬€呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为double<br>
+     * 如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static Double toDouble(Object value)
     {
@@ -451,11 +480,13 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篵oolean<br>
-     * String鏀寔鐨勫€间负锛歵rue銆乫alse銆亂es銆乷k銆乶o锛?,0 濡傛灉缁欏畾鐨勫€间负绌猴紝鎴栬€呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为boolean<br>
+     * String支持的值为：true、false、yes、ok、no，1,0 如果给定的值为空，或者转换失败，返回默认值<br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @param defaultValue 杞崲閿欒鏃剁殑榛樿鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @param defaultValue 转换错误时的默认值
+     * @return 结果
      */
     public static Boolean toBool(Object value, Boolean defaultValue)
     {
@@ -490,11 +521,12 @@ public class Convert
     }
 
     /**
-     * 杞崲涓篵oolean<br>
-     * 濡傛灉缁欏畾鐨勫€间负绌猴紝鎴栬€呰浆鎹㈠け璐ワ紝杩斿洖榛樿鍊?code>null</code><br>
-     * 杞崲澶辫触涓嶄細鎶ラ敊
+     * 转换为boolean<br>
+     * 如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>
+     * 转换失败不会报错
      *
-     * @param value 琚浆鎹㈢殑鍊?     * @return 缁撴灉
+     * @param value 被转换的值
+     * @return 结果
      */
     public static Boolean toBool(Object value)
     {

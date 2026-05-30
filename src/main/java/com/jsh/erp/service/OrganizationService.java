@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 机构 Service
- * 提供组织机构的业务逻辑：新增/编辑/删除/查询/树形结构
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
@@ -73,7 +66,7 @@ public class OrganizationService {
         int result=0;
         try{
             result=organizationMapper.insertSelective(organization);
-            logService.insertLog("鏈烘瀯",
+            logService.insertLog("机构",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(organization.getOrgAbr()).toString(),request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -87,7 +80,7 @@ public class OrganizationService {
         int result=0;
         try{
             result=organizationMapperEx.editOrganization(organization);
-            logService.insertLog("鏈烘瀯",
+            logService.insertLog("机构",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(organization.getOrgAbr()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -113,15 +106,15 @@ public class OrganizationService {
         for(Organization organization: list){
             sb.append("[").append(organization.getOrgAbr()).append("]");
         }
-        logService.insertLog("鏈烘瀯", sb.toString(),
+        logService.insertLog("机构", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
         String [] idArray=ids.split(",");
         int result=0;
         List <Organization> organList = organizationMapperEx.getOrganizationByParentIds(idArray);
         if(organList!=null && organList.size()>0) {
-            //濡傛灉瀛樺湪瀛愭満鏋勫垯涓嶈兘鍒犻櫎
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}]",
+            //如果存在子机构则不能删除
+            logger.error("异常码[{}],异常提示[{}]",
                     ExceptionConstants.ORGANIZATION_CHILD_NOT_ALLOWED_DELETE_CODE,ExceptionConstants.ORGANIZATION_CHILD_NOT_ALLOWED_DELETE_MSG);
             throw new BusinessRunTimeException(ExceptionConstants.ORGANIZATION_CHILD_NOT_ALLOWED_DELETE_CODE,
                     ExceptionConstants.ORGANIZATION_CHILD_NOT_ALLOWED_DELETE_MSG);
@@ -194,7 +187,8 @@ public class OrganizationService {
     /**
      * create by: cjl
      * description:
-     *  妫€鏌ユ満鏋勭紪鍙锋槸鍚﹀凡缁忓瓨鍦?     * create time: 2019/3/7 10:01
+     *  检查机构编号是否已经存在
+     * create time: 2019/3/7 10:01
      * @Param: orgNo
      * @return void
      */
@@ -202,23 +196,25 @@ public class OrganizationService {
         List<Organization> orgList=findByOrgNo(orgNo);
         if(orgList!=null&&orgList.size()>0){
             if(orgList.size()>1){
-                logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,orgNo[{}]",
+                logger.error("异常码[{}],异常提示[{}],参数,orgNo[{}]",
                         ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_CODE,ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_MSG,orgNo);
-                //鑾峰彇鐨勬暟鎹潯鏁板ぇ浜?锛屾満鏋勭紪鍙峰凡瀛樺湪
+                //获取的数据条数大于1，机构编号已存在
                 throw new BusinessRunTimeException(ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_CODE,
                         ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_MSG);
             }
             if(id!=null){
                 if(!orgList.get(0).getId().equals(id)){
-                    //鏁版嵁鏉℃暟绛変簬1锛屼絾鏄拰缂栬緫鐨勬暟鎹殑id涓嶇浉鍚?                    logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,orgNo[{}],id[{}]",
+                    //数据条数等于1，但是和编辑的数据的id不相同
+                    logger.error("异常码[{}],异常提示[{}],参数,orgNo[{}],id[{}]",
                             ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_CODE,ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_MSG,orgNo,id);
                     throw new BusinessRunTimeException(ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_CODE,
                             ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_MSG);
                 }
             }else{
-                logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,orgNo[{}]",
+                logger.error("异常码[{}],异常提示[{}],参数,orgNo[{}]",
                         ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_CODE,ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_MSG,orgNo);
-                //鏁版嵁鏉℃暟绛変簬1锛屼絾姝ゆ椂鏄柊澧?                throw new BusinessRunTimeException(ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_CODE,
+                //数据条数等于1，但此时是新增
+                throw new BusinessRunTimeException(ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_CODE,
                         ExceptionConstants.ORGANIZATION_NO_ALREADY_EXISTS_MSG);
             }
         }
@@ -226,7 +222,7 @@ public class OrganizationService {
     }
 
     /**
-     * 鏍规嵁鐖剁骇id閫掑綊鑾峰彇瀛愰泦缁勭粐id
+     * 根据父级id递归获取子集组织id
      * @return
      */
     public List<Long> getOrgIdByParentId(Long orgId) {
@@ -242,7 +238,7 @@ public class OrganizationService {
     }
 
     /**
-     * 鏍规嵁缁勭粐缂栧彿閫掑綊鑾峰彇涓嬬骇缂栧彿
+     * 根据组织编号递归获取下级编号
      * @param id
      * @return
      */

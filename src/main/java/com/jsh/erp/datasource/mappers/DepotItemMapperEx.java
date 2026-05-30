@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * DepotItemMapper 扩展 Mapper 接口
- * 定义 DepotItemMapper 自定义的复杂 SQL 查询方法（非 Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.*;
 import com.jsh.erp.datasource.vo.DepotItemStockWarningCount;
 import com.jsh.erp.datasource.vo.DepotItemVo4Stock;
@@ -182,14 +175,15 @@ public interface DepotItemMapperEx {
             @Param("endTime") String endTime);
 
     /**
-     * 閫氳繃鍗曟嵁涓昏〃id鏌ヨ鎵€鏈夊崟鎹瓙琛ㄦ暟鎹?     * @param depotheadId
+     * 通过单据主表id查询所有单据子表数据
+     * @param depotheadId
      * @param enableSerialNumber
      * @return
      */
      List<DepotItem> findDepotItemListBydepotheadId(@Param("depotheadId")Long depotheadId,
                                                     @Param("enableSerialNumber")String enableSerialNumber);
      /**
-      * 鏍规嵁鍗曟嵁涓昏〃id鍒犻櫎鍗曟嵁瀛愯〃鏁版嵁
+      * 根据单据主表id删除单据子表数据
       * */
      int batchDeleteDepotItemByDepotHeadIds(@Param("depotheadIds")Long []depotHeadIds);
 

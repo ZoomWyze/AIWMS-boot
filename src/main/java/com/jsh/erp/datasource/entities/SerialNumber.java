@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * SerialNumber 实体类
- * 对应数据库 jsh_serialnumber 表
- *
- * @author jishenghua
- */
 import java.math.BigDecimal;
 import java.util.Date;
 

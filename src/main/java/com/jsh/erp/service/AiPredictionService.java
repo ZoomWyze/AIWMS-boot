@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * AI 预测 Service
- * 提供基于 AI 的库存预测功能，分析历史数据生成采购建议
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.datasource.vo.AiPredictionGenerateItem;
@@ -83,7 +76,7 @@ public class AiPredictionService {
         saveItem.setSuggestQty(normalizeDecimal(aiResult.getBigDecimal("suggestQty")));
         String analysis = aiResult.getString("aiAnalysis");
         if (analysis == null || analysis.trim().isEmpty()) {
-            analysis = "AI鏈繑鍥炶鏄庯紝宸蹭娇鐢ㄨ鍒欏厹搴曞缓璁?;
+            analysis = "AI未返回说明，已使用规则兜底建议";
         }
         if (analysis.length() > 500) {
             analysis = analysis.substring(0, 500);
@@ -115,7 +108,7 @@ public class AiPredictionService {
             JSONArray messages = new JSONArray();
             JSONObject system = new JSONObject();
             system.put("role", "system");
-            system.put("content", "浣犳槸璧勬繁搴撳瓨涓庝緵搴旈摼瑙勫垝涓撳銆傝涓ユ牸杩斿洖JSON瀵硅薄锛屽瓧娈典粎鍖呭惈forecastQty,suggestQty,aiAnalysis銆備笉瑕佽繑鍥瀖arkdown浠ｇ爜鍧椼€?);
+            system.put("content", "你是资深库存与供应链规划专家。请严格返回JSON对象，字段仅包含forecastQty,suggestQty,aiAnalysis。不要返回markdown代码块。");
             messages.add(system);
 
             JSONObject user = new JSONObject();
@@ -130,7 +123,7 @@ public class AiPredictionService {
             HttpEntity entity = response.getEntity();
             String body = entity == null ? null : EntityUtils.toString(entity, StandardCharsets.UTF_8);
             if (statusCode < 200 || statusCode >= 300 || body == null || body.trim().isEmpty()) {
-                logger.warn("DeepSeek鎺ュ彛寮傚父锛宻tatus={}, body={}", statusCode, body);
+                logger.warn("DeepSeek接口异常，status={}, body={}", statusCode, body);
                 return null;
             }
             JSONObject responseJson = JSONObject.parseObject(body);
@@ -146,7 +139,7 @@ public class AiPredictionService {
             String content = message.getString("content");
             return parseAiContent(content);
         } catch (Exception e) {
-            logger.warn("璋冪敤DeepSeek澶辫触: {}", e.getMessage());
+            logger.warn("调用DeepSeek失败: {}", e.getMessage());
             return null;
         } finally {
             try {
@@ -165,17 +158,17 @@ public class AiPredictionService {
     }
 
     private String buildUserPrompt(AiPredictionGenerateItem item) {
-        return "璇锋牴鎹笅鍒楀簱瀛橀璀︽暟鎹娴嬫湭鏉?澶╅攢閲忓苟缁欏嚭琛ヨ揣寤鸿銆?
-                + "鍟嗗搧鍚嶇О:" + nullToEmpty(item.getMaterialName())
-                + ", 鏉＄爜:" + nullToEmpty(item.getBarCode())
-                + ", 浠撳簱:" + nullToEmpty(item.getDepotName())
-                + ", 褰撳墠搴撳瓨:" + toNumStr(item.getCurrentNumber())
-                + ", 鏈€浣庡畨鍏ㄥ簱瀛?" + toNumStr(item.getLowSafeStock())
-                + ", 鏈€楂樺畨鍏ㄥ簱瀛?" + toNumStr(item.getHighSafeStock())
-                + ", 寤鸿鍏ュ簱閲?瑙勫垯):" + toNumStr(item.getLowCritical())
-                + ", 寤鸿鍑哄簱閲?瑙勫垯):" + toNumStr(item.getHighCritical())
-                + ". 杩斿洖JSON: {\"forecastQty\":鏁板瓧,\"suggestQty\":鏁板瓧,\"aiAnalysis\":\"鍘熷洜璇存槑\"}銆?
-                + "forecastQty鍜宻uggestQty淇濈暀2浣嶅皬鏁? 涓斾笉鑳戒负璐熸暟銆?;
+        return "请根据下列库存预警数据预测未来7天销量并给出补货建议。"
+                + "商品名称:" + nullToEmpty(item.getMaterialName())
+                + ", 条码:" + nullToEmpty(item.getBarCode())
+                + ", 仓库:" + nullToEmpty(item.getDepotName())
+                + ", 当前库存:" + toNumStr(item.getCurrentNumber())
+                + ", 最低安全库存:" + toNumStr(item.getLowSafeStock())
+                + ", 最高安全库存:" + toNumStr(item.getHighSafeStock())
+                + ", 建议入库量(规则):" + toNumStr(item.getLowCritical())
+                + ", 建议出库量(规则):" + toNumStr(item.getHighCritical())
+                + ". 返回JSON: {\"forecastQty\":数字,\"suggestQty\":数字,\"aiAnalysis\":\"原因说明\"}。"
+                + "forecastQty和suggestQty保留2位小数, 且不能为负数。";
     }
 
     private JSONObject parseAiContent(String content) {
@@ -232,7 +225,7 @@ public class AiPredictionService {
 
         fallback.put("forecastQty", normalizeDecimal(forecastQty));
         fallback.put("suggestQty", normalizeDecimal(suggestQty));
-        fallback.put("aiAnalysis", "鍩轰簬瀹夊叏搴撳瓨瑙勫垯鍏滃簳璁＄畻锛氱粨鍚堝綋鍓嶅簱瀛樹笌瀹夊叏搴撳瓨闃堝€硷紝缁欏嚭鏈潵7澶╅攢閲忎笌寤鸿琛ヨ揣閲忋€?) ;
+        fallback.put("aiAnalysis", "基于安全库存规则兜底计算：结合当前库存与安全库存阈值，给出未来7天销量与建议补货量。") ;
         return fallback;
     }
 

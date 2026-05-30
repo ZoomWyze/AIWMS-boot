@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 租户 Service
- * 提供多租户的业务逻辑：新增/编辑/删除/查询/唯一性校验
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.Tenant;
@@ -106,7 +99,7 @@ public class TenantService {
         int result = 0;
         try{
             ue.setUsername(ue.getLoginName());
-            userService.checkLoginName(ue); //妫€鏌ョ櫥褰曞悕
+            userService.checkLoginName(ue); //检查登录名
             userService.registerUser(ue,manageRoleId,request);
             result = 1;
         } catch(Exception e){
@@ -121,11 +114,13 @@ public class TenantService {
         int result=0;
         try{
             if (PermissionUtil.isDefaultManager(userService.getCurrentUser())) {
-                //濡傛灉绉熸埛涓嬬殑鐢ㄦ埛闄愬埗鏁伴噺涓?锛屽垯灏嗚绉熸埛涔嬪鐨勭敤鎴峰叏閮ㄧ鐢?                if (1 == tenant.getUserNumLimit()) {
+                //如果租户下的用户限制数量为1，则将该租户之外的用户全部禁用
+                if (1 == tenant.getUserNumLimit()) {
                     userMapperEx.disableUserByLimit(tenant.getTenantId());
                 }
                 result = tenantMapper.updateByPrimaryKeySelective(tenant);
-                //鏇存柊绉熸埛瀵瑰簲鐨勮鑹?                if(obj.get("roleId")!=null) {
+                //更新租户对应的角色
+                if(obj.get("roleId")!=null) {
                     String ubValue = "[" + obj.getString("roleId") + "]";
                     userBusinessMapperEx.updateValueByTypeAndKeyId("UserRole", tenant.getTenantId().toString(), ubValue);
                 }
@@ -194,11 +189,11 @@ public class TenantService {
             if (PermissionUtil.isDefaultManager(userService.getCurrentUser())) {
                 String statusStr = "";
                 if (status) {
-                    statusStr = "鎵归噺鍚敤";
+                    statusStr = "批量启用";
                 } else {
-                    statusStr = "鎵归噺绂佺敤";
+                    statusStr = "批量禁用";
                 }
-                logService.insertLog("鐢ㄦ埛",
+                logService.insertLog("用户",
                         new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(ids).append("-").append(statusStr).toString(),
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
                 List<Long> idList = StringUtil.strToLongList(ids);

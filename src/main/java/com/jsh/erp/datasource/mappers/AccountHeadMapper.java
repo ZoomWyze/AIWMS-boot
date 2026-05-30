@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * AccountHead MyBatis Mapper 接口
- * 提供 AccountHead 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.AccountHead;
 import com.jsh.erp.datasource.entities.AccountHeadExample;
 import java.util.List;

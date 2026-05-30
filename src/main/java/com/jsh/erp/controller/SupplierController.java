@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 供应商/客户/会员管理 Controller
- * 提供供应商、客户、会员的 CRUD 接口，支持按类型分类查询
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -41,11 +34,11 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnJson;
 import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
 
 /**
- * @author ji|sheng|hua 绠′紛浣砮rp
+ * @author ji|sheng|hua 管伊佳erp
  */
 @RestController
 @RequestMapping(value = "/supplier")
-@Api(tags = {"鍟嗗绠＄悊"})
+@Api(tags = {"商家管理"})
 public class SupplierController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(SupplierController.class);
 
@@ -62,7 +55,7 @@ public class SupplierController extends BaseController {
     private UserService userService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Supplier supplier = supplierService.getSupplier(id);
@@ -76,7 +69,7 @@ public class SupplierController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
+    @ApiOperation(value = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String supplier = StringUtil.getInfo(search, "supplier");
@@ -89,7 +82,7 @@ public class SupplierController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "鏂板")
+    @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = supplierService.insertSupplier(obj, request);
@@ -97,7 +90,7 @@ public class SupplierController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "淇敼")
+    @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = supplierService.updateSupplier(obj, request);
@@ -105,7 +98,7 @@ public class SupplierController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "鍒犻櫎")
+    @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = supplierService.deleteSupplier(id, request);
@@ -113,7 +106,7 @@ public class SupplierController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "鎵归噺鍒犻櫎")
+    @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = supplierService.batchDeleteSupplier(ids, request);
@@ -121,7 +114,7 @@ public class SupplierController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -135,7 +128,7 @@ public class SupplierController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameAndTypeExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉板拰绫诲瀷鏄惁瀛樺湪")
+    @ApiOperation(value = "检查名称和类型是否存在")
     public String checkIsNameAndTypeExist(@RequestParam Long id,
                                           @RequestParam(value ="name", required = false) String name,
                                           @RequestParam(value ="type") String type,
@@ -151,11 +144,12 @@ public class SupplierController extends BaseController {
     }
 
     /**
-     * 鏌ユ壘瀹㈡埛淇℃伅-涓嬫媺妗?     * @param request
+     * 查找客户信息-下拉框
+     * @param request
      * @return
      */
     @PostMapping(value = "/findBySelect_cus")
-    @ApiOperation(value = "鏌ユ壘瀹㈡埛淇℃伅")
+    @ApiOperation(value = "查找客户信息")
     public JSONArray findBySelectCus(@RequestBody JSONObject jsonObject,
                                      HttpServletRequest request) {
         JSONArray arr = new JSONArray();
@@ -165,7 +159,7 @@ public class SupplierController extends BaseController {
             Integer limit = jsonObject.get("limit")!=null ? jsonObject.getInteger("limit") : null;
             String type = "UserCustomer";
             Long userId = userService.getUserId(request);
-            //鑾峰彇鏉冮檺淇℃伅
+            //获取权限信息
             String ubValue = userBusinessService.getUBValueByTypeAndKeyId(type, userId.toString());
             List<Supplier> supplierList = supplierService.findBySelectCus(key, organId, limit);
             JSONArray dataArray = new JSONArray();
@@ -176,7 +170,7 @@ public class SupplierController extends BaseController {
                     Boolean flag = ubValue.contains("[" + supplier.getId().toString() + "]");
                     if (!customerFlag || flag) {
                         item.put("id", supplier.getId());
-                        item.put("supplier", supplier.getSupplier()); //瀹㈡埛鍚嶇О
+                        item.put("supplier", supplier.getSupplier()); //客户名称
                         dataArray.add(item);
                     }
                 }
@@ -189,11 +183,12 @@ public class SupplierController extends BaseController {
     }
 
     /**
-     * 鏌ユ壘渚涘簲鍟嗕俊鎭?涓嬫媺妗?     * @param request
+     * 查找供应商信息-下拉框
+     * @param request
      * @return
      */
     @PostMapping(value = "/findBySelect_sup")
-    @ApiOperation(value = "鏌ユ壘渚涘簲鍟嗕俊鎭?)
+    @ApiOperation(value = "查找供应商信息")
     public JSONArray findBySelectSup(@RequestBody JSONObject jsonObject,
                                      HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
@@ -207,7 +202,8 @@ public class SupplierController extends BaseController {
                 for (Supplier supplier : supplierList) {
                     JSONObject item = new JSONObject();
                     item.put("id", supplier.getId());
-                    //渚涘簲鍟嗗悕绉?                    item.put("supplier", supplier.getSupplier());
+                    //供应商名称
+                    item.put("supplier", supplier.getSupplier());
                     dataArray.add(item);
                 }
             }
@@ -219,11 +215,12 @@ public class SupplierController extends BaseController {
     }
 
     /**
-     * 鏌ユ壘寰€鏉ュ崟浣嶏紝鍚緵搴斿晢鍜屽鎴蜂俊鎭?涓嬫媺妗?     * @param request
+     * 查找往来单位，含供应商和客户信息-下拉框
+     * @param request
      * @return
      */
     @PostMapping(value = "/findBySelect_organ")
-    @ApiOperation(value = "鏌ユ壘寰€鏉ュ崟浣嶏紝鍚緵搴斿晢鍜屽鎴蜂俊鎭?)
+    @ApiOperation(value = "查找往来单位，含供应商和客户信息")
     public JSONArray findBySelectOrgan(@RequestBody JSONObject jsonObject,
                                        HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
@@ -232,16 +229,18 @@ public class SupplierController extends BaseController {
             Long organId = jsonObject.get("organId")!=null ? jsonObject.getLong("organId") : null;
             Integer limit = jsonObject.get("limit")!=null ? jsonObject.getInteger("limit") : null;
             JSONArray dataArray = new JSONArray();
-            //1銆佽幏鍙栦緵搴斿晢淇℃伅
+            //1、获取供应商信息
             List<Supplier> supplierList = supplierService.findBySelectSup(key, organId, limit);
             if (null != supplierList) {
                 for (Supplier supplier : supplierList) {
                     JSONObject item = new JSONObject();
                     item.put("id", supplier.getId());
-                    item.put("supplier", supplier.getSupplier() + "[渚涘簲鍟哴"); //渚涘簲鍟嗗悕绉?                    dataArray.add(item);
+                    item.put("supplier", supplier.getSupplier() + "[供应商]"); //供应商名称
+                    dataArray.add(item);
                 }
             }
-            //2銆佽幏鍙栧鎴蜂俊鎭?            String type = "UserCustomer";
+            //2、获取客户信息
+            String type = "UserCustomer";
             Long userId = userService.getUserId(request);
             String ubValue = userBusinessService.getUBValueByTypeAndKeyId(type, userId.toString());
             List<Supplier> customerList = supplierService.findBySelectCus(key, organId, limit);
@@ -252,7 +251,7 @@ public class SupplierController extends BaseController {
                     Boolean flag = ubValue.contains("[" + supplier.getId().toString() + "]");
                     if (!customerFlag || flag) {
                         item.put("id", supplier.getId());
-                        item.put("supplier", supplier.getSupplier() + "[瀹㈡埛]"); //瀹㈡埛鍚嶇О
+                        item.put("supplier", supplier.getSupplier() + "[客户]"); //客户名称
                         dataArray.add(item);
                     }
                 }
@@ -265,11 +264,12 @@ public class SupplierController extends BaseController {
     }
 
     /**
-     * 鏌ユ壘浼氬憳淇℃伅-涓嬫媺妗?     * @param request
+     * 查找会员信息-下拉框
+     * @param request
      * @return
      */
     @PostMapping(value = "/findBySelect_retail")
-    @ApiOperation(value = "鏌ユ壘浼氬憳淇℃伅")
+    @ApiOperation(value = "查找会员信息")
     public JSONArray findBySelectRetail(@RequestBody JSONObject jsonObject,
                                         HttpServletRequest request)throws Exception {
         JSONArray arr = new JSONArray();
@@ -283,9 +283,10 @@ public class SupplierController extends BaseController {
                 for (Supplier supplier : supplierList) {
                     JSONObject item = new JSONObject();
                     item.put("id", supplier.getId());
-                    //瀹㈡埛鍚嶇О
+                    //客户名称
                     item.put("supplier", supplier.getSupplier());
-                    item.put("advanceIn", supplier.getAdvanceIn()); //棰勪粯娆鹃噾棰?                    dataArray.add(item);
+                    item.put("advanceIn", supplier.getAdvanceIn()); //预付款金额
+                    dataArray.add(item);
                 }
             }
             arr = dataArray;
@@ -296,12 +297,13 @@ public class SupplierController extends BaseController {
     }
 
     /**
-     * 鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?     * @param jsonObject
+     * 批量设置状态-启用或者禁用
+     * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?)
+    @ApiOperation(value = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");
@@ -316,14 +318,14 @@ public class SupplierController extends BaseController {
     }
 
     /**
-     * 鑾峰彇鍏ㄩ儴瀹㈡埛淇℃伅
+     * 获取全部客户信息
      * @param search
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/getAllCustomer")
-    @ApiOperation(value = "鑾峰彇鍏ㄩ儴瀹㈡埛淇℃伅")
+    @ApiOperation(value = "获取全部客户信息")
     public TableDataInfo getAllCustomer(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                         HttpServletRequest request)throws Exception {
         List<SupplierSimple> list = supplierService.getAllCustomer();
@@ -331,18 +333,19 @@ public class SupplierController extends BaseController {
     }
 
     /**
-     * 鑾峰彇鐢ㄦ埛瀵瑰簲瀹㈡埛鐨勫叧绯绘暟缁?     * @param type
+     * 获取用户对应客户的关系数组
+     * @param type
      * @param keyId
      * @param request
      * @return
      */
     @GetMapping(value = "/getUserCustomerValue")
-    @ApiOperation(value = "鑾峰彇鐢ㄦ埛瀵瑰簲瀹㈡埛鐨勫叧绯绘暟缁?)
+    @ApiOperation(value = "获取用户对应客户的关系数组")
     public JSONObject getUserCustomerValue(@RequestParam("UBType") String type, @RequestParam("UBKeyId") String keyId,
                                            HttpServletRequest request) throws Exception{
         JSONObject obj = new JSONObject();
         try {
-            //鑾峰彇鏉冮檺淇℃伅
+            //获取权限信息
             String ubValue = userBusinessService.getUBValueByTypeAndKeyId(type, keyId);
             if(StringUtil.isNotEmpty(ubValue)) {
                 String ubStr = ubValue.substring(1, ubValue.length()-1);
@@ -358,21 +361,21 @@ public class SupplierController extends BaseController {
             obj.put("code", 200);
         } catch (Exception e) {
             obj.put("code", 500);
-            obj.put("data", "鏈嶅姟鍐呴儴閿欒");
+            obj.put("data", "服务内部错误");
             logger.error(e.getMessage(), e);
         }
         return obj;
     }
 
     /**
-     * 鏍规嵁瀹㈡埛鎴栦緵搴斿晢鏌ヨ鏈熷垵銆佹湡鍒濆凡鏀剁瓑淇℃伅
+     * 根据客户或供应商查询期初、期初已收等信息
      * @param organId
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/getBeginNeedByOrganId")
-    @ApiOperation(value = "鏍规嵁瀹㈡埛鎴栦緵搴斿晢鏌ヨ鏈熷垵銆佹湡鍒濆凡鏀剁瓑淇℃伅")
+    @ApiOperation(value = "根据客户或供应商查询期初、期初已收等信息")
     public BaseResponseInfo getBeginNeedByOrganId(@RequestParam("organId") Long organId,
                                         HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -383,19 +386,20 @@ public class SupplierController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 瀵煎叆渚涘簲鍟?     * @param file
+     * 导入供应商
+     * @param file
      * @param request
      * @param response
      * @return
      */
     @PostMapping(value = "/importVendor")
-    @ApiOperation(value = "瀵煎叆渚涘簲鍟?)
+    @ApiOperation(value = "导入供应商")
     public BaseResponseInfo importVendor(MultipartFile file,
                             HttpServletRequest request, HttpServletResponse response) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -403,27 +407,27 @@ public class SupplierController extends BaseController {
             supplierService.checkFileExt(file);
             supplierService.importVendor(file, request);
             res.code = 200;
-            res.data = "瀵煎叆鎴愬姛";
+            res.data = "导入成功";
         } catch(BusinessRunTimeException e) {
             res.code = e.getCode();
             res.data = e.getData().get("message");
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "瀵煎叆澶辫触";
+            res.data = "导入失败";
         }
         return res;
     }
 
     /**
-     * 瀵煎叆瀹㈡埛
+     * 导入客户
      * @param file
      * @param request
      * @param response
      * @return
      */
     @PostMapping(value = "/importCustomer")
-    @ApiOperation(value = "瀵煎叆瀹㈡埛")
+    @ApiOperation(value = "导入客户")
     public BaseResponseInfo importCustomer(MultipartFile file,
                                         HttpServletRequest request, HttpServletResponse response) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -431,27 +435,27 @@ public class SupplierController extends BaseController {
             supplierService.checkFileExt(file);
             supplierService.importCustomer(file, request);
             res.code = 200;
-            res.data = "瀵煎叆鎴愬姛";
+            res.data = "导入成功";
         } catch(BusinessRunTimeException e) {
             res.code = e.getCode();
             res.data = e.getData().get("message");
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "瀵煎叆澶辫触";
+            res.data = "导入失败";
         }
         return res;
     }
 
     /**
-     * 瀵煎叆浼氬憳
+     * 导入会员
      * @param file
      * @param request
      * @param response
      * @return
      */
     @PostMapping(value = "/importMember")
-    @ApiOperation(value = "瀵煎叆浼氬憳")
+    @ApiOperation(value = "导入会员")
     public BaseResponseInfo importMember(MultipartFile file,
                                            HttpServletRequest request, HttpServletResponse response) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -459,20 +463,20 @@ public class SupplierController extends BaseController {
             supplierService.checkFileExt(file);
             supplierService.importMember(file, request);
             res.code = 200;
-            res.data = "瀵煎叆鎴愬姛";
+            res.data = "导入成功";
         } catch(BusinessRunTimeException e) {
             res.code = e.getCode();
             res.data = e.getData().get("message");
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "瀵煎叆澶辫触";
+            res.data = "导入失败";
         }
         return res;
     }
 
     /**
-     * 鐢熸垚excel琛ㄦ牸
+     * 生成excel表格
      * @param supplier
      * @param type
      * @param phonenum
@@ -497,14 +501,14 @@ public class SupplierController extends BaseController {
     }
 
     /**
-     * 鎵归噺璁剧疆浼氬憳褰撳墠鐨勯浠樻
+     * 批量设置会员当前的预付款
      * @param jsonObject
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/batchSetAdvanceIn")
-    @ApiOperation(value = "鎵归噺璁剧疆浼氬憳褰撳墠鐨勯浠樻")
+    @ApiOperation(value = "批量设置会员当前的预付款")
     public String batchSetAdvanceIn(@RequestBody JSONObject jsonObject,
                                     HttpServletRequest request)throws Exception {
         String ids = jsonObject.getString("ids");
@@ -518,7 +522,7 @@ public class SupplierController extends BaseController {
     }
 
     @GetMapping(value = "/getInfoByName")
-    @ApiOperation(value = "鏍规嵁鍚嶇О鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据名称获取信息")
     public String getInfoByName(@RequestParam("name") String name,
                                 @RequestParam("type") String type,
                                 HttpServletRequest request) throws Exception {

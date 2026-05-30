@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 功能菜单管理 Controller
- * 提供系统功能/菜单的 CRUD 接口，用于权限管理和菜单树构建
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -40,7 +33,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/function")
-@Api(tags = {"鍔熻兘绠＄悊"})
+@Api(tags = {"功能管理"})
 public class FunctionController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(FunctionController.class);
 
@@ -57,7 +50,7 @@ public class FunctionController extends BaseController {
     private SystemConfigService systemConfigService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Function function = functionService.getFunction(id);
@@ -71,7 +64,7 @@ public class FunctionController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
+    @ApiOperation(value = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -81,7 +74,7 @@ public class FunctionController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "鏂板")
+    @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = functionService.insertFunction(obj, request);
@@ -89,7 +82,7 @@ public class FunctionController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "淇敼")
+    @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = functionService.updateFunction(obj, request);
@@ -97,7 +90,7 @@ public class FunctionController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "鍒犻櫎")
+    @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = functionService.deleteFunction(id, request);
@@ -105,7 +98,7 @@ public class FunctionController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "鎵归噺鍒犻櫎")
+    @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = functionService.batchDeleteFunction(ids, request);
@@ -113,7 +106,7 @@ public class FunctionController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -127,7 +120,7 @@ public class FunctionController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNumberExist")
-    @ApiOperation(value = "妫€鏌ョ紪鍙锋槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查编号是否存在")
     public String checkIsNumberExist(@RequestParam Long id,
                                      @RequestParam(value ="number", required = false) String number,
                                      HttpServletRequest request)throws Exception {
@@ -142,18 +135,19 @@ public class FunctionController extends BaseController {
     }
 
     /**
-     * 鏍规嵁鐖剁紪鍙锋煡璇㈣彍鍗?     * @param jsonObject
+     * 根据父编号查询菜单
+     * @param jsonObject
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/findMenuByPNumber")
-    @ApiOperation(value = "鏍规嵁鐖剁紪鍙锋煡璇㈣彍鍗?)
+    @ApiOperation(value = "根据父编号查询菜单")
     public JSONArray findMenuByPNumber(@RequestBody JSONObject jsonObject,
                               HttpServletRequest request)throws Exception {
         String pNumber = jsonObject.getString("pNumber");
         String userId = jsonObject.getString("userId");
-        //瀛樻斁鏁版嵁json鏁扮粍
+        //存放数据json数组
         JSONArray dataArray = new JSONArray();
         try {
             Long roleId = 0L;
@@ -166,12 +160,13 @@ public class FunctionController extends BaseController {
                     roleId = Long.parseLong(roleIdStr);
                 }
             }
-            //褰撳墠鐢ㄦ埛鎵€鎷ユ湁鐨勫姛鑳藉垪琛紝鏍煎紡濡傦細[1][2][5]
+            //当前用户所拥有的功能列表，格式如：[1][2][5]
             List<UserBusiness> funList = userBusinessService.getBasicData(roleId.toString(), "RoleFunctions");
             if(funList!=null && funList.size()>0){
                 fc = funList.get(0).getValue();
             }
-            //鑾峰彇绯荤粺閰嶇疆淇℃伅-鏄惁寮€鍚绾у鏍?            String approvalFlag = "0";
+            //获取系统配置信息-是否开启多级审核
+            String approvalFlag = "0";
             List<SystemConfig> list = systemConfigService.getSystemConfig();
             if(list.size()>0) {
                 approvalFlag = list.get(0).getMultiLevelApprovalFlag();
@@ -180,19 +175,20 @@ public class FunctionController extends BaseController {
             List<Function> dataList = functionService.getRoleFunction(pNumber);
             if (dataList.size() != 0) {
                 User userInfo = userService.getCurrentUser();
-                //鑾峰彇褰撳墠鐢ㄦ埛鎵€灞炵殑绉熸埛鎵€鎷ユ湁鐨勫姛鑳絠d鐨刴ap
+                //获取当前用户所属的租户所拥有的功能id的map
                 Map<Long, Long> funIdMap = functionService.getCurrentTenantFunIdMap();
                 dataArray = getMenuByFunction(dataList, fc, approvalFlag, funIdMap, userInfo);
-                //澧炲姞棣栭〉鑿滃崟椤?                JSONObject homeItem = new JSONObject();
+                //增加首页菜单项
+                JSONObject homeItem = new JSONObject();
                 homeItem.put("id", 0);
-                homeItem.put("text", "棣栭〉");
+                homeItem.put("text", "首页");
                 homeItem.put("icon", "home");
                 homeItem.put("url", "/dashboard/analysis");
                 homeItem.put("component", "/layouts/TabLayout");
                 dataArray.add(0,homeItem);
             }
         } catch (DataAccessException e) {
-            logger.error(">>>>>>>>>>>>>>>>>>>鏌ユ壘寮傚父", e);
+            logger.error(">>>>>>>>>>>>>>>>>>>查找异常", e);
         }
         return dataArray;
     }
@@ -200,8 +196,10 @@ public class FunctionController extends BaseController {
     public JSONArray getMenuByFunction(List<Function> dataList, String fc, String approvalFlag, Map<Long, Long> funIdMap, User userInfo) throws Exception {
         JSONArray dataArray = new JSONArray();
         for (Function function : dataList) {
-            //濡傛灉涓嶆槸瓒呯涔熶笉鏄鎴峰氨闇€瑕佹牎楠岋紝闃叉鍒嗛厤涓嬬骇鐢ㄦ埛鐨勫姛鑳芥潈闄愶紝澶т簬绉熸埛鐨勬潈闄?            if (PermissionUtil.isDefaultManager(userInfo) || userInfo.getId().equals(userInfo.getTenantId()) || funIdMap.get(function.getId())!=null) {
-                //濡傛灉鍏抽棴澶氱骇瀹℃牳锛岄亣鍒颁换鍔″鏍歌彍鍗曠洿鎺ヨ烦杩?                if("0".equals(approvalFlag) && "/workflow".equals(function.getUrl())) {
+            //如果不是超管也不是租户就需要校验，防止分配下级用户的功能权限，大于租户的权限
+            if (PermissionUtil.isDefaultManager(userInfo) || userInfo.getId().equals(userInfo.getTenantId()) || funIdMap.get(function.getId())!=null) {
+                //如果关闭多级审核，遇到任务审核菜单直接跳过
+                if("0".equals(approvalFlag) && "/workflow".equals(function.getUrl())) {
                     continue;
                 }
                 JSONObject item = new JSONObject();
@@ -228,44 +226,44 @@ public class FunctionController extends BaseController {
     }
 
     /**
-     * 瑙掕壊瀵瑰簲鍔熻兘鏄剧ず
+     * 角色对应功能显示
      * @param request
      * @return
      */
     @GetMapping(value = "/findRoleFunction")
-    @ApiOperation(value = "瑙掕壊瀵瑰簲鍔熻兘鏄剧ず")
+    @ApiOperation(value = "角色对应功能显示")
     public JSONArray findRoleFunction(@RequestParam("UBType") String type, @RequestParam("UBKeyId") String keyId,
                                  HttpServletRequest request)throws Exception {
         JSONArray arr = new JSONArray();
         try {
             User userInfo = userService.getCurrentUser();
-            //鑾峰彇褰撳墠鐢ㄦ埛鎵€鎷ユ湁鐨勫姛鑳絠d鍒楄〃
+            //获取当前用户所拥有的功能id列表
             List<Long> funIdList = functionService.getCurrentUserFunIdList();
             if (PermissionUtil.isDefaultManager(userInfo)) {
                 funIdList = null;
             }
             List<Function> dataListFun = functionService.findRoleFunction("0", funIdList);
-            //寮€濮嬫嫾鎺son鏁版嵁
+            //开始拼接json数据
             JSONObject outer = new JSONObject();
             outer.put("id", 0);
             outer.put("key", 0);
             outer.put("value", 0);
-            outer.put("title", "鍔熻兘鍒楄〃");
-            outer.put("attributes", "鍔熻兘鍒楄〃");
-            //瀛樻斁鏁版嵁json鏁扮粍
+            outer.put("title", "功能列表");
+            outer.put("attributes", "功能列表");
+            //存放数据json数组
             JSONArray dataArray = new JSONArray();
             if (null != dataListFun) {
-                //鏍规嵁鏉′欢浠庡垪琛ㄩ噷闈㈢Щ闄?绯荤粺绠＄悊"
+                //根据条件从列表里面移除"系统管理"
                 List<Function> dataList = new ArrayList<>();
                 for (Function fun : dataListFun) {
                     String token = request.getHeader("X-Access-Token");
                     Long tenantId = Tools.getTenantIdByToken(token);
                     if (tenantId!=0L) {
-                        if(!("绯荤粺绠＄悊").equals(fun.getName())) {
+                        if(!("系统管理").equals(fun.getName())) {
                             dataList.add(fun);
                         }
                     } else {
-                        //瓒呯
+                        //超管
                         dataList.add(fun);
                     }
                 }
@@ -279,9 +277,31 @@ public class FunctionController extends BaseController {
         return arr;
     }
 
+    /**
+     * 获取当前用户的按钮权限
+     * @param request
+     * @return
+     */
+    @GetMapping(value = "/getUserBtnByCurrentUser")
+    @ApiOperation(value = "获取当前用户的按钮权限")
+    public BaseResponseInfo getUserBtnByCurrentUser(HttpServletRequest request)throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("userBtn", functionService.getCurrentUserBtnList());
+            res.code = 200;
+            res.data = data;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            res.code = 500;
+            res.data = "获取按钮权限失败";
+        }
+        return res;
+    }
+
     public JSONArray getFunctionList(List<Function> dataList, String type, String keyId, List<Long> funIdList) throws Exception {
         JSONArray dataArray = new JSONArray();
-        //鑾峰彇鏉冮檺淇℃伅
+        //获取权限信息
         String ubValue = userBusinessService.getUBValueByTypeAndKeyId(type, keyId);
         if (null != dataList) {
             for (Function function : dataList) {
@@ -307,20 +327,20 @@ public class FunctionController extends BaseController {
     }
 
     /**
-     * 鏍规嵁id鍒楄〃鏌ユ壘鍔熻兘淇℃伅
+     * 根据id列表查找功能信息
      * @param roleId
      * @param request
      * @return
      */
     @GetMapping(value = "/findRoleFunctionsById")
-    @ApiOperation(value = "鏍规嵁id鍒楄〃鏌ユ壘鍔熻兘淇℃伅")
+    @ApiOperation(value = "根据id列表查找功能信息")
     public BaseResponseInfo findByIds(@RequestParam("roleId") Long roleId,
                                       HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
             List<UserBusiness> list = userBusinessService.getBasicData(roleId.toString(), "RoleFunctions");
             if(null!=list && list.size()>0) {
-                //鎸夐挳
+                //按钮
                 Map<Long,String> btnMap = new HashMap<>();
                 String btnStr = list.get(0).getBtnStr();
                 if(StringUtil.isNotEmpty(btnStr)) {
@@ -332,7 +352,7 @@ public class FunctionController extends BaseController {
                         }
                     }
                 }
-                //鑿滃崟
+                //菜单
                 String funIds = list.get(0).getValue();
                 funIds = funIds.substring(1, funIds.length() - 1);
                 funIds = funIds.replace("][",",");
@@ -340,11 +360,12 @@ public class FunctionController extends BaseController {
                 JSONObject outer = new JSONObject();
                 User userInfo = userService.getCurrentUser();
                 Map<Long, Long> funIdMap = functionService.getCurrentUserFunIdMap();
-                //瀛樻斁鏁版嵁json鏁扮粍
+                //存放数据json数组
                 JSONArray dataArray = new JSONArray();
                 if (null != dataList) {
                     for (Function function : dataList) {
-                        //濡傛灉涓嶆槸瓒呯闇€瑕佹牎楠岋紝闃叉鍒嗛厤涓嬬骇鐢ㄦ埛鐨勬寜閽潈闄愶紝澶т簬鑷韩鐨勬潈闄?                        if (PermissionUtil.isDefaultManager(userInfo) || funIdMap.get(function.getId())!=null) {
+                        //如果不是超管需要校验，防止分配下级用户的按钮权限，大于自身的权限
+                        if (PermissionUtil.isDefaultManager(userInfo) || funIdMap.get(function.getId())!=null) {
                             JSONObject item = new JSONObject();
                             item.put("id", function.getId());
                             item.put("name", function.getName());
@@ -362,7 +383,7 @@ public class FunctionController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }

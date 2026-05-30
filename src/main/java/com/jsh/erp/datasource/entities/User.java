@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * User 实体类
- * 对应数据库 jsh_user 表
- *
- * @author jishenghua
- */
 public class User {
     private Long id;
 

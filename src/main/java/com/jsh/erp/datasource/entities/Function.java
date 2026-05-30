@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * Function 实体类
- * 对应数据库 jsh_function 表
- *
- * @author jishenghua
- */
 public class Function {
     private Long id;
 

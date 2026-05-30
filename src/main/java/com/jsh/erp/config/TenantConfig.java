@@ -1,18 +1,5 @@
 package com.jsh.erp.config;
 
-/**
- * 多租户配置类
- *
- * 功能：
- *   1. 配置 MyBatis-Plus 的多租户 SQL 解析器
- *   2. 自动在 SQL 中注入租户 ID 条件，实现数据隔离
- *   3. 配置分页拦截器（PaginationInterceptor）
- *   4. 配置 SQL 性能分析拦截器（PerformanceInterceptor）
- *
- * 租户 ID 通过请求头中的 tenantId 字段获取。
- *
- * @author jishenghua
- */
 import com.baomidou.mybatisplus.core.parser.ISqlParser;
 import com.baomidou.mybatisplus.core.parser.ISqlParserFilter;
 import com.baomidou.mybatisplus.core.parser.SqlParserHelper;

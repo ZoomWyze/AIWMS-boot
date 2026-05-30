@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 角色 Service
- * 提供角色的业务逻辑：新增/编辑/删除/查询/角色权限分配
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.Role;
@@ -46,7 +39,8 @@ public class RoleService {
     @Resource
     private UserService userService;
 
-    //瓒呯鐨勪笓鐢ㄨ鑹?    private static Long MANAGE_ROLE_ID = 4L;
+    //超管的专用角色
+    private static Long MANAGE_ROLE_ID = 4L;
 
     public Role getRole(long id)throws Exception {
         Role result=null;
@@ -109,12 +103,12 @@ public class RoleService {
                 String priceLimit = roleEx.getPriceLimit();
                 if(StringUtil.isNotEmpty(priceLimit)) {
                     String priceLimitStr = priceLimit
-                        .replace("1", "灞忚斀棣栭〉閲囪喘浠?)
-                        .replace("2", "灞忚斀棣栭〉闆跺敭浠?)
-                        .replace("3", "灞忚斀棣栭〉閿€鍞环")
-                        .replace("4", "灞忚斀鍗曟嵁閲囪喘浠?)
-                        .replace("5", "灞忚斀鍗曟嵁闆跺敭浠?)
-                        .replace("6", "灞忚斀鍗曟嵁閿€鍞环");
+                        .replace("1", "屏蔽首页采购价")
+                        .replace("2", "屏蔽首页零售价")
+                        .replace("3", "屏蔽首页销售价")
+                        .replace("4", "屏蔽单据采购价")
+                        .replace("5", "屏蔽单据零售价")
+                        .replace("6", "屏蔽单据销售价");
                     roleEx.setPriceLimitStr(priceLimitStr);
                 }
             }
@@ -131,7 +125,7 @@ public class RoleService {
         try{
             role.setEnabled(true);
             result=roleMapper.insertSelective(role);
-            logService.insertLog("瑙掕壊",
+            logService.insertLog("角色",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(role.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -145,7 +139,7 @@ public class RoleService {
         int result=0;
         try{
             result=roleMapper.updateByPrimaryKeySelective(role);
-            logService.insertLog("瑙掕壊",
+            logService.insertLog("角色",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(role.getName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -189,7 +183,7 @@ public class RoleService {
     }
     /**
      * create by: qiankunpingtai
-     *  閫昏緫鍒犻櫎瑙掕壊淇℃伅
+     *  逻辑删除角色信息
      * create time: 2019/3/28 15:44
      * @Param: ids
      * @return int
@@ -202,7 +196,7 @@ public class RoleService {
         for(Role role: list){
             sb.append("[").append(role.getName()).append("]");
         }
-        logService.insertLog("瑙掕壊", sb.toString(),
+        logService.insertLog("角色", sb.toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         User userInfo=userService.getCurrentUser();
         String [] idArray=ids.split(",");
@@ -221,7 +215,7 @@ public class RoleService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Boolean status, String ids)throws Exception {
-        logService.insertLog("瑙掕壊",
+        logService.insertLog("角色",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ENABLED).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> roleIds = StringUtil.strToLongList(ids);
@@ -239,7 +233,7 @@ public class RoleService {
     }
 
     /**
-     * 鏍规嵁鏉冮檺杩涜灞忚斀浠锋牸-棣栭〉
+     * 根据权限进行屏蔽价格-首页
      * @param price
      * @param type
      * @return
@@ -260,7 +254,7 @@ public class RoleService {
     }
 
     /**
-     * 鏍规嵁鏉冮檺杩涜灞忚斀浠锋牸-鍗曟嵁
+     * 根据权限进行屏蔽价格-单据
      * @param price
      * @param billCategory
      * @param priceLimit
@@ -284,7 +278,7 @@ public class RoleService {
     }
 
     /**
-     * 鏍规嵁鏉冮檺杩涜灞忚斀浠锋牸-鐗╂枡
+     * 根据权限进行屏蔽价格-物料
      * @param price
      * @param type
      * @return

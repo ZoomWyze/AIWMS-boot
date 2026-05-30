@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 账户管理 Controller
- * 提供账户信息的 CRUD 接口（新增/编辑/查询/删除/唯一性校验）
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -41,7 +34,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/account")
-@Api(tags = {"璐︽埛绠＄悊"})
+@Api(tags = {"账户管理"})
 public class AccountController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(AccountController.class);
 
@@ -52,7 +45,7 @@ public class AccountController extends BaseController {
     private SystemConfigService systemConfigService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Account account = accountService.getAccount(id);
@@ -66,7 +59,7 @@ public class AccountController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
+    @ApiOperation(value = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -77,7 +70,7 @@ public class AccountController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "鏂板")
+    @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = accountService.insertAccount(obj, request);
@@ -85,7 +78,7 @@ public class AccountController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "淇敼")
+    @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = accountService.updateAccount(obj, request);
@@ -93,7 +86,7 @@ public class AccountController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "鍒犻櫎")
+    @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = accountService.deleteAccount(id, request);
@@ -101,7 +94,7 @@ public class AccountController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "鎵归噺鍒犻櫎")
+    @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = accountService.batchDeleteAccount(ids, request);
@@ -109,7 +102,7 @@ public class AccountController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -123,22 +116,23 @@ public class AccountController extends BaseController {
     }
 
     /**
-     * 鏌ユ壘缁撶畻璐︽埛淇℃伅-涓嬫媺妗?     * @param request
+     * 查找结算账户信息-下拉框
+     * @param request
      * @return
      */
     @GetMapping(value = "/findBySelect")
-    @ApiOperation(value = "鏌ユ壘缁撶畻璐︽埛淇℃伅-涓嬫媺妗?)
+    @ApiOperation(value = "查找结算账户信息-下拉框")
     public String findBySelect(HttpServletRequest request) throws Exception {
         String res = null;
         try {
             List<Account> dataList = accountService.findBySelect();
-            //瀛樻斁鏁版嵁json鏁扮粍
+            //存放数据json数组
             JSONArray dataArray = new JSONArray();
             if (null != dataList) {
                 for (Account account : dataList) {
                     JSONObject item = new JSONObject();
                     item.put("Id", account.getId());
-                    //缁撶畻璐︽埛鍚嶇О
+                    //结算账户名称
                     item.put("AccountName", account.getName());
                     dataArray.add(item);
                 }
@@ -146,17 +140,18 @@ public class AccountController extends BaseController {
             res = dataArray.toJSONString();
         } catch(Exception e){
             logger.error(e.getMessage(), e);
-            res = "鑾峰彇鏁版嵁澶辫触";
+            res = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鑾峰彇鎵€鏈夌粨绠楄处鎴?     * @param request
+     * 获取所有结算账户
+     * @param request
      * @return
      */
     @GetMapping(value = "/getAccount")
-    @ApiOperation(value = "鑾峰彇鎵€鏈夌粨绠楄处鎴?)
+    @ApiOperation(value = "获取所有结算账户")
     public BaseResponseInfo getAccount(HttpServletRequest request) throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -168,13 +163,13 @@ public class AccountController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 璐︽埛娴佹按淇℃伅
+     * 账户流水信息
      * @param currentPage
      * @param pageSize
      * @param accountId
@@ -183,7 +178,7 @@ public class AccountController extends BaseController {
      * @return
      */
     @GetMapping(value = "/findAccountInOutList")
-    @ApiOperation(value = "璐︽埛娴佹按淇℃伅")
+    @ApiOperation(value = "账户流水信息")
     public BaseResponseInfo findAccountInOutList(@RequestParam("currentPage") Integer currentPage,
                                                  @RequestParam("pageSize") Integer pageSize,
                                                  @RequestParam("accountId") Long accountId,
@@ -201,11 +196,11 @@ public class AccountController extends BaseController {
             int total = accountService.findAccountInOutListCount(accountId, StringUtil.toNull(number),
                     beginTime, endTime, forceFlag);
             map.put("total", total);
-            //瀛樻斁鏁版嵁json鏁扮粍
+            //存放数据json数组
             JSONArray dataArray = new JSONArray();
             if (null != dataList) {
                 for (AccountVo4InOutList aEx : dataList) {
-                    String type = aEx.getType().replace("鍏跺畠", "");
+                    String type = aEx.getType().replace("其它", "");
                     aEx.setType(type);
                     String operTime = aEx.getOperTime();
                     BigDecimal balance = accountService.getAccountSum(accountId, null, operTime, forceFlag)
@@ -223,20 +218,20 @@ public class AccountController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鏇存柊榛樿璐︽埛
+     * 更新默认账户
      * @param object
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/updateIsDefault")
-    @ApiOperation(value = "鏇存柊榛樿璐︽埛")
+    @ApiOperation(value = "更新默认账户")
     public String updateIsDefault(@RequestBody JSONObject object,
                                        HttpServletRequest request) throws Exception{
         Long accountId = object.getLong("id");
@@ -250,12 +245,12 @@ public class AccountController extends BaseController {
     }
 
     /**
-     * 鑾峰彇甯︿綑棰濈殑鎶ヨ〃
+     * 获取带余额的报表
      * @param request
      * @return
      */
     @GetMapping(value = "/listWithBalance")
-    @ApiOperation(value = "鑾峰彇甯︿綑棰濈殑鎶ヨ〃")
+    @ApiOperation(value = "获取带余额的报表")
     public TableDataInfo listWithBalance(@RequestParam("name") String name,
                                             @RequestParam("serialNo") String serialNo,
                                             HttpServletRequest request) throws Exception {
@@ -264,11 +259,12 @@ public class AccountController extends BaseController {
     }
 
     /**
-     * 缁撶畻璐︽埛鐨勭粺璁?     * @param request
+     * 结算账户的统计
+     * @param request
      * @return
      */
     @GetMapping(value = "/getStatistics")
-    @ApiOperation(value = "缁撶畻璐︽埛鐨勭粺璁?)
+    @ApiOperation(value = "结算账户的统计")
     public BaseResponseInfo getStatistics(@RequestParam("name") String name,
                                           @RequestParam("serialNo") String serialNo,
                                           HttpServletRequest request) throws Exception {
@@ -280,18 +276,19 @@ public class AccountController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?     * @param jsonObject
+     * 批量设置状态-启用或者禁用
+     * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?)
+    @ApiOperation(value = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");

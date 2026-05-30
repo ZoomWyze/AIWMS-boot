@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 商品（物料）管理 Controller
- * 提供商品信息的 CRUD 接口，包括：新增/编辑/查询/删除/批量更新/条码校验/拼音转换
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -46,7 +39,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/material")
-@Api(tags = {"鍟嗗搧绠＄悊"})
+@Api(tags = {"商品管理"})
 public class MaterialController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(MaterialController.class);
 
@@ -75,7 +68,7 @@ public class MaterialController extends BaseController {
     private Long fileUploadType;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Material material = materialService.getMaterial(id);
@@ -89,7 +82,7 @@ public class MaterialController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
+    @ApiOperation(value = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String categoryId = StringUtil.getInfo(search, "categoryId");
@@ -116,7 +109,7 @@ public class MaterialController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "鏂板")
+    @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = materialService.insertMaterial(obj, request);
@@ -124,7 +117,7 @@ public class MaterialController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "淇敼")
+    @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = materialService.updateMaterial(obj, request);
@@ -132,7 +125,7 @@ public class MaterialController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "鍒犻櫎")
+    @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialService.deleteMaterial(id, request);
@@ -140,7 +133,7 @@ public class MaterialController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "鎵归噺鍒犻櫎")
+    @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = materialService.batchDeleteMaterial(ids, request);
@@ -148,7 +141,7 @@ public class MaterialController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -162,7 +155,8 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 妫€鏌ュ晢鍝佹槸鍚﹀瓨鍦?     * @param id
+     * 检查商品是否存在
+     * @param id
      * @param name
      * @param model
      * @param color
@@ -178,7 +172,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/checkIsExist")
-    @ApiOperation(value = "妫€鏌ュ晢鍝佹槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查商品是否存在")
     public String checkIsExist(@RequestParam("id") Long id, @RequestParam("name") String name,
                                @RequestParam("model") String model, @RequestParam("color") String color,
                                @RequestParam("standard") String standard, @RequestParam("mfrs") String mfrs,
@@ -198,13 +192,14 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?     * @param jsonObject
+     * 批量设置状态-启用或者禁用
+     * @param jsonObject
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?)
+    @ApiOperation(value = "批量设置状态-启用或者禁用")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");
@@ -219,12 +214,13 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鏍规嵁id鏉ユ煡璇㈠晢鍝佸悕绉?     * @param id
+     * 根据id来查询商品名称
+     * @param id
      * @param request
      * @return
      */
     @GetMapping(value = "/findById")
-    @ApiOperation(value = "鏍规嵁id鏉ユ煡璇㈠晢鍝佸悕绉?)
+    @ApiOperation(value = "根据id来查询商品名称")
     public BaseResponseInfo findById(@RequestParam("id") Long id, HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -234,18 +230,19 @@ public class MaterialController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鏍规嵁meId鏉ユ煡璇㈠晢鍝佸悕绉?     * @param meId
+     * 根据meId来查询商品名称
+     * @param meId
      * @param request
      * @return
      */
     @GetMapping(value = "/findByIdWithBarCode")
-    @ApiOperation(value = "鏍规嵁meId鏉ユ煡璇㈠晢鍝佸悕绉?)
+    @ApiOperation(value = "根据meId来查询商品名称")
     public BaseResponseInfo findByIdWithBarCode(@RequestParam("meId") Long meId,
                                                 @RequestParam("mpList") String mpList,
                                                 HttpServletRequest request) throws Exception{
@@ -263,18 +260,19 @@ public class MaterialController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鏍规嵁鍏抽敭璇嶆煡鎵惧晢鍝佷俊鎭?鏉＄爜銆佸悕绉般€佽鏍笺€佸瀷鍙?     * @param q
+     * 根据关键词查找商品信息-条码、名称、规格、型号
+     * @param q
      * @param request
      * @return
      */
     @GetMapping(value = "/getMaterialByParam")
-    @ApiOperation(value = "鏍规嵁鍏抽敭璇嶆煡鎵惧晢鍝佷俊鎭?)
+    @ApiOperation(value = "根据关键词查找商品信息")
     public BaseResponseInfo getMaterialByParam(@RequestParam("q") String q,
                                    HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -285,18 +283,19 @@ public class MaterialController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鏌ユ壘鍟嗗搧淇℃伅-涓嬫媺妗?     * @param mpList
+     * 查找商品信息-下拉框
+     * @param mpList
      * @param request
      * @return
      */
     @GetMapping(value = "/findBySelect")
-    @ApiOperation(value = "鏌ユ壘鍟嗗搧淇℃伅")
+    @ApiOperation(value = "查找商品信息")
     public JSONObject findBySelect(@RequestParam(value = "categoryId", required = false) Long categoryId,
                                   @RequestParam(value = "q", required = false) String q,
                                   @RequestParam(value = "standardOrModel", required = false) String standardOrModel,
@@ -327,22 +326,22 @@ public class MaterialController extends BaseController {
                     enableSerialNumber, enableBatchNumber);
             object.put("total", total);
             JSONArray dataArray = new JSONArray();
-            //瀛樻斁鏁版嵁json鏁扮粍
+            //存放数据json数组
             if (null != dataList) {
                 for (MaterialVo4Unit material : dataList) {
                     JSONObject item = new JSONObject();
-                    item.put("id", material.getMeId()); //鍟嗗搧鎵╁睍琛ㄧ殑id
-                    String ratioStr = ""; //姣斾緥
+                    item.put("id", material.getMeId()); //商品扩展表的id
+                    String ratioStr = ""; //比例
                     Unit unit = new Unit();
                     if (material.getUnitId() == null) {
                         ratioStr = "";
                     } else {
                         unit = unitService.getUnit(material.getUnitId());
-                        //鎷兼帴鍓崟浣嶇殑姣斾緥
+                        //拼接副单位的比例
                         String commodityUnit = material.getCommodityUnit();
                         if(StringUtil.isNotEmpty(commodityUnit) && unit!=null) {
                             if(commodityUnit.equals(unit.getBasicUnit())) {
-                                ratioStr = "[鍩烘湰]";
+                                ratioStr = "[基本]";
                             }
                             if(commodityUnit.equals(unit.getOtherUnit()) && unit.getRatio()!=null) {
                                 ratioStr = "[" + unit.getRatio().stripTrailingZeros().toPlainString() + unit.getBasicUnit() + "]";
@@ -402,14 +401,14 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鏍规嵁鍟嗗搧id鏌ユ壘鍟嗗搧淇℃伅
+     * 根据商品id查找商品信息
      * @param meId
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/getMaterialByMeId")
-    @ApiOperation(value = "鏍规嵁鍟嗗搧id鏌ユ壘鍟嗗搧淇℃伅")
+    @ApiOperation(value = "根据商品id查找商品信息")
     public JSONObject getMaterialByMeId(@RequestParam(value = "meId", required = false) Long meId,
                                         @RequestParam("mpList") String mpList,
                                         HttpServletRequest request) throws Exception{
@@ -421,19 +420,19 @@ public class MaterialController extends BaseController {
                 return item;
             } else if(materialList.size() == 1) {
                 MaterialVo4Unit material = materialList.get(0);
-                item.put("Id", material.getMeId()); //鍟嗗搧鎵╁睍琛ㄧ殑id
-                String ratio; //姣斾緥
+                item.put("Id", material.getMeId()); //商品扩展表的id
+                String ratio; //比例
                 if (material.getUnitId() == null || material.getUnitId().equals("")) {
                     ratio = "";
                 } else {
                     ratio = material.getUnitName();
                     ratio = ratio.substring(ratio.indexOf("("));
                 }
-                //鍚嶇О/鍨嬪彿/鎵╁睍淇℃伅/鍖呰
+                //名称/型号/扩展信息/包装
                 String MaterialName = "";
                 MaterialName = MaterialName + material.getmBarCode() + "_" + material.getName()
                         + ((material.getStandard() == null || material.getStandard().equals("")) ? "" : "(" + material.getStandard() + ")");
-                String expand = materialService.getMaterialOtherByParam(mpArr, material); //鎵╁睍淇℃伅
+                String expand = materialService.getMaterialOtherByParam(mpArr, material); //扩展信息
                 MaterialName = MaterialName + expand + ((material.getUnit() == null || material.getUnit().equals("")) ? "" : "(" + material.getUnit() + ")") + ratio;
                 item.put("MaterialName", MaterialName);
                 item.put("name", material.getName());
@@ -449,7 +448,7 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鐢熸垚excel琛ㄦ牸
+     * 生成excel表格
      * @param categoryId
      * @param materialParam
      * @param color
@@ -464,7 +463,7 @@ public class MaterialController extends BaseController {
      * @param response
      */
     @GetMapping(value = "/exportExcel")
-    @ApiOperation(value = "鐢熸垚excel琛ㄦ牸")
+    @ApiOperation(value = "生成excel表格")
     public void exportExcel(@RequestParam(value = "categoryId", required = false) String categoryId,
                             @RequestParam(value = "materialParam", required = false) String materialParam,
                             @RequestParam(value = "color", required = false) String color,
@@ -488,13 +487,14 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * excel琛ㄦ牸瀵煎叆浜у搧锛堝惈鍒濆搴撳瓨锛?     * @param file
+     * excel表格导入产品（含初始库存）
+     * @param file
      * @param request
      * @param response
      * @return
      */
     @PostMapping(value = "/importExcel")
-    @ApiOperation(value = "excel琛ㄦ牸瀵煎叆浜у搧")
+    @ApiOperation(value = "excel表格导入产品")
     public BaseResponseInfo importExcel(MultipartFile file,
                             HttpServletRequest request, HttpServletResponse response) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
@@ -507,7 +507,8 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鑾峰彇鍟嗗搧搴忓垪鍙?     * @param q
+     * 获取商品序列号
+     * @param q
      * @param currentPage
      * @param pageSize
      * @param request
@@ -516,7 +517,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getMaterialEnableSerialNumberList")
-    @ApiOperation(value = "鑾峰彇鍟嗗搧搴忓垪鍙?)
+    @ApiOperation(value = "获取商品序列号")
     public JSONObject getMaterialEnableSerialNumberList(
                                 @RequestParam(value = "q", required = false) String q,
                                 @RequestParam("page") Integer currentPage,
@@ -536,11 +537,12 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鑾峰彇鏈€澶ф潯鐮?     * @return
+     * 获取最大条码
+     * @return
      * @throws Exception
      */
     @GetMapping(value = "/getMaxBarCode")
-    @ApiOperation(value = "鑾峰彇鏈€澶ф潯鐮?)
+    @ApiOperation(value = "获取最大条码")
     public BaseResponseInfo getMaxBarCode() throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         Map<String, Object> map = new HashMap<String, Object>();
@@ -552,12 +554,12 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鍟嗗搧鍚嶇О妯＄硦鍖归厤
+     * 商品名称模糊匹配
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/getMaterialNameList")
-    @ApiOperation(value = "鍟嗗搧鍚嶇О妯＄硦鍖归厤")
+    @ApiOperation(value = "商品名称模糊匹配")
     public JSONArray getMaterialNameList() throws Exception {
         JSONArray arr = new JSONArray();
         try {
@@ -575,12 +577,12 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鏍规嵁鏉＄爜鏌ヨ鍟嗗搧淇℃伅
+     * 根据条码查询商品信息
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/getMaterialByBarCode")
-    @ApiOperation(value = "鏍规嵁鏉＄爜鏌ヨ鍟嗗搧淇℃伅")
+    @ApiOperation(value = "根据条码查询商品信息")
     public BaseResponseInfo getMaterialByBarCode(@RequestParam("barCode") String barCode,
                                           @RequestParam(value = "organId", required = false) Long organId,
                                           @RequestParam(value = "depotId", required = false) Long depotId,
@@ -592,7 +594,7 @@ public class MaterialController extends BaseController {
             Long userId = userService.getUserId(request);
             String priceLimit = userService.getRoleTypeByUserId(userId).getPriceLimit();
             String[] mpArr = mpList.split(",");
-            //鏀寔搴忓垪鍙锋煡璇紝鍏堟牴鎹簭鍒楀彿鏌ヨ鏉＄爜锛屽鏋滄煡涓嶅埌灏辩洿鎺ユ煡鏉＄爜
+            //支持序列号查询，先根据序列号查询条码，如果查不到就直接查条码
             MaterialExtend materialExtend = materialService.getMaterialExtendBySerialNumber(barCode);
             if(materialExtend!=null && StringUtil.isNotEmpty(materialExtend.getBarCode())) {
                 barCode = materialExtend.getBarCode();
@@ -602,39 +604,43 @@ public class MaterialController extends BaseController {
                 for(MaterialVo4Unit mvo: list) {
                     mvo.setMaterialOther(materialService.getMaterialOtherByParam(mpArr, mvo));
                     if ("LSCK".equals(prefixNo) || "LSTH".equals(prefixNo)) {
-                        //闆跺敭浠?                        mvo.setBillPrice(mvo.getCommodityDecimal());
+                        //零售价
+                        mvo.setBillPrice(mvo.getCommodityDecimal());
                     } else if ("CGDD".equals(prefixNo) || "CGRK".equals(prefixNo) || "CGTH".equals(prefixNo)) {
-                        //閲囪喘浠?                        mvo.setBillPrice(mvo.getPurchaseDecimal());
+                        //采购价
+                        mvo.setBillPrice(mvo.getPurchaseDecimal());
                     } else if("QTRK".equals(prefixNo) || "DBCK".equals(prefixNo) || "ZZD".equals(prefixNo) || "CXD".equals(prefixNo)
                             || "PDLR".equals(prefixNo) || "PDFP".equals(prefixNo)) {
-                        //閲囪喘浠?缁欏綍鍏ョ晫闈㈡寜鏉冮檺灞忚斀
+                        //采购价-给录入界面按权限屏蔽
                         mvo.setBillPrice(roleService.parseBillPriceByLimit(mvo.getPurchaseDecimal(), "buy", priceLimit, request));
                     } else if ("XSDD".equals(prefixNo) || "XSCK".equals(prefixNo) || "XSTH".equals(prefixNo) || "QTCK".equals(prefixNo)) {
-                        //閿€鍞环
+                        //销售价
                         if(organId == null) {
                             mvo.setBillPrice(mvo.getWholesaleDecimal());
                         } else {
                             if(systemConfigService.getCustomerStaticPriceFlag()) {
-                                //宸茬粡寮€鍚簡瀹㈡埛闈欐€佸崟浠风殑寮€鍏?                                mvo.setBillPrice(mvo.getWholesaleDecimal());
+                                //已经开启了客户静态单价的开关
+                                mvo.setBillPrice(mvo.getWholesaleDecimal());
                             } else {
-                                //鏌ヨ鏈€鍚庝竴鍗曠殑閿€鍞环,瀹炵幇涓嶅悓鐨勫鎴蜂笉鍚岀殑閿€鍞环
+                                //查询最后一单的销售价,实现不同的客户不同的销售价
                                 BigDecimal lastUnitPrice = depotItemService.getLastUnitPriceByParam(organId, mvo.getMeId(), prefixNo);
                                 mvo.setBillPrice(lastUnitPrice!=null? lastUnitPrice : mvo.getWholesaleDecimal());
                             }
                         }
-                        //閿€鍞环-缁欏綍鍏ョ晫闈㈡寜鏉冮檺灞忚斀浠锋牸
+                        //销售价-给录入界面按权限屏蔽价格
                         if("QTCK".equals(prefixNo)) {
                             mvo.setBillPrice(roleService.parseBillPriceByLimit(mvo.getWholesaleDecimal(), "sale", priceLimit, request));
                         }
                     } else if ("other".equals(prefixNo)) {
-                        //鍏跺畠闇€瑕佸～鍏呭晢鍝侀噰璐环鎴栬€呮垚鏈环鐨勫満鏅?                        if(systemConfigService.getMoveAvgPriceFlag()) {
+                        //其它需要填充商品采购价或者成本价的场景
+                        if(systemConfigService.getMoveAvgPriceFlag()) {
                             BigDecimal currentUnitPrice = materialService.getCurrentUnitPriceByMaterialId(mvo.getId());
                             mvo.setBillPrice(currentUnitPrice);
                         } else {
                             mvo.setBillPrice(mvo.getPurchaseDecimal());
                         }
                     }
-                    //浠撳簱id
+                    //仓库id
                     if (depotId == null) {
                         JSONArray depotArr = depotService.findDepotByCurrentUser();
                         for (Object obj : depotArr) {
@@ -644,7 +650,7 @@ public class MaterialController extends BaseController {
                                 if (isDefault) {
                                     Long id = depotObj.getLong("id");
                                     if (!"CGDD".equals(prefixNo) && !"XSDD".equals(prefixNo)) {
-                                        //闄よ鍗曚箣澶栫殑鍗曟嵁鎵嶆湁浠撳簱
+                                        //除订单之外的单据才有仓库
                                         mvo.setDepotId(id);
                                     }
                                     getStockByMaterialInfo(mvo);
@@ -662,13 +668,14 @@ public class MaterialController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鏍规嵁鍟嗗搧淇℃伅鑾峰彇搴撳瓨锛岃繘琛岃祴鍊?     * @param mvo
+     * 根据商品信息获取库存，进行赋值
+     * @param mvo
      * @throws Exception
      */
     private void getStockByMaterialInfo(MaterialVo4Unit mvo) throws Exception {
@@ -687,7 +694,7 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鍟嗗搧搴撳瓨鏌ヨ
+     * 商品库存查询
      * @param currentPage
      * @param pageSize
      * @param depotIds
@@ -701,7 +708,7 @@ public class MaterialController extends BaseController {
      * @throws Exception
      */
     @GetMapping(value = "/getListWithStock")
-    @ApiOperation(value = "鍟嗗搧搴撳瓨鏌ヨ")
+    @ApiOperation(value = "商品库存查询")
     public BaseResponseInfo getListWithStock(@RequestParam("currentPage") Integer currentPage,
                                              @RequestParam("pageSize") Integer pageSize,
                                              @RequestParam(value = "depotIds", required = false) String depotIds,
@@ -723,7 +730,7 @@ public class MaterialController extends BaseController {
             if(StringUtil.isNotEmpty(depotIds)) {
                 depotList = StringUtil.strToLongList(depotIds);
             } else {
-                //鏈€夋嫨浠撳簱鏃堕粯璁や负褰撳墠鐢ㄦ埛鏈夋潈闄愮殑浠撳簱
+                //未选择仓库时默认为当前用户有权限的仓库
                 JSONArray depotArr = depotService.findDepotByCurrentUser();
                 for(Object obj: depotArr) {
                     JSONObject object = JSONObject.parseObject(obj.toString());
@@ -749,27 +756,27 @@ public class MaterialController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鎵归噺璁剧疆鍟嗗搧褰撳墠鐨勫疄鏃跺簱瀛橈紙鎸夋瘡涓粨搴擄級
+     * 批量设置商品当前的实时库存（按每个仓库）
      * @param jsonObject
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/batchSetMaterialCurrentStock")
-    @ApiOperation(value = "鎵归噺璁剧疆鍟嗗搧褰撳墠鐨勫疄鏃跺簱瀛橈紙鎸夋瘡涓粨搴擄級")
+    @ApiOperation(value = "批量设置商品当前的实时库存（按每个仓库）")
     public String batchSetMaterialCurrentStock(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         String ids = jsonObject.getString("ids");
         Map<String, Object> objectMap = new HashMap<>();
         List<Depot> depotList = depotService.getAllList();
         if(depotList.isEmpty()) {
-            return returnJson(objectMap, "璇峰厛鍒涘缓浠撳簱鍚庡啀鎿嶄綔", ErpInfo.WARING_MSG.code);
+            return returnJson(objectMap, "请先创建仓库后再操作", ErpInfo.WARING_MSG.code);
         }
         int res = materialService.batchSetMaterialCurrentStock(ids, depotList);
         if(res > 0) {
@@ -780,14 +787,14 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鎵归噺璁剧疆鍟嗗搧褰撳墠鐨勬垚鏈环
+     * 批量设置商品当前的成本价
      * @param jsonObject
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/batchSetMaterialCurrentUnitPrice")
-    @ApiOperation(value = "鎵归噺璁剧疆鍟嗗搧褰撳墠鐨勬垚鏈环")
+    @ApiOperation(value = "批量设置商品当前的成本价")
     public String batchSetMaterialCurrentUnitPrice(@RequestBody JSONObject jsonObject,
                                                HttpServletRequest request)throws Exception {
         String ids = jsonObject.getString("ids");
@@ -801,14 +808,14 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 鎵归噺鏇存柊鍟嗗搧淇℃伅
+     * 批量更新商品信息
      * @param jsonObject
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/batchUpdate")
-    @ApiOperation(value = "鎵归噺鏇存柊鍟嗗搧淇℃伅")
+    @ApiOperation(value = "批量更新商品信息")
     public String batchUpdate(@RequestBody JSONObject jsonObject,
                               HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -821,10 +828,11 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 杞崲鍚嶇О涓烘嫾闊?     * @param jsonObject
+     * 转换名称为拼音
+     * @param jsonObject
      */
     @PostMapping(value = "/changeNameToPinYin")
-    @ApiOperation(value = "杞崲鍚嶇О涓烘嫾闊?)
+    @ApiOperation(value = "转换名称为拼音")
     public BaseResponseInfo changeNameToPinYin(@RequestBody JSONObject jsonObject)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -834,18 +842,19 @@ public class MaterialController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鏍规嵁浠撳簱鍜屽晢鍝佹煡璇㈠簱瀛樺垎甯冩儏鍐?     * @param mId
+     * 根据仓库和商品查询库存分布情况
+     * @param mId
      * @param request
      * @return
      */
     @GetMapping(value = "/getMaterialDepotStock")
-    @ApiOperation(value = "鏍规嵁浠撳簱鍜屽晢鍝佹煡璇㈠簱瀛樺垎甯冩儏鍐?)
+    @ApiOperation(value = "根据仓库和商品查询库存分布情况")
     public TableDataInfo getMaterialDepotStock(
             @RequestParam(value = "depotIds",required = false) String depotIds,
             @RequestParam("materialId") Long mId,

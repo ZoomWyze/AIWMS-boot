@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 角色管理 Controller
- * 提供角色的 CRUD 接口，包括角色列表查询
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -38,7 +31,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/role")
-@Api(tags = {"瑙掕壊绠＄悊"})
+@Api(tags = {"角色管理"})
 public class RoleController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(RoleController.class);
 
@@ -49,7 +42,7 @@ public class RoleController extends BaseController {
     private UserBusinessService userBusinessService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Role role = roleService.getRole(id);
@@ -63,7 +56,7 @@ public class RoleController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
+    @ApiOperation(value = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -73,7 +66,7 @@ public class RoleController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "鏂板")
+    @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = roleService.insertRole(obj, request);
@@ -81,7 +74,7 @@ public class RoleController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "淇敼")
+    @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = roleService.updateRole(obj, request);
@@ -89,7 +82,7 @@ public class RoleController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "鍒犻櫎")
+    @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = roleService.deleteRole(id, request);
@@ -97,7 +90,7 @@ public class RoleController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "鎵归噺鍒犻櫎")
+    @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = roleService.batchDeleteRole(ids, request);
@@ -105,7 +98,7 @@ public class RoleController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -119,17 +112,17 @@ public class RoleController extends BaseController {
     }
 
     /**
-     * 瑙掕壊瀵瑰簲搴旂敤鏄剧ず
+     * 角色对应应用显示
      * @param request
      * @return
      */
     @GetMapping(value = "/findUserRole")
-    @ApiOperation(value = "鏌ヨ鐢ㄦ埛鐨勮鑹?)
+    @ApiOperation(value = "查询用户的角色")
     public JSONArray findUserRole(@RequestParam("UBType") String type, @RequestParam("UBKeyId") String keyId,
                                   HttpServletRequest request)throws Exception {
         JSONArray arr = new JSONArray();
         try {
-            //鑾峰彇鏉冮檺淇℃伅
+            //获取权限信息
             String ubValue = userBusinessService.getUBValueByTypeAndKeyId(type, keyId);
             List<Role> dataList = roleService.findUserRole();
             if (null != dataList) {
@@ -151,25 +144,25 @@ public class RoleController extends BaseController {
     }
 
     @GetMapping(value = "/allList")
-    @ApiOperation(value = "鏌ヨ鍏ㄩ儴瑙掕壊鍒楄〃")
+    @ApiOperation(value = "查询全部角色列表")
     public List<Role> allList(HttpServletRequest request)throws Exception {
         return roleService.allList();
     }
 
     @GetMapping(value = "/tenantRoleList")
-    @ApiOperation(value = "鏌ヨ绉熸埛瑙掕壊鍒楄〃")
+    @ApiOperation(value = "查询租户角色列表")
     public List<Role> tenantRoleList(HttpServletRequest request)throws Exception {
         return roleService.tenantRoleList();
     }
 
     /**
-     * 鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?
+     * 批量设置状态-启用或者禁用
      * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?)
+    @ApiOperation(value = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");

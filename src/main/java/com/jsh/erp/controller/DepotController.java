@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 仓库管理 Controller
- * 提供仓库信息的 CRUD 接口（新增/编辑/查询/删除/唯一性校验）
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.base.BaseController;
@@ -47,7 +40,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/depot")
-@Api(tags = {"浠撳簱绠＄悊"})
+@Api(tags = {"仓库管理"})
 public class DepotController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(DepotController.class);
 
@@ -64,7 +57,7 @@ public class DepotController extends BaseController {
     private UserService userService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         Depot depot = depotService.getDepot(id);
@@ -78,7 +71,7 @@ public class DepotController extends BaseController {
     }
 
     @GetMapping(value = "/list")
-    @ApiOperation(value = "鑾峰彇淇℃伅鍒楄〃")
+    @ApiOperation(value = "获取信息列表")
     public TableDataInfo getList(@RequestParam(value = Constants.SEARCH, required = false) String search,
                                  HttpServletRequest request)throws Exception {
         String name = StringUtil.getInfo(search, "name");
@@ -89,7 +82,7 @@ public class DepotController extends BaseController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "鏂板")
+    @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = depotService.insertDepot(obj, request);
@@ -97,7 +90,7 @@ public class DepotController extends BaseController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "淇敼")
+    @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = depotService.updateDepot(obj, request);
@@ -105,7 +98,7 @@ public class DepotController extends BaseController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "鍒犻櫎")
+    @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = depotService.deleteDepot(id, request);
@@ -113,7 +106,7 @@ public class DepotController extends BaseController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "鎵归噺鍒犻櫎")
+    @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = depotService.batchDeleteDepot(ids, request);
@@ -121,7 +114,7 @@ public class DepotController extends BaseController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -135,13 +128,13 @@ public class DepotController extends BaseController {
     }
 
     /**
-     * 浠撳簱鍒楄〃
+     * 仓库列表
      * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/getAllList")
-    @ApiOperation(value = "浠撳簱鍒楄〃")
+    @ApiOperation(value = "仓库列表")
     public BaseResponseInfo getAllList(HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -151,35 +144,35 @@ public class DepotController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鐢ㄦ埛瀵瑰簲浠撳簱鏄剧ず
+     * 用户对应仓库显示
      * @param type
      * @param keyId
      * @param request
      * @return
      */
     @GetMapping(value = "/findUserDepot")
-    @ApiOperation(value = "鐢ㄦ埛瀵瑰簲浠撳簱鏄剧ず")
+    @ApiOperation(value = "用户对应仓库显示")
     public JSONArray findUserDepot(@RequestParam("UBType") String type, @RequestParam("UBKeyId") String keyId,
                                  HttpServletRequest request) throws Exception{
         JSONArray arr = new JSONArray();
         try {
-            //鑾峰彇鏉冮檺淇℃伅
+            //获取权限信息
             String ubValue = userBusinessService.getUBValueByTypeAndKeyId(type, keyId);
             List<Depot> dataList = depotService.findUserDepot();
-            //寮€濮嬫嫾鎺son鏁版嵁
+            //开始拼接json数据
             JSONObject outer = new JSONObject();
             outer.put("id", 0);
             outer.put("key", 0);
             outer.put("value", 0);
-            outer.put("title", "浠撳簱鍒楄〃");
-            outer.put("attributes", "浠撳簱鍒楄〃");
-            //瀛樻斁鏁版嵁json鏁扮粍
+            outer.put("title", "仓库列表");
+            outer.put("attributes", "仓库列表");
+            //存放数据json数组
             JSONArray dataArray = new JSONArray();
             if (null != dataList) {
                 for (Depot depot : dataList) {
@@ -205,12 +198,13 @@ public class DepotController extends BaseController {
     }
 
     /**
-     * 鑾峰彇褰撳墠鐢ㄦ埛鎷ユ湁鏉冮檺鐨勪粨搴撳垪琛?     * @param request
+     * 获取当前用户拥有权限的仓库列表
+     * @param request
      * @return
      * @throws Exception
      */
     @GetMapping(value = "/findDepotByCurrentUser")
-    @ApiOperation(value = "鑾峰彇褰撳墠鐢ㄦ埛鎷ユ湁鏉冮檺鐨勪粨搴撳垪琛?)
+    @ApiOperation(value = "获取当前用户拥有权限的仓库列表")
     public BaseResponseInfo findDepotByCurrentUser(HttpServletRequest request) throws Exception{
         BaseResponseInfo res = new BaseResponseInfo();
         try {
@@ -220,20 +214,20 @@ public class DepotController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鏇存柊榛樿浠撳簱
+     * 更新默认仓库
      * @param object
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping(value = "/updateIsDefault")
-    @ApiOperation(value = "鏇存柊榛樿浠撳簱")
+    @ApiOperation(value = "更新默认仓库")
     public String updateIsDefault(@RequestBody JSONObject object,
                                        HttpServletRequest request) throws Exception{
         Long depotId = object.getLong("id");
@@ -247,12 +241,13 @@ public class DepotController extends BaseController {
     }
 
     /**
-     * 浠撳簱鍒楄〃-甯﹀簱瀛?     * @param mId
+     * 仓库列表-带库存
+     * @param mId
      * @param request
      * @return
      */
     @GetMapping(value = "/getAllListWithStock")
-    @ApiOperation(value = "浠撳簱鍒楄〃-甯﹀簱瀛?)
+    @ApiOperation(value = "仓库列表-带库存")
     public BaseResponseInfo getAllList(@RequestParam("mId") Long mId,
                                        HttpServletRequest request) {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -282,18 +277,19 @@ public class DepotController extends BaseController {
         } catch(Exception e){
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鑾峰彇鏁版嵁澶辫触";
+            res.data = "获取数据失败";
         }
         return res;
     }
 
     /**
-     * 鎵归噺璁剧疆鐘舵€?鍚敤鎴栬€呯鐢?     * @param jsonObject
+     * 批量设置状态-启用或者禁用
+     * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/batchSetStatus")
-    @ApiOperation(value = "鎵归噺璁剧疆鐘舵€?)
+    @ApiOperation(value = "批量设置状态")
     public String batchSetStatus(@RequestBody JSONObject jsonObject,
                                  HttpServletRequest request)throws Exception {
         Boolean status = jsonObject.getBoolean("status");

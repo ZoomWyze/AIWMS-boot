@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.entities;
 
-
-/**
- * Role 实体的扩展类
- * 在 Role 基础上增加关联查询字段
- *
- * @author jishenghua
- */
 public class RoleEx extends Role{
 
     private String priceLimitStr;

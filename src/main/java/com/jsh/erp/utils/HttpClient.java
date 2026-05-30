@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.utils;
+package com.jsh.erp.utils;
 
-
-/**
- * HTTP 客户端工具类
- * 封装 HTTP 请求的发送方法（GET/POST），用于调用外部接口
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
@@ -32,7 +25,7 @@ public final class HttpClient {
     private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setSocketTimeout(15000).setConnectTimeout(10000).build();
 
     /**
-     * 閲囩敤Get鏂瑰紡鍙戦€佽姹傦紝鑾峰彇鍝嶅簲鏁版嵁
+     * 采用Get方式发送请求，获取响应数据
      * @param url
      * @return
      */
@@ -44,14 +37,14 @@ public final class HttpClient {
             CloseableHttpResponse chr = client.execute(httpGet);
             int statusCode = chr.getStatusLine().getStatusCode();
             if (SC_OK != statusCode) {
-                throw new RuntimeException(String.format("%s鏌ヨ鍑虹幇寮傚父", url));
+                throw new RuntimeException(String.format("%s查询出现异常", url));
             }
             String entity = EntityUtils.toString(chr.getEntity(), StandardCharsets.UTF_8);
             JSONObject object = JSONObject.parseObject(entity);
             return object;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            throw new RuntimeException(String.format("%s", url) + "鏌ヨ鍑虹幇寮傚父");
+            throw new RuntimeException(String.format("%s", url) + "查询出现异常");
         } finally {
             try {
                 client.close();
@@ -62,10 +55,10 @@ public final class HttpClient {
     }
 
     /**
-     * 閲囩敤Post鏂瑰紡鍙戦€佽姹傦紝鑾峰彇鍝嶅簲鏁版嵁
+     * 采用Post方式发送请求，获取响应数据
      *
-     * @param url        url鍦板潃
-     * @param param  鍙傛暟鍊奸敭鍊煎鐨勫瓧绗︿覆
+     * @param url        url地址
+     * @param param  参数值键值对的字符串
      * @return
      */
     public static String httpPost(String url, String param) {
@@ -82,7 +75,7 @@ public final class HttpClient {
 
             HttpEntity entity = response.getEntity();
             String data = EntityUtils.toString(entity, StandardCharsets.UTF_8);
-            logger.info("鐘舵€?"+statusCode+",鏁版嵁:"+data);
+            logger.info("状态:"+statusCode+",数据:"+data);
             return data;
         } catch(Exception e){
             throw new RuntimeException(e.getMessage());

@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.datasource.mappers;
+package com.jsh.erp.datasource.mappers;
 
-
-/**
- * SerialNumber MyBatis Mapper 接口
- * 提供 SerialNumber 实体的基本 CRUD 操作（由 MyBatis Generator 生成）
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.SerialNumber;
 import com.jsh.erp.datasource.entities.SerialNumberExample;
 import java.util.List;

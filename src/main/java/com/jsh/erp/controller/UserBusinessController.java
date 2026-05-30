@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.controller;
+package com.jsh.erp.controller;
 
-
-/**
- * 用户业务关系 Controller
- * 提供用户与角色/模块的关联关系管理接口
- *
- * @author jishenghua
- */
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.datasource.entities.UserBusiness;
@@ -33,7 +26,7 @@ import static com.jsh.erp.utils.ResponseJsonUtil.returnStr;
  */
 @RestController
 @RequestMapping(value = "/userBusiness")
-@Api(tags = {"鐢ㄦ埛瑙掕壊妯″潡鐨勫叧绯?})
+@Api(tags = {"用户角色模块的关系"})
 public class UserBusinessController {
     private Logger logger = LoggerFactory.getLogger(UserBusinessController.class);
 
@@ -41,7 +34,7 @@ public class UserBusinessController {
     private UserBusinessService userBusinessService;
 
     @GetMapping(value = "/info")
-    @ApiOperation(value = "鏍规嵁id鑾峰彇淇℃伅")
+    @ApiOperation(value = "根据id获取信息")
     public String getList(@RequestParam("id") Long id,
                           HttpServletRequest request) throws Exception {
         UserBusiness userBusiness = userBusinessService.getUserBusiness(id);
@@ -55,7 +48,7 @@ public class UserBusinessController {
     }
 
     @PostMapping(value = "/add")
-    @ApiOperation(value = "鏂板")
+    @ApiOperation(value = "新增")
     public String addResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int insert = userBusinessService.insertUserBusiness(obj, request);
@@ -63,7 +56,7 @@ public class UserBusinessController {
     }
 
     @PutMapping(value = "/update")
-    @ApiOperation(value = "淇敼")
+    @ApiOperation(value = "修改")
     public String updateResource(@RequestBody JSONObject obj, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int update = userBusinessService.updateUserBusiness(obj, request);
@@ -71,7 +64,7 @@ public class UserBusinessController {
     }
 
     @DeleteMapping(value = "/delete")
-    @ApiOperation(value = "鍒犻櫎")
+    @ApiOperation(value = "删除")
     public String deleteResource(@RequestParam("id") Long id, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = userBusinessService.deleteUserBusiness(id, request);
@@ -79,7 +72,7 @@ public class UserBusinessController {
     }
 
     @DeleteMapping(value = "/deleteBatch")
-    @ApiOperation(value = "鎵归噺鍒犻櫎")
+    @ApiOperation(value = "批量删除")
     public String batchDeleteResource(@RequestParam("ids") String ids, HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
         int delete = userBusinessService.batchDeleteUserBusiness(ids, request);
@@ -87,7 +80,7 @@ public class UserBusinessController {
     }
 
     @GetMapping(value = "/checkIsNameExist")
-    @ApiOperation(value = "妫€鏌ュ悕绉版槸鍚﹀瓨鍦?)
+    @ApiOperation(value = "检查名称是否存在")
     public String checkIsNameExist(@RequestParam Long id, @RequestParam(value ="name", required = false) String name,
                                    HttpServletRequest request)throws Exception {
         Map<String, Object> objectMap = new HashMap<>();
@@ -101,7 +94,7 @@ public class UserBusinessController {
     }
     
     /**
-     * 鑾峰彇淇℃伅
+     * 获取信息
      * @param keyId
      * @param type
      * @param request
@@ -109,7 +102,7 @@ public class UserBusinessController {
      * @throws Exception
      */
     @GetMapping(value = "/getBasicData")
-    @ApiOperation(value = "鑾峰彇淇℃伅")
+    @ApiOperation(value = "获取信息")
     public BaseResponseInfo getBasicData(@RequestParam(value = "KeyId") String keyId,
                                          @RequestParam(value = "Type") String type,
                                          HttpServletRequest request)throws Exception {
@@ -123,13 +116,13 @@ public class UserBusinessController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鏌ヨ鏉冮檺澶辫触";
+            res.data = "查询权限失败";
         }
         return res;
     }
 
     /**
-     * 鏍￠獙瀛樺湪
+     * 校验存在
      * @param type
      * @param keyId
      * @param request
@@ -137,7 +130,7 @@ public class UserBusinessController {
      * @throws Exception
      */
     @GetMapping(value = "/checkIsValueExist")
-    @ApiOperation(value = "鏍￠獙瀛樺湪")
+    @ApiOperation(value = "校验存在")
     public String checkIsValueExist(@RequestParam(value ="type", required = false) String type,
                                    @RequestParam(value ="keyId", required = false) String keyId,
                                    HttpServletRequest request)throws Exception {
@@ -148,13 +141,13 @@ public class UserBusinessController {
     }
 
     /**
-     * 鏇存柊瑙掕壊鐨勬寜閽潈闄?
+     * 更新角色的按钮权限
      * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/updateBtnStr")
-    @ApiOperation(value = "鏇存柊瑙掕壊鐨勬寜閽潈闄?)
+    @ApiOperation(value = "更新角色的按钮权限")
     public BaseResponseInfo updateBtnStr(@RequestBody JSONObject jsonObject,
                                          HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -166,24 +159,24 @@ public class UserBusinessController {
             int back = userBusinessService.updateBtnStr(keyId, type, btnStr);
             if(back > 0) {
                 res.code = 200;
-                res.data = "鎴愬姛";
+                res.data = "成功";
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鏇存柊鏉冮檺澶辫触";
+            res.data = "更新权限失败";
         }
         return res;
     }
 
     /**
-     * 鏍规嵁KeyId鍜岀被鍨嬫洿鏂颁竴涓€?
+     * 根据KeyId和类型更新一个值
      * @param jsonObject
      * @param request
      * @return
      */
     @PostMapping(value = "/updateOneValueByKeyIdAndType")
-    @ApiOperation(value = "鏍规嵁KeyId鍜岀被鍨嬫洿鏂颁竴涓€?)
+    @ApiOperation(value = "根据KeyId和类型更新一个值")
     public BaseResponseInfo updateOneValueByKeyIdAndType(@RequestBody JSONObject jsonObject,
                                                          HttpServletRequest request)throws Exception {
         BaseResponseInfo res = new BaseResponseInfo();
@@ -194,12 +187,12 @@ public class UserBusinessController {
             int back = userBusinessService.updateOneValueByKeyIdAndType(type, keyIdArr, oneValue);
             if(back > 0) {
                 res.code = 200;
-                res.data = "鎴愬姛";
+                res.data = "成功";
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             res.code = 500;
-            res.data = "鏇存柊鏉冮檺澶辫触";
+            res.data = "更新权限失败";
         }
         return res;
     }

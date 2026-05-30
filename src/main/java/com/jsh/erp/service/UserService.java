@@ -1,12 +1,5 @@
-﻿package com.jsh.erp.service;
+package com.jsh.erp.service;
 
-
-/**
- * 用户 Service
- * 提供用户的业务逻辑：登录/登出/新增/编辑/删除/查询/密码加密/用户权限
- *
- * @author jishenghua
- */
 import com.jsh.erp.datasource.entities.*;
 import com.jsh.erp.datasource.mappers.TenantMapper;
 import com.jsh.erp.exception.BusinessParamCheckingException;
@@ -72,7 +65,7 @@ public class UserService {
     public User getUser(long id)throws Exception {
         User result=null;
         try{
-            //鍏堟牎楠屾槸鍚︾櫥褰曪紝鐒跺悗鎵嶈兘鏌ヨ鐢ㄦ埛鏁版嵁
+            //先校验是否登录，然后才能查询用户数据
             HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
             Long userId = this.getUserId(request);
             if(userId!=null) {
@@ -100,7 +93,7 @@ public class UserService {
     public List<User> getUser(HttpServletRequest request) throws Exception {
         List<User> list=null;
         try{
-            //鍏堟牎楠屾槸鍚︾櫥褰曪紝鐒跺悗鎵嶈兘鏌ヨ鐢ㄦ埛鏁版嵁
+            //先校验是否登录，然后才能查询用户数据
             Long userId = this.getUserId(request);
             if(userId!=null) {
                 UserExample example = new UserExample();
@@ -116,7 +109,7 @@ public class UserService {
     public List<UserEx> select(String userName, String loginName)throws Exception {
         List<UserEx> list=null;
         try {
-            //鍏堟牎楠屾槸鍚︾櫥褰曪紝鐒跺悗鎵嶈兘鏌ヨ鐢ㄦ埛鏁版嵁
+            //先校验是否登录，然后才能查询用户数据
             HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
             Long userId = this.getUserId(request);
             if(userId!=null) {
@@ -125,19 +118,19 @@ public class UserService {
                 for (UserEx ue : list) {
                     String userType = "";
                     if (ue.getId().equals(ue.getTenantId())) {
-                        userType = "绉熸埛";
+                        userType = "租户";
                     } else if (ue.getTenantId() == null) {
-                        userType = "瓒呯";
+                        userType = "超管";
                     } else {
-                        userType = "鏅€?;
+                        userType = "普通";
                     }
                     ue.setUserType(userType);
-                    //鏄惁缁忕悊
+                    //是否经理
                     String leaderFlagStr = "";
                     if ("1".equals(ue.getLeaderFlag())) {
-                        leaderFlagStr = "鏄?;
+                        leaderFlagStr = "是";
                     } else {
-                        leaderFlagStr = "鍚?;
+                        leaderFlagStr = "否";
                     }
                     ue.setLeaderFlagStr(leaderFlagStr);
                 }
@@ -162,17 +155,17 @@ public class UserService {
     public int insertUser(JSONObject obj, HttpServletRequest request)throws Exception {
         User user = JSONObject.parseObject(obj.toJSONString(), User.class);
         String password = "123456";
-        //鍥犲瘑鐮佺敤MD5鍔犲瘑锛岄渶瑕佸瀵嗙爜杩涜杞寲
+        //因密码用MD5加密，需要对密码进行转化
         try {
             password = Tools.md5Encryp(password);
             user.setPassword(password);
         } catch (NoSuchAlgorithmException e) {
-            logger.error(">>>>>>>>>>>>>>杞寲MD5瀛楃涓查敊璇?锛? + e.getMessage());
+            logger.error(">>>>>>>>>>>>>>转化MD5字符串错误 ：" + e.getMessage());
         }
         int result=0;
         try{
             result=userMapper.insertSelective(user);
-            logService.insertLog("鐢ㄦ埛",
+            logService.insertLog("用户",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ADD).append(user.getLoginName()).toString(), request);
         }catch(Exception e){
             JshException.writeFail(logger, e);
@@ -185,10 +178,11 @@ public class UserService {
         User user = JSONObject.parseObject(obj.toJSONString(), User.class);
         int result=0;
         try{
-            //鍒ゆ柇鏄惁鐧诲綍杩?            Object userId = redisService.getObjectFromSessionByKey(request,"userId");
+            //判断是否登录过
+            Object userId = redisService.getObjectFromSessionByKey(request,"userId");
             if (userId != null) {
                 result = userMapper.updateByPrimaryKeySelective(user);
-                logService.insertLog("鐢ㄦ埛",
+                logService.insertLog("用户",
                         new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(user.getLoginName()).toString(), request);
             }
         }catch(Exception e){
@@ -201,10 +195,11 @@ public class UserService {
     public int updateUserByObj(User user, HttpServletRequest request) throws Exception{
         int result=0;
         try{
-            //鍒ゆ柇鏄惁鐧诲綍杩?            Object userId = redisService.getObjectFromSessionByKey(request,"userId");
+            //判断是否登录过
+            Object userId = redisService.getObjectFromSessionByKey(request,"userId");
             if (userId != null) {
                 result = userMapper.updateByPrimaryKeySelective(user);
-                logService.insertLog("鐢ㄦ埛",
+                logService.insertLog("用户",
                         new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(user.getId()).toString(),
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             }
@@ -220,16 +215,17 @@ public class UserService {
         User u = getUser(id);
         String loginName = u.getLoginName();
         if (PermissionUtil.isDefaultManager(loginName)) {
-            logger.info("绂佹閲嶇疆瓒呯瀵嗙爜");
+            logger.info("禁止重置超管密码");
         } else {
             User user = new User();
             user.setId(id);
             user.setPassword(md5Pwd);
             try{
-                //鍒ゆ柇鏄惁鐧诲綍杩?                Object userId = redisService.getObjectFromSessionByKey(request,"userId");
+                //判断是否登录过
+                Object userId = redisService.getObjectFromSessionByKey(request,"userId");
                 if (userId != null) {
                     result = userMapper.updateByPrimaryKeySelective(user);
-                    logService.insertLog("鐢ㄦ埛",
+                    logService.insertLog("用户",
                             new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(id).toString(),
                             ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
                 }
@@ -258,7 +254,7 @@ public class UserService {
         List<User> list = getUserListByIds(ids);
         for(User user: list){
             if(user.getId().equals(user.getTenantId())) {
-                logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,ids:[{}]",
+                logger.error("异常码[{}],异常提示[{}],参数,ids:[{}]",
                         ExceptionConstants.USER_LIMIT_TENANT_DELETE_CODE,ExceptionConstants.USER_LIMIT_TENANT_DELETE_MSG,ids);
                 throw new BusinessRunTimeException(ExceptionConstants.USER_LIMIT_TENANT_DELETE_CODE,
                         ExceptionConstants.USER_LIMIT_TENANT_DELETE_MSG);
@@ -267,22 +263,24 @@ public class UserService {
         }
         String[] idsArray =ids.split(",");
         try{
-            //鍒ゆ柇鏄惁鐧诲綍杩?            Object userId = redisService.getObjectFromSessionByKey(request,"userId");
+            //判断是否登录过
+            Object userId = redisService.getObjectFromSessionByKey(request,"userId");
             if (userId != null) {
                 result = userMapperEx.batDeleteOrUpdateUser(idsArray);
                 if(result>0) {
-                    //浠巖edis涓Щ闄よ繖浜涚敤鎴风殑鐧诲綍鐘舵€?                    for (String idStr : idsArray) {
+                    //从redis中移除这些用户的登录状态
+                    for (String idStr : idsArray) {
                         redisService.deleteObjectByUser(Long.valueOf(idStr));
                     }
                 }
-                logService.insertLog("鐢ㄦ埛", sb.toString(),
+                logService.insertLog("用户", sb.toString(),
                         ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             }
         }catch(Exception e){
             JshException.writeFail(logger, e);
         }
         if(result<1){
-            logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,ids:[{}]",
+            logger.error("异常码[{}],异常提示[{}],参数,ids:[{}]",
                     ExceptionConstants.USER_DELETE_FAILED_CODE,ExceptionConstants.USER_DELETE_FAILED_MSG,ids);
             throw new BusinessRunTimeException(ExceptionConstants.USER_DELETE_FAILED_CODE,
                     ExceptionConstants.USER_DELETE_FAILED_MSG);
@@ -291,8 +289,10 @@ public class UserService {
     }
 
     /**
-     * 鏍￠獙楠岃瘉鐮?     * @param code 楠岃瘉鐮?     * @param uuid 鍞竴鏍囪瘑
-     * @return 缁撴灉
+     * 校验验证码
+     * @param code 验证码
+     * @param uuid 唯一标识
+     * @return 结果
      */
     public void validateCaptcha(String code, String uuid) throws Exception {
         PlatformConfig platformConfig = platformConfigService.getInfoByKey("checkcode_flag");
@@ -304,22 +304,22 @@ public class UserService {
                 String captcha = redisService.getCacheObject(verifyKey);
                 redisService.deleteObject(verifyKey);
                 if (captcha == null) {
-                    logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}]", ExceptionConstants.USER_JCAPTCHA_EXPIRE_CODE, ExceptionConstants.USER_JCAPTCHA_EXPIRE_MSG);
+                    logger.error("异常码[{}],异常提示[{}]", ExceptionConstants.USER_JCAPTCHA_EXPIRE_CODE, ExceptionConstants.USER_JCAPTCHA_EXPIRE_MSG);
                     throw new BusinessRunTimeException(ExceptionConstants.USER_JCAPTCHA_EXPIRE_CODE, ExceptionConstants.USER_JCAPTCHA_EXPIRE_MSG);
                 }
                 if (!code.equalsIgnoreCase(captcha)) {
-                    logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}]", ExceptionConstants.USER_JCAPTCHA_ERROR_CODE, ExceptionConstants.USER_JCAPTCHA_ERROR_MSG);
+                    logger.error("异常码[{}],异常提示[{}]", ExceptionConstants.USER_JCAPTCHA_ERROR_CODE, ExceptionConstants.USER_JCAPTCHA_ERROR_MSG);
                     throw new BusinessRunTimeException(ExceptionConstants.USER_JCAPTCHA_ERROR_CODE, ExceptionConstants.USER_JCAPTCHA_ERROR_MSG);
                 }
             } else {
-                logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}]", ExceptionConstants.USER_JCAPTCHA_EMPTY_CODE, ExceptionConstants.USER_JCAPTCHA_EMPTY_MSG);
+                logger.error("异常码[{}],异常提示[{}]", ExceptionConstants.USER_JCAPTCHA_EMPTY_CODE, ExceptionConstants.USER_JCAPTCHA_EMPTY_MSG);
                 throw new BusinessRunTimeException(ExceptionConstants.USER_JCAPTCHA_EMPTY_CODE, ExceptionConstants.USER_JCAPTCHA_EMPTY_MSG);
             }
         }
     }
 
     /**
-     * 鐢ㄦ埛鐧诲綍
+     * 用户登录
      * @param loginName
      * @param password
      * @param request
@@ -330,17 +330,19 @@ public class UserService {
         Map<String, Object> data = new HashMap<>();
         String msgTip = "";
         User user = null;
-        //鍒ゆ柇鐢ㄦ埛鏄惁宸茬粡鐧诲綍杩囷紝鐧诲綍杩囦笉鍐嶅鐞?        Object userId = redisService.getObjectFromSessionByKey(request,"userId");
+        //判断用户是否已经登录过，登录过不再处理
+        Object userId = redisService.getObjectFromSessionByKey(request,"userId");
         if (userId != null) {
-            logger.info("====鐢ㄦ埛宸茬粡鐧诲綍杩? login 鏂规硶璋冪敤缁撴潫====");
+            logger.info("====用户已经登录过, login 方法调用结束====");
             msgTip = "user already login";
         }
-        //鑾峰彇鐢ㄦ埛鐘舵€?        int userStatus = -1;
+        //获取用户状态
+        int userStatus = -1;
         try {
             redisService.deleteObjectBySession(request,"userId");
             userStatus = validateUser(loginName, password);
         } catch (Exception e) {
-            logger.error(">>>>>>>>>>>>>鐢ㄦ埛  " + loginName + " 鐧诲綍 login 鏂规硶 璁块棶鏈嶅姟灞傚紓甯?===", e);
+            logger.error(">>>>>>>>>>>>>用户  " + loginName + " 登录 login 方法 访问服务层异常====", e);
             msgTip = "access service exception";
         }
         String token = UUID.randomUUID().toString().replaceAll("-", "") + "";
@@ -365,7 +367,8 @@ public class UserService {
                 break;
             case ExceptionCodeConstants.UserExceptionCode.USER_CONDITION_FIT:
                 msgTip = "user can login";
-                //楠岃瘉閫氳繃 锛屽彲浠ョ櫥褰曪紝鏀惧叆session锛岃褰曠櫥褰曟棩蹇?                user = getUserByLoginName(loginName);
+                //验证通过 ，可以登录，放入session，记录登录日志
+                user = getUserByLoginName(loginName);
                 if(user.getTenantId()!=null) {
                     token = token + "_" + user.getTenantId();
                 }
@@ -376,16 +379,18 @@ public class UserService {
         }
         data.put("msgTip", msgTip);
         if(user!=null){
-            //鏍￠獙涓嬪瘑鐮佹槸涓嶆槸杩囦簬绠€鍗?            boolean pwdSimple = false;
+            //校验下密码是不是过于简单
+            boolean pwdSimple = false;
             if(user.getPassword().equals(Tools.md5Encryp(BusinessConstants.USER_DEFAULT_PASSWORD))) {
                 pwdSimple = true;
             }
             user.setPassword(null);
             if (PermissionUtil.isDefaultManager(user.getLoginName())) {
-                //濡傛灉鏄鐞嗗憳锛屽垯鍙戦€佺櫥褰曢偖浠?                sendEmailToCurrentUser(request, user);
+                //如果是管理员，则发送登录邮件
+                sendEmailToCurrentUser(request, user);
             }
             redisService.storageObjectBySession(token,"clientIp", Tools.getLocalIp(request));
-            logService.insertLogWithUserId(user.getId(), user.getTenantId(), "鐢ㄦ埛",
+            logService.insertLogWithUserId(user.getId(), user.getTenantId(), "用户",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_LOGIN).append(user.getLoginName()).toString(),
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
             data.put("token", token);
@@ -396,7 +401,7 @@ public class UserService {
     }
 
     public int validateUser(String loginName, String password) throws Exception {
-        /**榛樿鏄彲浠ョ櫥褰曠殑*/
+        /**默认是可以登录的*/
         List<User> list = null;
         try {
             UserExample example = new UserExample();
@@ -420,7 +425,7 @@ public class UserService {
                 }
             }
         } catch (Exception e) {
-            logger.error(">>>>>>>>璁块棶楠岃瘉鐢ㄦ埛濮撳悕鏄惁瀛樺湪鍚庡彴淇℃伅寮傚父", e);
+            logger.error(">>>>>>>>访问验证用户姓名是否存在后台信息异常", e);
             return ExceptionCodeConstants.UserExceptionCode.USER_ACCESS_EXCEPTION;
         }
         try {
@@ -432,7 +437,7 @@ public class UserService {
                 return ExceptionCodeConstants.UserExceptionCode.USER_PASSWORD_ERROR;
             }
         } catch (Exception e) {
-            logger.error(">>>>>>>>>>璁块棶楠岃瘉鐢ㄦ埛瀵嗙爜鍚庡彴淇℃伅寮傚父", e);
+            logger.error(">>>>>>>>>>访问验证用户密码后台信息异常", e);
             return ExceptionCodeConstants.UserExceptionCode.USER_ACCESS_EXCEPTION;
         }
         return ExceptionCodeConstants.UserExceptionCode.USER_CONDITION_FIT;
@@ -456,7 +461,7 @@ public class UserService {
     }
 
     /**
-     * 鍙戦€侀偖浠剁粰褰撳墠鐢ㄦ埛
+     * 发送邮件给当前用户
      * @param request
      * @param user
      * @throws Exception
@@ -468,9 +473,9 @@ public class UserService {
         String emailSmtpHost = platformConfigService.getPlatformConfigByKey("email_smtp_host").getPlatformValue();
         if(StringUtil.isNotEmpty(emailFrom) && StringUtil.isNotEmpty(emailAuthCode) && StringUtil.isNotEmpty(emailSmtpHost)
                 && StringUtil.isNotEmpty(user.getEmail())) {
-            String emailSubject = "鐢ㄦ埛" + user.getLoginName() + "鎴愬姛鐧诲綍" + platformName;
-            String emailBody = "鐢ㄦ埛" + user.getLoginName() + "鎴愬姛鐧诲綍" + platformName + "锛岀櫥褰曟椂闂达細" + Tools.getCenternTime(new Date())
-                    + "锛岀櫥褰旾P锛? + Tools.getLocalIp(request);
+            String emailSubject = "用户" + user.getLoginName() + "成功登录" + platformName;
+            String emailBody = "用户" + user.getLoginName() + "成功登录" + platformName + "，登录时间：" + Tools.getCenternTime(new Date())
+                    + "，登录IP：" + Tools.getLocalIp(request);
             platformConfigService.sendEmail(emailFrom, emailAuthCode, emailSmtpHost, user.getEmail(), emailSubject, emailBody);
         }
     }
@@ -492,7 +497,7 @@ public class UserService {
     /**
      * create by: cjl
      * description:
-     *  鑾峰彇褰撳墠鐢ㄦ埛淇℃伅
+     *  获取当前用户信息
      * create time: 2019/1/24 10:01
      * @Param:
      * @return com.jsh.erp.datasource.entities.User
@@ -504,7 +509,7 @@ public class UserService {
     }
 
     /**
-     * 鏍规嵁鐢ㄦ埛鍚嶆煡璇d
+     * 根据用户名查询id
      * @param loginName
      * @return
      */
@@ -526,20 +531,20 @@ public class UserService {
             throw new BusinessRunTimeException(ExceptionConstants.USER_NAME_LIMIT_USE_CODE,
                     ExceptionConstants.USER_NAME_LIMIT_USE_MSG);
         } else {
-            logService.insertLog("鐢ㄦ埛",
+            logService.insertLog("用户",
                     BusinessConstants.LOG_OPERATION_TYPE_ADD,
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
-            //妫€鏌ョ敤鎴峰悕鍜岀櫥褰曞悕
+            //检查用户名和登录名
             checkLoginName(ue);
-            //鏂板鐢ㄦ埛淇℃伅
+            //新增用户信息
             ue= this.addUser(ue);
             if(ue==null){
-                logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,[{}]",
+                logger.error("异常码[{}],异常提示[{}],参数,[{}]",
                         ExceptionConstants.USER_ADD_FAILED_CODE,ExceptionConstants.USER_ADD_FAILED_MSG);
                 throw new BusinessRunTimeException(ExceptionConstants.USER_ADD_FAILED_CODE,
                         ExceptionConstants.USER_ADD_FAILED_MSG);
             }
-            //鐢ㄦ埛id锛屾牴鎹敤鎴峰悕鏌ヨid
+            //用户id，根据用户名查询id
             Long userId = getIdByLoginName(ue.getLoginName());
             if(ue.getRoleId()!=null){
                 JSONObject ubObj = new JSONObject();
@@ -549,24 +554,27 @@ public class UserService {
                 userBusinessService.insertUserBusiness(ubObj, request);
             }
             if(ue.getOrgaId()==null){
-                //濡傛灉娌℃湁閫夋嫨鏈烘瀯锛屽氨涓嶅缓鏈烘瀯鍜岀敤鎴风殑鍏宠仈鍏崇郴
+                //如果没有选择机构，就不建机构和用户的关联关系
                 return;
             }
             if(ue.getOrgaId()!=null && "1".equals(ue.getLeaderFlag())){
-                //妫€鏌ュ綋鍓嶆満鏋勬槸鍚﹀瓨鍦ㄧ粡鐞?                List<User> checkList = userMapperEx.getListByOrgaId(ue.getId(), ue.getOrgaId());
+                //检查当前机构是否存在经理
+                List<User> checkList = userMapperEx.getListByOrgaId(ue.getId(), ue.getOrgaId());
                 if(checkList.size()>0) {
                     throw new BusinessRunTimeException(ExceptionConstants.USER_LEADER_IS_EXIST_CODE,
                             ExceptionConstants.USER_LEADER_IS_EXIST_MSG);
                 }
             }
-            //鏂板鐢ㄦ埛鍜屾満鏋勫叧鑱斿叧绯?            OrgaUserRel oul=new OrgaUserRel();
-            //鏈烘瀯id
+            //新增用户和机构关联关系
+            OrgaUserRel oul=new OrgaUserRel();
+            //机构id
             oul.setOrgaId(ue.getOrgaId());
             oul.setUserId(userId);
-            //鐢ㄦ埛鍦ㄦ満鏋勪腑鐨勬帓搴?            oul.setUserBlngOrgaDsplSeq(ue.getUserBlngOrgaDsplSeq());
+            //用户在机构中的排序
+            oul.setUserBlngOrgaDsplSeq(ue.getUserBlngOrgaDsplSeq());
             oul=orgaUserRelService.addOrgaUserRel(oul);
             if(oul==null){
-                logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,[{}]",
+                logger.error("异常码[{}],异常提示[{}],参数,[{}]",
                         ExceptionConstants.ORGA_USER_REL_ADD_FAILED_CODE,ExceptionConstants.ORGA_USER_REL_ADD_FAILED_MSG);
                 throw new BusinessRunTimeException(ExceptionConstants.ORGA_USER_REL_ADD_FAILED_CODE,
                         ExceptionConstants.ORGA_USER_REL_ADD_FAILED_MSG);
@@ -576,11 +584,11 @@ public class UserService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public UserEx addUser(UserEx ue) throws Exception{
         /**
-         * 鏂板鐢ㄦ埛榛樿璁剧疆
-         * 1銆佸瘑鐮侀粯璁?23456
-         * 2鏄惁绯荤粺鑷甫榛樿涓洪潪绯荤粺鑷甫
-         * 3鏄惁绠＄悊鑰呴粯璁や负鍛樺伐
-         * 4榛樿鐢ㄦ埛鐘舵€佷负姝ｅ父
+         * 新增用户默认设置
+         * 1、密码默认123456
+         * 2是否系统自带默认为非系统自带
+         * 3是否管理者默认为员工
+         * 4默认用户状态为正常
          * */
         ue.setPassword(Tools.md5Encryp(BusinessConstants.USER_DEFAULT_PASSWORD));
         ue.setIsystem(BusinessConstants.USER_NOT_SYSTEM);
@@ -603,7 +611,8 @@ public class UserService {
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void registerUser(UserEx ue, Integer manageRoleId, HttpServletRequest request) throws Exception{
         /**
-         * 澶氭鍒涘缓浜嬪姟锛屼簨鐗╀箣闂存棤娉曞崗鍚岋紝搴旇鍦ㄥ叆鍙ｅ鍒涘缓涓€涓簨鍔′互鍋氬崗璋?         */
+         * 多次创建事务，事物之间无法协同，应该在入口处创建一个事务以做协调
+         */
         if (PermissionUtil.isDefaultManager(ue.getLoginName())) {
             throw new BusinessRunTimeException(ExceptionConstants.USER_NAME_LIMIT_USE_CODE,
                     ExceptionConstants.USER_NAME_LIMIT_USE_MSG);
@@ -621,12 +630,12 @@ public class UserService {
             }catch(Exception e){
                 JshException.writeFail(logger, e);
             }
-            //鏇存柊绉熸埛id
+            //更新租户id
             User user = new User();
             user.setId(ue.getId());
             user.setTenantId(ue.getId());
             userService.updateUserTenant(user);
-            //鏂板鐢ㄦ埛涓庤鑹茬殑鍏崇郴
+            //新增用户与角色的关系
             JSONObject ubObj = new JSONObject();
             ubObj.put("type", "UserRole");
             ubObj.put("keyid", ue.getId());
@@ -635,7 +644,7 @@ public class UserService {
             ubObj.put("value", ubArr.toString());
             ubObj.put("tenantId", ue.getId());
             userBusinessService.insertUserBusiness(ubObj, null);
-            //鍒涘缓绉熸埛淇℃伅
+            //创建租户信息
             JSONObject tenantObj = new JSONObject();
             tenantObj.put("tenantId", ue.getId());
             tenantObj.put("loginName",ue.getLoginName());
@@ -645,12 +654,13 @@ public class UserService {
             Tenant tenant = JSONObject.parseObject(tenantObj.toJSONString(), Tenant.class);
             tenant.setCreateTime(new Date());
             if(tenant.getUserNumLimit()==null) {
-                tenant.setUserNumLimit(userNumLimit); //榛樿鐢ㄦ埛闄愬埗鏁伴噺
+                tenant.setUserNumLimit(userNumLimit); //默认用户限制数量
             }
             if(tenant.getExpireTime()==null) {
-                tenant.setExpireTime(Tools.addDays(new Date(), tryDayLimit)); //绉熸埛鍏佽璇曠敤鐨勫ぉ鏁?            }
+                tenant.setExpireTime(Tools.addDays(new Date(), tryDayLimit)); //租户允许试用的天数
+            }
             tenantMapper.insertSelective(tenant);
-            logger.info("===============鍒涘缓绉熸埛淇℃伅瀹屾垚===============");
+            logger.info("===============创建租户信息完成===============");
         }
     }
 
@@ -671,15 +681,15 @@ public class UserService {
             throw new BusinessRunTimeException(ExceptionConstants.USER_NAME_LIMIT_USE_CODE,
                     ExceptionConstants.USER_NAME_LIMIT_USE_MSG);
         } else {
-            logService.insertLog("鐢ㄦ埛",
+            logService.insertLog("用户",
                     new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_EDIT).append(ue.getId()).toString(),
                     ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
-            //妫€鏌ョ敤鎴峰悕鍜岀櫥褰曞悕
+            //检查用户名和登录名
             checkLoginName(ue);
-            //鏇存柊鐢ㄦ埛淇℃伅
+            //更新用户信息
             ue = this.updateUser(ue);
             if (ue == null) {
-                logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,[{}]",
+                logger.error("异常码[{}],异常提示[{}],参数,[{}]",
                         ExceptionConstants.USER_EDIT_FAILED_CODE, ExceptionConstants.USER_EDIT_FAILED_MSG);
                 throw new BusinessRunTimeException(ExceptionConstants.USER_EDIT_FAILED_CODE,
                         ExceptionConstants.USER_EDIT_FAILED_MSG);
@@ -698,33 +708,36 @@ public class UserService {
                 }
             }
             if (ue.getOrgaId() == null) {
-                //濡傛灉娌℃湁閫夋嫨鏈烘瀯锛屽氨涓嶅缓鏈烘瀯鍜岀敤鎴风殑鍏宠仈鍏崇郴
+                //如果没有选择机构，就不建机构和用户的关联关系
                 return;
             }
             if(ue.getOrgaId()!=null && "1".equals(ue.getLeaderFlag())){
-                //妫€鏌ュ綋鍓嶆満鏋勬槸鍚﹀瓨鍦ㄧ粡鐞?                List<User> checkList = userMapperEx.getListByOrgaId(ue.getId(), ue.getOrgaId());
+                //检查当前机构是否存在经理
+                List<User> checkList = userMapperEx.getListByOrgaId(ue.getId(), ue.getOrgaId());
                 if(checkList.size()>0) {
                     throw new BusinessRunTimeException(ExceptionConstants.USER_LEADER_IS_EXIST_CODE,
                             ExceptionConstants.USER_LEADER_IS_EXIST_MSG);
                 }
             }
-            //鏇存柊鐢ㄦ埛鍜屾満鏋勫叧鑱斿叧绯?            OrgaUserRel oul = new OrgaUserRel();
-            //鏈烘瀯鍜岀敤鎴峰叧鑱斿叧绯籭d
+            //更新用户和机构关联关系
+            OrgaUserRel oul = new OrgaUserRel();
+            //机构和用户关联关系id
             oul.setId(ue.getOrgaUserRelId());
-            //鏈烘瀯id
+            //机构id
             oul.setOrgaId(ue.getOrgaId());
-            //鐢ㄦ埛id
+            //用户id
             oul.setUserId(ue.getId());
-            //鐢ㄦ埛鍦ㄦ満鏋勪腑鐨勬帓搴?            oul.setUserBlngOrgaDsplSeq(ue.getUserBlngOrgaDsplSeq());
+            //用户在机构中的排序
+            oul.setUserBlngOrgaDsplSeq(ue.getUserBlngOrgaDsplSeq());
             if (oul.getId() != null) {
-                //宸插瓨鍦ㄦ満鏋勫拰鐢ㄦ埛鐨勫叧鑱斿叧绯伙紝鏇存柊
+                //已存在机构和用户的关联关系，更新
                 oul = orgaUserRelService.updateOrgaUserRel(oul);
             } else {
-                //涓嶅瓨鍦ㄦ満鏋勫拰鐢ㄦ埛鐨勫叧鑱斿叧绯伙紝鏂板缓
+                //不存在机构和用户的关联关系，新建
                 oul = orgaUserRelService.addOrgaUserRel(oul);
             }
             if (oul == null) {
-                logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,[{}]",
+                logger.error("异常码[{}],异常提示[{}],参数,[{}]",
                         ExceptionConstants.ORGA_USER_REL_EDIT_FAILED_CODE, ExceptionConstants.ORGA_USER_REL_EDIT_FAILED_MSG);
                 throw new BusinessRunTimeException(ExceptionConstants.ORGA_USER_REL_EDIT_FAILED_CODE,
                         ExceptionConstants.ORGA_USER_REL_EDIT_FAILED_MSG);
@@ -745,7 +758,7 @@ public class UserService {
         return null;
     }
     /**
-     *  妫€鏌ョ櫥褰曞悕涓嶈兘閲嶅
+     *  检查登录名不能重复
      * create time: 2019/3/12 11:36
      * @Param: userEx
      * @return void
@@ -756,20 +769,22 @@ public class UserService {
             return;
         }
         Long userId=userEx.getId();
-        //妫€鏌ョ櫥褰曞悕
+        //检查登录名
         if(!StringUtils.isEmpty(userEx.getLoginName())){
             String loginName=userEx.getLoginName();
             list=this.getUserListByloginName(loginName);
             if(list!=null&&list.size()>0){
                 if(list.size()>1){
-                    //瓒呰繃涓€鏉℃暟鎹瓨鍦紝璇ョ櫥褰曞悕宸插瓨鍦?                    logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,loginName:[{}]",
+                    //超过一条数据存在，该登录名已存在
+                    logger.error("异常码[{}],异常提示[{}],参数,loginName:[{}]",
                             ExceptionConstants.USER_LOGIN_NAME_ALREADY_EXISTS_CODE,ExceptionConstants.USER_LOGIN_NAME_ALREADY_EXISTS_MSG,loginName);
                     throw new BusinessRunTimeException(ExceptionConstants.USER_LOGIN_NAME_ALREADY_EXISTS_CODE,
                             ExceptionConstants.USER_LOGIN_NAME_ALREADY_EXISTS_MSG);
                 }
-                //涓€鏉℃暟鎹紝鏂板鏃舵姏鍑哄紓甯革紝淇敼鏃跺拰褰撳墠鐨刬d涓嶅悓鏃舵姏鍑哄紓甯?                if(list.size()==1){
+                //一条数据，新增时抛出异常，修改时和当前的id不同时抛出异常
+                if(list.size()==1){
                     if(userId==null||(userId!=null&&!userId.equals(list.get(0).getId()))){
-                        logger.error("寮傚父鐮乕{}],寮傚父鎻愮ず[{}],鍙傛暟,loginName:[{}]",
+                        logger.error("异常码[{}],异常提示[{}],参数,loginName:[{}]",
                                 ExceptionConstants.USER_LOGIN_NAME_ALREADY_EXISTS_CODE,ExceptionConstants.USER_LOGIN_NAME_ALREADY_EXISTS_MSG,loginName);
                         throw new BusinessRunTimeException(ExceptionConstants.USER_LOGIN_NAME_ALREADY_EXISTS_CODE,
                                 ExceptionConstants.USER_LOGIN_NAME_ALREADY_EXISTS_MSG);
@@ -779,7 +794,8 @@ public class UserService {
         }
     }
     /**
-     * 閫氳繃鐧诲綍鍚嶈幏鍙栫敤鎴峰垪琛?     * */
+     * 通过登录名获取用户列表
+     * */
     public List<User> getUserListByloginName(String loginName){
         List<User> list =null;
         try{
@@ -801,7 +817,7 @@ public class UserService {
     }
 
     /**
-     * 鏍规嵁鐢ㄦ埛id鏌ヨ瑙掕壊淇℃伅
+     * 根据用户id查询角色信息
      * @param userId
      * @return
      */
@@ -827,7 +843,7 @@ public class UserService {
     }
 
     /**
-     * 鑾峰彇鐢ㄦ埛id
+     * 获取用户id
      * @param request
      * @return
      */
@@ -841,7 +857,8 @@ public class UserService {
     }
 
     /**
-     * 鐢ㄦ埛鐨勬寜閽潈闄?     * @param userId
+     * 用户的按钮权限
+     * @param userId
      * @return
      * @throws Exception
      */
@@ -851,7 +868,7 @@ public class UserService {
         if(userRoleList!=null && userRoleList.size()>0) {
             String roleValue = userRoleList.get(0).getValue();
             if(StringUtil.isNotEmpty(roleValue) && roleValue.indexOf("[")>-1 && roleValue.indexOf("]")>-1){
-                roleValue = roleValue.replace("[", "").replace("]", ""); //瑙掕壊id-鍗曚釜
+                roleValue = roleValue.replace("[", "").replace("]", ""); //角色id-单个
                 List<UserBusiness> roleFunctionsList = userBusinessService.getBasicData(roleValue, "RoleFunctions");
                 if(roleFunctionsList!=null && roleFunctionsList.size()>0) {
                     String btnStr = roleFunctionsList.get(0).getBtnStr();
@@ -861,7 +878,7 @@ public class UserService {
                 }
             }
         }
-        //灏嗘暟缁勪腑鐨刦unId杞负url
+        //将数组中的funId转为url
         JSONArray btnStrWithUrlArr = new JSONArray();
         if(btnStrArr.size()>0) {
             List<Function> functionList = functionService.getFunction();
@@ -883,11 +900,12 @@ public class UserService {
 
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public int batchSetStatus(Byte status, String ids, HttpServletRequest request)throws Exception {
-        logService.insertLog("鐢ㄦ埛",
+        logService.insertLog("用户",
                 new StringBuffer(BusinessConstants.LOG_OPERATION_TYPE_ENABLED).toString(),
                 ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest());
         List<Long> idList = StringUtil.strToLongList(ids);
-        //杩囨护鎺夌鎴疯嚜韬紝绉熸埛涓嶈兘琚鐢?        User userInfo = userService.getCurrentUser();
+        //过滤掉租户自身，租户不能被禁用
+        User userInfo = userService.getCurrentUser();
         if(userInfo != null && userInfo.getTenantId() != null) {
             Long tenantId = userInfo.getTenantId();
             idList.remove(tenantId);
